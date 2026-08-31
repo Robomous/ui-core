@@ -1,3 +1,7 @@
+<img src="https://cdn.robomous.ai/public-images/robomous-banner.svg" alt="Robomous.ai" width=300 />
+
+-----
+
 # @robomous/ui-core
 
 The Robomous design system: shadcn Nova primitives under Radix behaviour, the foundation design
