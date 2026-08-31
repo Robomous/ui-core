@@ -16,7 +16,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "test": "vitest run",
-    "test:gates": "node --test gates/",
+    "test:gates": "node --test gates/*.test.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint src && pnpm run typecheck",
     "shadcn:add": "bash scripts/shadcn_add.sh"
