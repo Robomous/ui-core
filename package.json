@@ -10,7 +10,7 @@
   "exports": {
     ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
     "./styles.css": "./src/styles.css",
-    "./gates": "./gates/index.mjs"
+    "./gates": { "types": "./gates/index.d.mts", "import": "./gates/index.mjs" }
   },
   "files": ["dist", "src", "gates", "shadcn", "components.json"],
   "scripts": {
