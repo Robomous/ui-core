@@ -1,8 +1,11 @@
 import { readFileSync, writeFileSync } from "node:fs";
 
+// The `.js` extensions are not optional: the package ships `dist/` as ESM,
+// and Node's resolver — which consumers' test runners use for node_modules —
+// requires explicit extensions on relative imports.
 const RULES = [
-  [/from "@\/lib\/cn"/g, 'from "../lib/cn"'],
-  [/from "@\/primitives\/([a-z-]+)"/g, 'from "./$1"'],
+  [/from "@\/lib\/cn"/g, 'from "../lib/cn.js"'],
+  [/from "@\/primitives\/([a-z-]+)"/g, 'from "./$1.js"'],
 ];
 
 export function relativize(source) {
