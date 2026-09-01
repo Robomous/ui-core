@@ -215,7 +215,7 @@ test("components.json holds the schema-supported preset fields, and no others", 
   // The preset's own values, where the schema does have a field for them.
   assert.equal(config.style, "radix-nova");
   assert.equal(config.iconLibrary, "lucide");
-  assert.equal(config.menuColor, "inverted");
+  assert.equal(config.menuColor, "default");
   assert.equal(config.menuAccent, "subtle");
   assert.equal(config.tailwind.baseColor, "neutral");
   assert.equal(config.tailwind.css, "src/styles.css");

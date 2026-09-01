@@ -47,7 +47,7 @@ Preset `b2iH`, generated with shadcn CLI **4.19.0**, decodes to:
 | `font` | `geist` | `styles.css` → `--font-sans: 'Geist Variable', sans-serif` |
 | `heading` | `inherit` | `styles.css` → `--font-heading: var(--font-sans)` |
 | `radius` | `medium` | `styles.css` → `--radius: 0.625rem` |
-| `menu` | `inverted` / `subtle` | `components.json` → `menuColor`, `menuAccent` |
+| `menu` | `default` / `subtle` | `components.json` → `menuColor`, `menuAccent` |
 | `pointer` | on | `styles.css` base layer → `cursor: pointer` on pressable controls |
 
 **What `components.json` can hold** is its whole current content: `style`, `rsc` (`false`),
@@ -121,11 +121,13 @@ it correctly, and the gate and this section move together or not at all.
 This package itself has **zero brand sites**: it declares the `--brand` token and never paints
 with it, and `gates/tokens.test.mjs` enforces that.
 
-### Menus and the inverted subtree
+### Menus and the page's palette
 
-`menuColor: inverted` means every menu, select and combobox surface carries the literal `dark`
-class, so a floating surface is the dark theme's `popover` whatever the page is doing. That is
-contrast on purpose. The tooltip reaches the same intent without a subtree — Nova gives it
+`menuColor: default` means a menu, select or combobox surface paints on the same `popover`
+tokens as the page around it, and follows that page from light to dark. Nova's alternative,
+`inverted`, gives each of those surfaces the literal `dark` class, so a floating panel is the
+dark theme's `popover` whatever the page is doing; in a light application it arrives as a black
+rectangle that reads as a different product. The tooltip is not a counterexample: Nova paints it
 `bg-foreground text-background`, which flips by construction, because one line of text has no
 palette of its own to keep in step. `menuAccent: subtle` means items highlight with `accent`,
 the token every other hover state uses.
