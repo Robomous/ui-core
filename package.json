@@ -1,6 +1,6 @@
 {
   "name": "@robomous/ui-core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Robomous design system: shadcn Nova primitives under Radix behaviour, design tokens, and the gates that keep them canonical. Extracted from Robomous/VisionSet.",
   "license": "Apache-2.0",
   "repository": { "type": "git", "url": "https://github.com/Robomous/ui-core.git" },
