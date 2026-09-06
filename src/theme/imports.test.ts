@@ -1,0 +1,122 @@
+// @vitest-environment node
+/**
+ * Every package `styles.css` imports is really installed.
+ *
+ * The stylesheet ships as **source**: `exports["./styles.css"]` hands a consumer
+ * the file itself, and the consumer's Tailwind build is what resolves the
+ * `@import`s in it. So a package named there is a genuine runtime dependency of
+ * this one, and dropping it from `package.json` breaks every consumer while
+ * leaving `pnpm lint`, `pnpm build` and `pnpm test` green — nothing here
+ * compiles CSS, so nothing here notices.
+ *
+ * That is exactly how `shadcn` came to be removed: an audit grepped for
+ * `from "shadcn"`, found none, and never saw `@import "shadcn/tailwind.css"`.
+ * A rule nothing checks is a preference; this is the check.
+ *
+ * Resolution goes through the package's own `exports` map with the `style`
+ * condition first, because that is the condition a CSS bundler asks for and
+ * some of these packages expose their stylesheet under no other — Node's own
+ * `import.meta.resolve` asks for `import`/`require` and would report a
+ * correctly installed package as missing.
+ */
+
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { expect, test } from "vitest";
+
+const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+const MODULES = path.join(REPO, "node_modules");
+const STYLESHEET = readFileSync(path.join(REPO, "src/theme/styles.css"), "utf8");
+
+/** The conditions a CSS bundler offers, most specific first. */
+const CONDITIONS = ["style", "default", "import", "require"];
+
+/**
+ * Every bare-package specifier the stylesheet imports, in source order. A
+ * relative import needs no package and a URL needs no filesystem, so neither is
+ * this gate's business.
+ */
+function bareImportsIn(css: string): string[] {
+  return [...css.matchAll(/^\s*@import\s+["']([^"']+)["']/gm)]
+    .map((match) => match[1])
+    .filter((spec) => !/^[./]|^https?:/.test(spec));
+}
+
+/** `"@scope/pkg/a/b"` → `["@scope/pkg", "./a/b"]`; `"pkg"` → `["pkg", "."]`. */
+function splitSpecifier(spec: string): [name: string, subpath: string] {
+  const segments = spec.split("/");
+  const name = spec.startsWith("@") ? segments.slice(0, 2).join("/") : segments[0];
+  const rest = spec.slice(name.length);
+  return [name, rest === "" ? "." : `.${rest}`];
+}
+
+/** The first branch of a conditional export any of `CONDITIONS` selects. */
+function pickCondition(node: unknown): string | null {
+  if (typeof node === "string") return node;
+  if (node === null || typeof node !== "object") return null;
+  const branches = node as Record<string, unknown>;
+  for (const condition of CONDITIONS) {
+    if (condition in branches) {
+      const picked = pickCondition(branches[condition]);
+      if (picked !== null) return picked;
+    }
+  }
+  return null;
+}
+
+/** Where a package's `exports` (or its legacy fields) send one subpath. */
+function targetOf(manifest: Record<string, unknown>, subpath: string): string | null {
+  const map = manifest.exports;
+  if (map === undefined) {
+    // No exports map: "." is the package's own stylesheet field, and any other
+    // subpath is a plain path inside the package.
+    if (subpath !== ".") return subpath;
+    return (manifest.style as string) ?? (manifest.main as string) ?? null;
+  }
+  if (typeof map === "string") return subpath === "." ? map : null;
+  const entries = map as Record<string, unknown>;
+  if (subpath in entries) return pickCondition(entries[subpath]);
+  // An exports map that is conditions all the way down is shorthand for ".".
+  if (subpath === "." && !Object.keys(entries).some((key) => key.startsWith("."))) {
+    return pickCondition(entries);
+  }
+  return null;
+}
+
+/** The file a specifier lands on, or why it lands nowhere. */
+function resolveStyleImport(spec: string): { file: string } | { reason: string } {
+  const [name, subpath] = splitSpecifier(spec);
+  const root = path.join(MODULES, ...name.split("/"));
+  const manifestPath = path.join(root, "package.json");
+  if (!existsSync(manifestPath)) {
+    return { reason: `${name} is not installed — it is missing from package.json dependencies` };
+  }
+  const target = targetOf(JSON.parse(readFileSync(manifestPath, "utf8")), subpath);
+  if (target === null) {
+    return { reason: `${name} declares no export for ${subpath}` };
+  }
+  const file = path.join(root, target);
+  if (!existsSync(file)) {
+    return { reason: `${name} exports ${subpath} as ${target}, which does not exist` };
+  }
+  return { file };
+}
+
+test("every package the stylesheet imports is installed and exports the file it names", () => {
+  const specs = bareImportsIn(STYLESHEET);
+  expect(specs.length > 0, "the stylesheet named no packages, so this proves nothing").toBe(true);
+
+  const broken = specs
+    .map((spec) => ({ spec, result: resolveStyleImport(spec) }))
+    .filter((entry) => "reason" in entry.result)
+    .map((entry) => `@import "${entry.spec}": ${(entry.result as { reason: string }).reason}`);
+
+  expect(
+    broken,
+    "styles.css ships as source and the consumer's Tailwind build resolves these, so an " +
+      "unresolvable @import breaks every consumer and nothing in this repository compiles " +
+      `CSS to catch it:\n${broken.join("\n")}`,
+  ).toEqual([]);
+});

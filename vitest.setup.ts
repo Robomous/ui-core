@@ -113,7 +113,7 @@ const revoked = new Set<string>();
 // declares the property and leaves it `undefined` would satisfy neither `??=` nor
 // a call, and the difference is invisible until CI.
 if (typeof URL.createObjectURL !== "function") {
-  URL.createObjectURL = () => `blob:visionset/${++objectUrls}`;
+  URL.createObjectURL = () => `blob:ui-core/${++objectUrls}`;
 }
 if (typeof URL.revokeObjectURL !== "function") {
   URL.revokeObjectURL = (url: string) => {

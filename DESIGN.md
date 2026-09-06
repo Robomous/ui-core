@@ -343,8 +343,17 @@ pnpm dlx shadcn@latest add <name>
 
 That is the whole procedure. The CLI reads [`components.json`](components.json) — the style, the
 base colour, the icon library, the menu settings, the stylesheet's path and the `@/components`
-alias — and writes the component into `src/components/`. `pnpm dlx` fetches the CLI on demand, so
-it is not a dependency of this package and nothing a consumer installs drags it along.
+alias — and writes the component into `src/components/`. `pnpm dlx` fetches the CLI on demand,
+so nobody has to install a tool to add a component.
+
+The `shadcn` package is nevertheless a real dependency of this one, for a reason that has nothing
+to do with the CLI: `styles.css` opens with `@import "shadcn/tailwind.css"`, and the stylesheet
+ships as **source** for the consumer's own Tailwind build to compile. So that import resolves in
+the consumer's tree, not in this one, and dropping the package would break every consumer while
+every check here stayed green — there is no CSS build in this repository to notice.
+`src/theme/imports.test.ts` is the check: it resolves every package the stylesheet imports
+through that package's own `exports` map, under the `style` condition a CSS bundler asks for, and
+fails naming the specifier that landed nowhere.
 
 **What arrives is a starting point, not a contract.** The generated file is a first draft written
 by a tool that has never seen this product. Read it, then edit it: rename a prop, drop a
@@ -428,6 +437,7 @@ the gates.
 | [`src/gates/tokens.test.ts`](src/gates/tokens.test.ts) | No colour in a class string; the brand paints nothing here; the tokens have one home; `components.json` within the schema-supported key set; one icon set |
 | [`src/gates/design.test.ts`](src/gates/design.test.ts) | The status palette lives only in `Badge` and `statusTone`; no rival colour family; each status Badge variant is a soft surface and readable ink, never a stroke |
 | [`src/theme/tokens.test.ts`](src/theme/tokens.test.ts) | `styles.css` and `tokens.ts` agree declaration for declaration; the radius scale derives; no retired token has returned; no stylesheet-level focus geometry |
+| [`src/theme/imports.test.ts`](src/theme/imports.test.ts) | Every package `styles.css` imports is installed and exports the file it names |
 | [`src/components/components.test.tsx`](src/components/components.test.tsx) | The behaviours a screen would silently lose — the `className` merge, `asChild`, the announced error, and the four components whose API this restructure changed |
 
 Consumers run the same vocabulary scans over their own sources with the helpers published at

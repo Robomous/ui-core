@@ -124,6 +124,10 @@ es viable y permite eliminar `clsx` y `tailwind-merge` de `dependencies`.
 
 ### 3.6 El CLI de shadcn es una dependencia de runtime
 
+> **CORREGIDO durante la implementación — este hallazgo era falso.**
+> Ver §3.6-bis. Se conserva el texto original porque el plan y varios
+> fallos se apoyaron en él antes de que se refutara.
+
 `package.json` declara `"shadcn": "^4.19.0"` en `dependencies`, y **no se
 importa desde ningún archivo de `src/`**. Es la herramienta de línea de
 comandos: todo consumidor que instala `@robomous/ui-core` arrastra el CLI
@@ -133,6 +137,28 @@ Las demás dependencias sí se usan: `@base-ui/react` en `combobox.tsx`,
 `tw-animate-css` y `@fontsource-variable/geist` en `styles.css`,
 `class-variance-authority`, `lucide-react`, `radix-ui` y `sonner` en los
 componentes.
+
+### 3.6-bis Refutación: `shadcn` sí es una dependencia real
+
+La afirmación de §3.6 se apoyaba en un grep que solo cubría sintaxis de
+import de JavaScript (`from "shadcn"`). La hoja de estilos hace
+`@import "shadcn/tailwind.css"`, y el paquete publica
+`"./tailwind.css": "./dist/tailwind.css"` en su mapa de exports: el import
+es válido y resuelve **solo mientras el paquete esté instalado**.
+
+Quitarlo dejó el paquete roto para cualquier consumidor, sin que nada aquí
+lo notara: en este repositorio no se compila Tailwind — la hoja se publica
+como fuente y la compila el consumidor — así que `lint`, `build` y `test`
+siguen en verde con el paquete inservible. Habría fallado en los dos PRs
+de consumidores.
+
+`shadcn` vuelve a `dependencies`. **Las dependencias de runtime pasan de
+10 a 9**, no a 8: salen `clsx` y `tailwind-merge`, entra `cn`.
+
+La lección estructural: no había nada verificando que los `@import` de la
+hoja resolvieran. Se añade un guard que lo comprueba, por el mismo
+principio que gobierna al resto del paquete — una regla que nada verifica
+es una preferencia.
 
 ---
 
@@ -472,7 +498,7 @@ rechaza una etiqueta que no coincida con `package.json`.
 | --- | --- | --- |
 | Líneas eliminadas | — | ~2,600 |
 | Exports de `/gates` | 27 | 8 |
-| Dependencias de runtime | 10 | 8 (−`clsx`, −`tailwind-merge`, −`shadcn`, +`cn`) |
+| Dependencias de runtime | 10 | 9 (−`clsx`, −`tailwind-merge`, +`cn`) |
 | Comandos de test | 2 (`test`, `test:gates`) | 1 |
 | Pasos de CI | 4 | 3 |
 | Carpetas de código en la raíz | `src`, `gates`, `shadcn`, `scripts` | `src` |
