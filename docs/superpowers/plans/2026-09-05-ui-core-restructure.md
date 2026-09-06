@@ -366,10 +366,19 @@ it("grows and stops clamping its value when multiline", () => {
     </Select>,
   );
   const trigger = screen.getByRole("combobox", { name: "Export target" });
-  expect(trigger.className).toContain("h-auto");
+  expect(trigger.className).toContain("data-[size=default]:h-auto");
+  expect(trigger.className).not.toContain("data-[size=default]:h-8");
   expect(trigger.className).toContain("line-clamp-none");
+  expect(trigger.className).not.toContain("line-clamp-1");
 });
 ```
+
+Las dos aserciones negativas son el punto del test. `cn` (tailwind-merge)
+reemplaza una utilidad por otra **solo cuando comparten grupo y
+modificadores**. Un `h-auto` pelado no desplazaría a
+`data-[size=default]:h-8`: quedarían las dos en la lista y ganaría la del
+selector de atributo, más específico. Por eso las clases de `multiline`
+conservan el modificador.
 
 Verificar que `Select`, `SelectTrigger` y `SelectValue` estén en los imports del archivo; si falta alguno, añadirlo.
 
@@ -403,14 +412,15 @@ function SelectTrigger({
       data-size={size}
       className={cn(
         "flex w-fit items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pr-2 pl-2.5 text-sm whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        multiline && "h-auto min-h-8 *:data-[slot=select-value]:line-clamp-none",
+        multiline &&
+          "data-[size=default]:h-auto min-h-8 *:data-[slot=select-value]:line-clamp-none",
         className
       )}
       {...props}
     >
 ```
 
-`cn` resuelve el conflicto: `h-auto` reemplaza a `data-[size=default]:h-8` por pertenecer al mismo grupo de utilidades, y `line-clamp-none` reemplaza a `line-clamp-1`.
+Las clases conservan los modificadores de la cadena base (`data-[size=default]:`, `*:data-[slot=select-value]:`) porque tailwind-merge reemplaza dentro de un grupo **solo si los modificadores coinciden**. Con `h-auto` pelado, `data-[size=default]:h-8` sobreviviría y ganaría por especificidad. `min-h-8` conserva el piso de altura.
 
 - [ ] **Step 4: Correr el test para verificar que pasa**
 
