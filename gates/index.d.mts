@@ -4,14 +4,9 @@
  * its types are maintained here beside it.
  */
 
-// ---- rosters and vocabulary ----
-export function variantClasses(source: string, key: string): string;
-export const FOUNDATION_BADGE: string[];
-export function openTagsIn(text: string, tagName: string): { at: number; tag: string }[];
-export function legacyVocabularyIn(file: string, text: string): string[];
+// ---- status palette discipline ----
 export function statusPaletteIn(file: string, text: string): string[];
 export function competingStatusPaletteIn(file: string, text: string): string[];
-export function statusTokenUtilitiesIn(file: string, text: string): string[];
 
 // ---- colour discipline ----
 export function colouredClassesIn(file: string, text: string): string[];
@@ -19,14 +14,11 @@ export function brandUsagesIn(
   file: string,
   text: string,
 ): { file: string; at: number; text: string }[];
-export function retiredDeclarationsIn(text: string): string[];
 
 // ---- stylesheet parsing ----
-export function normalize(value: string): string;
 export function blockBody(css: string, header: string): string;
 export function rawDeclarations(block: string): Map<string, string>;
 export function declarations(block: string): Map<string, string>;
-export const SEMANTIC_NAMES: string[];
 
 // ---- foundation facts ----
 export function foundationTokenNames(): string[];

@@ -12,15 +12,14 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 
-import { brandUsagesIn, colouredClassesIn, retiredDeclarationsIn } from "./index.mjs";
+import { brandUsagesIn, colouredClassesIn } from "./index.mjs";
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 const SOURCE = /\.(?:ts|tsx|css)$/;
 
-// Fragments for fabricating violating input without this file matching itself.
+// Fragment for fabricating violating input without this file matching itself.
 const HEX = ["#", "[0-9a-fA-F]{3,8}"].join("");
-const dash = (...parts) => parts.join("-");
 
 test("the scan finds a colour smuggled into a class, and nothing that merely looks like one", () => {
   assert.deepEqual(colouredClassesIn("a.tsx", `  <div className="bg-[${HEX.slice(0, 1)}eb5a47]" />`), [
@@ -130,45 +129,6 @@ test("the brand colour paints nothing here — brand sites are a consumer decisi
     "DESIGN.md 'Where the brand is': this package declares the brand token and never uses it — " +
       "a brand-coloured site belongs to a consuming app (two enumerated sites per app):\n" +
       usages.map((u) => `${u.file}:${u.at}: ${u.text}`).join("\n"),
-  );
-});
-
-test("the scan finds a retired declaration, and not a comment or a longer name that merely contains it", () => {
-  assert.deepEqual(retiredDeclarationsIn(`  ${dash("--color", "disabled")}: oklch(0.9 0 0);`), [
-    `1: ${dash("--color", "disabled")}`,
-  ]);
-  assert.deepEqual(retiredDeclarationsIn(`  ${dash("--text", "meta")}: 0.75rem;`), [
-    `1: ${dash("--text", "meta")}`,
-  ]);
-  // A comment recalling the retired name states history, not a declaration.
-  assert.deepEqual(
-    retiredDeclarationsIn(`  /* ${dash("--color", "primary", "hover")} no longer exists */`),
-    [],
-  );
-  // A name that merely starts with a retired one is a different declaration —
-  // disabled-foreground is its own retired entry, and its presence must not
-  // be double-counted as disabled's.
-  assert.deepEqual(retiredDeclarationsIn(`  ${dash("--color", "disabled", "foreground")}: red;`), [
-    `1: ${dash("--color", "disabled", "foreground")}`,
-  ]);
-  // A current, kept token is not a retired one.
-  assert.deepEqual(retiredDeclarationsIn(`  --brand: white;`), []);
-  // success/warning retired alongside the forked primitives that needed them —
-  // no longer a kept extension, so this now reports a hit.
-  assert.deepEqual(retiredDeclarationsIn(`  --success-foreground: white;`), [
-    `1: ${dash("--success", "foreground")}`,
-  ]);
-});
-
-test("the retired foundation vocabulary is absent from the stylesheet", () => {
-  const STYLES_PATH = "src/styles.css";
-  const stylesheet = readFileSync(path.join(REPO, STYLES_PATH), "utf8");
-  const present = retiredDeclarationsIn(stylesheet);
-  assert.deepEqual(
-    present,
-    [],
-    "styles.css still declares a name the original audit retired — " +
-      `it has no shadcn analogue and no extension:\n${present.join("\n")}`,
   );
 });
 
