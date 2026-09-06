@@ -24,7 +24,6 @@ import { describe, expect, it } from "vitest";
 
 import { inlineLink } from "../lib/button";
 import { menuSurface } from "../lib/menu";
-import { progressAria } from "../lib/progress";
 import { twoLineTrigger } from "../lib/select";
 import { Alert, AlertDescription, AlertTitle } from "./alert";
 import { Badge } from "./badge";
@@ -323,14 +322,11 @@ describe("Tabs", () => {
 });
 
 describe("Progress", () => {
-  it("reports its value to assistive technology, not only as a width", () => {
-    // Canonical `Progress` reads `value` only to size the indicator and never
-    // forwards it to Radix's `Root`, so `progressAria` says it again — every
-    // caller in the product spreads it beside `value` for exactly this reason.
-    render(<Progress value={42} {...progressAria(42)} aria-label="Ingest" />);
-    expect(screen.getByRole("progressbar", { name: "Ingest" }).getAttribute("aria-valuenow")).toBe(
-      "42",
-    );
+  it("reports its value to assistive technology without help from the caller", () => {
+    render(<Progress value={42} aria-label="Ingest" />);
+    const bar = screen.getByRole("progressbar", { name: "Ingest" });
+    expect(bar.getAttribute("aria-valuenow")).toBe("42");
+    expect(bar.getAttribute("data-state")).not.toBe("indeterminate");
   });
 
   it("fills with the functional colour, and carries the data-slot a caller can restyle from", () => {
