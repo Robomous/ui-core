@@ -54,8 +54,7 @@ export default defineConfig({
   plugins: [react()],
   test: {
     environment: "jsdom",
-    // The vitest suites all live in src/. gates/*.test.mjs are node:test
-    // files, run by `pnpm test:gates` — vitest must not collect them.
+    // Every suite, including the gates' own tests, lives under src/.
     include: ["src/**/*.test.{ts,tsx}"],
     // Explicit imports from "vitest" in every test file, matching the annotator's
     // suite. Globals would make a test file's dependencies invisible.

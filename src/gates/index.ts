@@ -8,7 +8,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const PKG = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const PKG = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 const COMMENT = /^\s*(?:\/\/|\/\*|\*|#)/;
 
@@ -23,7 +23,7 @@ const COMMENT = /^\s*(?:\/\/|\/\*|\*|#)/;
 const STATUS_PALETTE = /\b(?:bg|text|border|ring|fill|stroke|from|to|via|outline|decoration|shadow)-(?:emerald|amber|sky)-\d/;
 
 /** Every `file:line` in `text` painting with the status palette, outside a comment. */
-export function statusPaletteIn(file, text) {
+export function statusPaletteIn(file: string, text: string): string[] {
   return text
     .split("\n")
     .map((line, index) => ({ line, at: index + 1 }))
@@ -39,7 +39,7 @@ export function statusPaletteIn(file, text) {
 const COMPETING_PALETTE = /\b(?:bg|text|border)-(?:green|lime|teal|yellow|orange|blue|cyan|red)-\d/;
 
 /** Every `file:line` in `text` reaching for a colour family that competes with the status palette. */
-export function competingStatusPaletteIn(file, text) {
+export function competingStatusPaletteIn(file: string, text: string): string[] {
   return text
     .split("\n")
     .map((line, index) => ({ line, at: index + 1 }))
@@ -68,7 +68,7 @@ const BRACKET_MIX = new RegExp(String.raw`-\[\s*color-mix\([^\]]*\]`);
 const ALLOWED_MIX = new RegExp(String.raw`-\[\s*${TOKEN_MIX}\]`);
 
 /** Every `file:line` in `text` that puts a colour inside a Tailwind class. */
-export function colouredClassesIn(file, text) {
+export function colouredClassesIn(file: string, text: string): string[] {
   return text
     .split("\n")
     .map((line, index) => ({ line, at: index + 1 }))
@@ -93,7 +93,10 @@ export function colouredClassesIn(file, text) {
 const BRAND_UTILITY = /\b(?:bg|text|border|ring|fill|stroke)-brand\b/;
 
 /** Every line in `text` that paints with the brand colour. */
-export function brandUsagesIn(file, text) {
+export function brandUsagesIn(
+  file: string,
+  text: string,
+): { file: string; at: number; text: string }[] {
   return text
     .split("\n")
     .map((line, index) => ({ line, at: index + 1 }))
@@ -104,7 +107,7 @@ export function brandUsagesIn(file, text) {
 // ---- stylesheet parsing (from src/theme/tokens.test.ts, translated TS→JS) ----
 
 /** Whitespace is presentation; a value that wraps is the same value — used internally by `rawDeclarations`. */
-function normalize(value) {
+function normalize(value: string): string {
   return value.replace(/\s+/g, " ").trim();
 }
 
@@ -113,7 +116,7 @@ function normalize(value) {
  * `.dark {`) appears first in the file, matched by brace depth rather than by
  * the next `\n}` so a nested `calc(...)` or `color-mix(...)` cannot fool it.
  */
-export function blockBody(css, header) {
+export function blockBody(css: string, header: string): string {
   const headerAt = css.indexOf(header);
   if (headerAt === -1) throw new Error(`stylesheet has no ${JSON.stringify(header)} block`);
   const braceAt = css.indexOf("{", headerAt);
@@ -128,8 +131,8 @@ export function blockBody(css, header) {
 }
 
 /** Every `--name: value;` declaration in a block, keyed WITH the leading `--`. */
-export function rawDeclarations(block) {
-  const map = new Map();
+export function rawDeclarations(block: string): Map<string, string> {
+  const map = new Map<string, string>();
   for (const match of block.matchAll(/(--[\w-]+):\s*([^;]+);/g)) {
     map.set(match[1], normalize(match[2]));
   }
@@ -137,8 +140,8 @@ export function rawDeclarations(block) {
 }
 
 /** The same, keyed WITHOUT the leading `--` — the shape `LIGHT_THEME` uses. */
-export function declarations(block) {
-  const map = new Map();
+export function declarations(block: string): Map<string, string> {
+  const map = new Map<string, string>();
   for (const [name, value] of rawDeclarations(block)) {
     map.set(name.slice(2), value);
   }
@@ -152,7 +155,7 @@ export function declarations(block) {
  * they can never drift from what actually runs. `radius` is a geometry
  * setting, not a colour token, and is excluded — it matches LIGHT_THEME's keys.
  */
-export function foundationTokenNames() {
+export function foundationTokenNames(): string[] {
   const css = readFileSync(path.join(PKG, "src/theme/styles.css"), "utf8");
   return [...declarations(blockBody(css, ":root {")).keys()].filter((n) => n !== "radius");
 }

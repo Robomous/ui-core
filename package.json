@@ -10,13 +10,12 @@
   "exports": {
     ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
     "./styles.css": "./src/theme/styles.css",
-    "./gates": { "types": "./gates/index.d.mts", "import": "./gates/index.mjs" }
+    "./gates": { "types": "./dist/gates/index.d.ts", "import": "./dist/gates/index.js" }
   },
-  "files": ["dist", "src", "gates", "components.json"],
+  "files": ["dist", "src", "components.json"],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "test": "vitest run",
-    "test:gates": "node --test gates/*.test.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint src && pnpm run typecheck"
   },
