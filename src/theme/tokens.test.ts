@@ -1,9 +1,9 @@
 /**
  * @vitest-environment node
  *
- * The foundation gate: `styles.css` is the shadcn preset's exact generated
- * output (`:root`, `.dark`, `@theme inline`, the base layer) plus `brand`,
- * the one Robomous extension. `tokens.ts` is the TypeScript mirror a
+ * The token contract: `styles.css` is the one home for a colour (`:root`,
+ * `.dark`, `@theme inline`, the base layer) — shadcn's semantic vocabulary
+ * plus `brand`, the one Robomous extension. `tokens.ts` is the mirror a
  * `<canvas>`/`<svg>` or a test reads a colour off of; this suite parses the
  * stylesheet structurally and asserts the two agree, declaration for
  * declaration, and that none of the tokens this rewrite retired have crept
@@ -115,7 +115,7 @@ const ORANGE_CHART = {
 describe(":root", () => {
   const root = declarations(blockBody(STYLESHEET, ":root {"));
 
-  it("declares every standard shadcn semantic variable, the five extensions, and --radius, and nothing else", () => {
+  it("declares every standard shadcn semantic variable, the one extension, and --radius, and nothing else", () => {
     expect([...root.keys()].sort()).toEqual(
       [...SEMANTIC_NAMES, ...EXTENSION_NAMES, "radius"].sort(),
     );
@@ -149,7 +149,7 @@ describe(":root", () => {
 describe(".dark", () => {
   const dark = declarations(blockBody(STYLESHEET, ".dark {"));
 
-  it("declares every standard shadcn semantic variable and the five extensions, and nothing else (no --radius)", () => {
+  it("declares every standard shadcn semantic variable and the one extension, and nothing else (no --radius)", () => {
     expect([...dark.keys()].sort()).toEqual([...SEMANTIC_NAMES, ...EXTENSION_NAMES].sort());
   });
 
@@ -200,8 +200,8 @@ describe("@theme inline", () => {
 /**
  * The four `--text-*` custom properties this rewrite retired (Task 2 moved
  * their consumers onto Tailwind's standard scale: xs/sm/base/2xl). Assembled
- * from fragments — the same trick `tests/scripts/design_tokens.test.mjs`'s
- * `HEX` uses — so this guard's own source never spells any retired name as a
+ * from fragments — the same trick `src/gates/tokens.test.ts`'s `HEX` uses — so
+ * this guard's own source never spells any retired name as a
  * contiguous string and cannot trip the repo-wide sweep that proves the
  * migration complete everywhere else.
  */
@@ -232,7 +232,7 @@ describe("structure", () => {
       '@import "tailwindcss";',
       '@import "tw-animate-css";',
       '@import "shadcn/tailwind.css";',
-      // One family, so one font import: `b2iH` sets the heading face to the body's
+      // One family, so one font import: the heading face resolves to the body's
       // rather than naming a second one.
       '@import "@fontsource-variable/geist";',
       "@custom-variant dark (&:is(.dark *));",
@@ -259,7 +259,7 @@ describe("structure", () => {
 
   /**
    * The `*` rule above names the outline *colour* and nothing else about focus.
-   * The geometry is the primitives': every focusable one carries Nova's
+   * The geometry belongs to the components: every focusable one carries its own
    * `focus-visible:ring-3 focus-visible:ring-ring/50` (the tab bar adds a 1px
    * `outline-ring` on top of it), so a stylesheet-level `:focus-visible`
    * override would now fight the components instead of backing them up.
@@ -268,7 +268,7 @@ describe("structure", () => {
    * re-adding a blanket rule here is how a single global declaration would
    * quietly start overriding thirteen components again.
    */
-  it("leaves focus geometry to the primitives: no stylesheet-level :focus-visible rule", () => {
+  it("leaves focus geometry to the components: no stylesheet-level :focus-visible rule", () => {
     expect(STYLESHEET).not.toContain(":focus-visible");
   });
 

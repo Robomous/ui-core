@@ -4,11 +4,14 @@ import * as React from "react"
 import { Toaster as Sonner, type ToasterProps } from "sonner"
 import { CircleCheckIcon, InfoIcon, TriangleAlertIcon, OctagonXIcon, Loader2Icon } from "lucide-react"
 
-// SHADCN FRAMEWORK ADAPTER: shadcn's sonner reads next-themes (a Next.js
-// integration). VisionSet is Vite with one theme source, `.dark` on <html>
-// (styles.css `@custom-variant dark`). This hook is the only difference from
-// frontend/ui-core/shadcn/sonner.tsx; drop it if the app ever adopts a
-// provider that shadcn's file can read.
+// The theme this package runs on has one source: the `dark` class on <html>,
+// which is what `styles.css`'s `@custom-variant dark` keys off and therefore
+// what every other component in here already follows. A toast is portalled
+// outside the tree but reads the same page, so it has to answer to the same
+// source — hence this hook rather than the `next-themes` `useTheme` shadcn's
+// own file reaches for, which asks a React provider none of this runs under.
+// Sonner needs the answer as a value, not a class, which is the only reason
+// the class has to be observed at all.
 function useTheme(): { theme: "light" | "dark" } {
   const read = () => (typeof document !== "undefined" && document.documentElement.classList.contains("dark") ? "dark" : "light")
   const [theme, setTheme] = React.useState<"light" | "dark">(read)

@@ -1,15 +1,12 @@
 /**
- * The component-test harness — this package's, and not the annotator's.
+ * The component-test harness.
  *
- * `@visionset/annotator` deliberately has **no jsdom**: its core is pure
- * TypeScript, and the annotator's own argument is that a component test of the
- * canvas would verify
- * nothing, because jsdom's `getBoundingClientRect` returns zeros and the transform
- * is the risky part. Neither reason applies here. These are ordinary DOM
- * components whose behaviour *is* markup and roles, and the schema editor
- * asks in so many words for "component tests for the editor's edit/validate/save
- * flow" — so the harness is stood up once, here, rather than by whichever screen
- * needs it first.
+ * These are ordinary DOM components whose behaviour *is* markup and roles —
+ * the `className` merge that makes an override real, the `asChild` that keeps a
+ * link a link, the value a `Progress` announces — so jsdom is the environment
+ * that can see any of it. The gates run here too, under
+ * `// @vitest-environment node`, because they read files rather than render
+ * anything. One suite, one command.
  */
 
 import { availableParallelism } from "node:os";
@@ -21,32 +18,27 @@ import { defineConfig } from "vitest/config";
  * How many test files run at once, and why it is a quarter of the cores rather
  * than vitest's own default.
  *
- * Vitest's `forks` pool defaults to roughly one worker per logical core, and each
- * worker here builds a whole jsdom, a React root and a TanStack Query client. On a
- * 16-thread machine that measured 847% CPU — eight and a half cores of load that
- * this suite creates for itself, on eight physical ones. The tests that then miss
- * their deadline are not slow tests; they are the ones that happened to be holding
- * a core when the machine ran out (#555). Capped at four, the same suite ran clean
- * at a load average of 350, where the default failed at 140.
+ * Vitest's `forks` pool defaults to roughly one worker per logical core, and a
+ * worker here is not cheap: each one stands up a whole jsdom and a React root
+ * before it asserts anything. At one per core the suite oversubscribes the
+ * machine it is running on, and the tests that then miss their deadline are not
+ * the slow ones — they are whichever happened to be holding a core when the
+ * machine ran out, which is a failure that moves between runs and reads as
+ * flakiness rather than as load.
  *
- * Derived rather than fixed, for the reason `scripts/check.sh` gives for pytest's
- * `-n auto`: this is the command a contributor runs on whatever they have, and a
- * number chosen for a twenty-core desktop would throttle it on a four-core laptop.
- * The divisor is four rather than two because the count that held was half the
- * *physical* cores on a hyperthreaded box, and `availableParallelism` reports
- * logical ones. The floor of two keeps a two-core CI runner exactly where it
- * already was — GitHub's runners derive below the floor, so nothing about the
- * `frontend` job changes.
+ * Derived rather than fixed, because this is the command a contributor runs on
+ * whatever they have: a number chosen for a twenty-core desktop would throttle a
+ * four-core laptop. The divisor is four rather than two because the count that
+ * held was half the *physical* cores on a hyperthreaded box, and
+ * `availableParallelism` reports logical ones. The floor of two keeps a two-core
+ * CI runner where it already is — GitHub's runners derive below the floor, so the
+ * cap changes nothing there.
  *
- * It is close to free, which is worth stating because it sounds like it should not
- * be. Measured on an idle 16-thread machine, alternating: 41s and 42s at four
- * workers against 37s and 44s at vitest's default of fifteen. The suite's wall
- * time is bounded by its slowest *file*, not by how much CPU it can occupy —
- * `screens/models.test.tsx` alone is 23s of a 41s run, while all 51 files
- * together sum to 78s. Four workers therefore carry about 19s of work each, which
- * is under that critical path, and the workers past the fourth spend most of their
- * lives waiting for it. What the cap actually removes is the contention that made
- * the *other* fifty files miss a deadline.
+ * The cap costs close to nothing, which is worth stating because it sounds like it
+ * should not be. A suite's wall time is bounded by its slowest *file*, not by how
+ * much CPU it can occupy, so workers past the point where each one carries less
+ * work than the critical path spend most of their lives waiting for it. What the
+ * cap removes is the contention that made every *other* file miss a deadline.
  */
 const MAX_WORKERS = Math.max(2, Math.floor(availableParallelism() / 4));
 
@@ -56,27 +48,23 @@ export default defineConfig({
     environment: "jsdom",
     // Every suite, including the gates' own tests, lives under src/.
     include: ["src/**/*.test.{ts,tsx}"],
-    // Explicit imports from "vitest" in every test file, matching the annotator's
-    // suite. Globals would make a test file's dependencies invisible.
+    // Explicit imports from "vitest" in every test file. Globals would make a
+    // test file's dependencies invisible.
     globals: false,
     setupFiles: ["./vitest.setup.ts"],
     maxWorkers: MAX_WORKERS,
     /**
-     * Not a loosening — the number this suite had already chosen three times.
+     * Headroom, not a loosening.
      *
-     * Vitest's 5000ms default is a bound for a pure function, and several tests
-     * here are not that: they mount a screen under a real `ApiProvider`, wait on
-     * TanStack Query and drive a dozen `userEvent` interactions. Three in
-     * `models.test.tsx` are slower still by design — `CONNECTION_POLL_MS` is
-     * 2000ms and they sleep 1.5 poll intervals to prove a poll *stopped*, which is
-     * a negative that cannot be asserted any faster. Each of those three carried
-     * its own `}, 15_000)` override; this is that decision made once, in the place
-     * that applies to every test, so the next screen test to cross five seconds
-     * does not have to rediscover it.
+     * Vitest's 5000ms default is a bound for a pure function. A test here mounts
+     * a component into jsdom and drives it through `userEvent`, which waits on
+     * real timers between synthetic events, and the gates shell out to
+     * `git ls-files` and read every tracked source. Neither is slow, but neither
+     * is bounded the way a pure function is, and a deadline tuned for the fast
+     * case turns a loaded machine into a red suite.
      *
      * It works only alongside the cap above. On its own a bigger timeout would
-     * just move the load at which contention starts reading as failure, which is
-     * the objection recorded on #555 and it is correct.
+     * just move the load at which contention starts reading as failure.
      */
     testTimeout: 15_000,
   },

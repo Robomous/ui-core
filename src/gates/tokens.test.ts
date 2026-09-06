@@ -180,8 +180,8 @@ test("components.json holds the schema-supported preset fields, and no others", 
   expect(
     Object.keys(config).sort(),
     `${CONFIG_PATH} must carry exactly the fields shadcn's strict config schema defines. ` +
-      "A decoded preset property with no field here belongs in src/theme/styles.css " +
-      "as a value — see DESIGN.md 'Source of Truth'",
+      "A design value with no field here belongs in src/theme/styles.css " +
+      "as a value that runs — see DESIGN.md 'Tokens'",
   ).toEqual(SCHEMA_SUPPORTED_KEYS);
 
   // The preset's own values, where the schema does have a field for them.

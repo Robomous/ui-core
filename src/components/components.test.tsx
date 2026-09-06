@@ -1,18 +1,16 @@
 /**
- * The component harness, proved on the primitives that carry a decision.
+ * The component harness, proved on the components that carry a decision.
  *
- * Not a snapshot of every class string — that would pin the design system to
- * whatever it happened to be on the day. What is asserted here is the handful of behaviours a screen
- * would silently lose: the merge that makes `className` a real override, the
- * `asChild` that keeps a link a link, and the role an error is announced with.
+ * Deliberately not an echo of every class string: pinning the design system to
+ * whatever it looked like on the day is the mistake this repository just spent
+ * a restructure undoing, and a restyle is coming. What is asserted here is the
+ * handful of behaviours a screen would silently lose — the merge that makes
+ * `className` a real override, the `asChild` that keeps a link a link, the role
+ * an error is announced with, and the value a `Progress` reports without being
+ * asked.
  *
- * The button no longer defaults `type`, so nothing here stops a "Cancel"
- * submitting a form; that is a call-site property now, and
- * `tests/scripts/form_buttons.test.mjs` is what holds it.
- *
- * This file is also the reason the jsdom harness exists at all: standing the
- * environment up once here is cheaper than the first screen that needs it doing so
- * under deadline.
+ * The button does not default `type`, so nothing here stops a "Cancel"
+ * submitting a form; that is a call-site property, gated in the consumer.
  */
 
 import { render, screen } from "@testing-library/react";
@@ -203,8 +201,8 @@ describe("Select", () => {
 
   it("grows rather than clipping, and leaves a one-line option where it was", () => {
     render(pickOne());
-    // `h-8` would fix the height and squash the second line; `min-h-8` keeps the
-    // one-line control on Nova's contract height and lets a two-line one grow.
+    // `h-8` would fix the height and squash the second line; `min-h-8` keeps a
+    // one-line control at the trigger's usual height and lets a two-line one grow.
     const trigger = screen.getByTestId("model");
     expect(trigger.className).toContain("min-h-8");
     // Nothing truncates: half a model id is not a model id.
@@ -348,7 +346,7 @@ describe("Progress", () => {
   });
 
   it("fills with the functional colour, and carries the data-slot a caller can restyle from", () => {
-    // Canonical `Progress` has no `variant` prop and no notion of status — a
+    // `Progress` has no `variant` prop and no notion of status — a
     // batch's completion is an amount, not a polarity, so the indicator is
     // always `bg-primary`. A caller who needs to reach it targets the
     // `data-slot` it renders with, from its own `className` on `Root`.

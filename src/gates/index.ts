@@ -1,8 +1,11 @@
 /**
- * @robomous/ui-core/gates — the pure helpers and foundation facts that keep
- * the design system honest, published so every consumer repo can run the
- * same gates over its own sources with its own extensions registry.
- * Lifted from VisionSet's original repo-root gate tests.
+ * @robomous/ui-core/gates — the pure helpers and token facts that keep the
+ * design system honest, published so every consumer repo can run the same
+ * gates over its own sources with its own extensions registry.
+ *
+ * Eight exports: four scanners over one file's text, three readers for a
+ * stylesheet's blocks and declarations, and the token names read off the
+ * stylesheet that ships. DESIGN.md names the rule each one holds.
  */
 import { readFileSync } from "node:fs";
 import path from "node:path";

@@ -1,9 +1,9 @@
 /**
  * `@robomous/ui-core` — the Robomous design system.
  *
- * Extracted from Robomous/VisionSet. UI primitives: Radix behaviour under
- * shadcn Nova styling, iconed with lucide; the foundation design tokens; and
- * the status-tone vocabulary. A consumer imports exactly:
+ * Twenty-one React components this package owns outright, the design tokens
+ * they resolve through, and the status-tone vocabulary. A consumer imports
+ * exactly:
  *
  * ```ts
  * import "@robomous/ui-core/styles.css";   // once, in the app's entry
@@ -11,8 +11,10 @@
  * ```
  *
  * The public surface is listed explicitly rather than `export *`, so what this
- * package promises stays auditable. The gates that keep the primitives
- * canonical are published too: `import { ... } from "@robomous/ui-core/gates"`.
+ * package promises stays auditable. The scanners behind this repository's own
+ * design rules are published too, for a consumer to run over its own sources:
+ * `import { ... } from "@robomous/ui-core/gates"`. DESIGN.md names each rule
+ * and the gate that holds it.
  */
 
 // The design tokens, and their prose contract in DESIGN.md.
@@ -23,7 +25,7 @@ export { cn } from "cn";
 // The one home for status colour outside the Badge.
 export { STATUS_INK, TONE_BORDER, TONE_FILL, type StatusTone } from "./theme/statusTone.js";
 
-// Primitives — Radix behaviour under shadcn Nova styling, iconed with lucide.
+// The components — Radix and Base UI behaviour, iconed with lucide.
 export { Button, buttonVariants } from "./components/button.js";
 export {
   Card,

@@ -1,17 +1,16 @@
 /*
  * @robomous/ui-core — the design system's stylesheet.
  *
- * This is the shadcn preset `b2iH` (style `nova` on the Radix base, base colour
- * `neutral`, chart palette `neutral`, icons `lucide`, Geist throughout with the
- * heading face inheriting the body's, radius medium, menu inverted/subtle, and
- * the pointer cursor on pressable controls) — the CLI's exact generated output,
- * transcribed verbatim from a Docker scratch project built with `shadcn` 4.19.0. The preset is the source of truth for every
- * name below except one: `brand` is Robomous's own, justified in
- * `DESIGN.md` and following shadcn's own extension convention — a value
- * in `:root`, a dark counterpart in `.dark`, exposure through `@theme
- * inline`. Consumers add their extensions in their own stylesheet after
- * importing this one. `tokens.ts` is the TypeScript mirror of this file
- * and `tokens.test.ts` asserts the two agree, declaration for declaration.
+ * **This file is the design system's one home for a colour.** Tailwind v4 is
+ * CSS-first, so this is not a mirror of a config — it *is* the config, and
+ * every utility in this package and in every consuming app resolves through
+ * the names below. The vocabulary is shadcn's, and one name is not: `brand` is
+ * Robomous's own identity colour, justified in `DESIGN.md` and declared the way
+ * shadcn's own extension convention says to — a value in `:root`, a dark
+ * counterpart in `.dark`, exposure through `@theme inline`. Consumers add their
+ * extensions in their own stylesheet after importing this one. `tokens.ts` is
+ * the TypeScript mirror of this file, for callers that cannot read CSS, and
+ * `tokens.test.ts` asserts the two agree declaration for declaration.
  *
  * A consuming app imports exactly this:
  *
@@ -162,9 +161,10 @@
 
 @layer base {
   /* The hairline and the outline *colour* — the two things every element
-     inherits. The focus treatment itself belongs to the primitives: each one
-     carries Nova's own `ring-3` ring in `ring/50` (DESIGN.md, Borders and
-     focus), so the base layer names the colour and stays out of the geometry.
+     inherits. The focus treatment itself belongs to the components: each
+     focusable one carries its own `ring-3` ring in `ring/50` (DESIGN.md,
+     Borders and focus), so the base layer names the colour and stays out of
+     the geometry.
      Nothing here may declare focus geometry again: one blanket declaration in
      this layer is how thirteen components' rings got overridden at once. */
   * {

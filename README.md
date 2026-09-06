@@ -4,9 +4,9 @@
 
 # @robomous/ui-core
 
-The Robomous design system: shadcn Nova primitives under Radix behaviour, the foundation design
-tokens, and the gates that keep them canonical. Extracted from
-[Robomous/VisionSet](https://github.com/Robomous/VisionSet), where it grew up.
+The Robomous design system: twenty-one React components this package owns outright, the design
+tokens they resolve through, and the gates that hold the rules the design system is made of.
+Extracted from [Robomous/VisionSet](https://github.com/Robomous/VisionSet), where it grew up.
 
 ## Install
 
@@ -27,13 +27,24 @@ The stylesheet is the contract: Tailwind v4 reads its `@theme` block, so `bg-pri
 component here and `bg-primary` in a consuming app are the same colour by construction. A
 consumer adds its own extensions in its own stylesheet after importing this one.
 
+## Adding a component
+
+```
+pnpm dlx shadcn@latest add <name>
+```
+
+The CLI reads `components.json` and writes into `src/components/`. What arrives is a starting
+point, not a contract: the file is this repository's from that moment, and editing it is ordinary
+work.
+
 ## The gates
 
 The rules that keep the design system honest are published alongside it:
-`import { ... } from "@robomous/ui-core/gates"` gives a consumer the same pure scan helpers and
-foundation facts this repo's own gate tests run — canonical-plus-additive primitives, one status
-palette with one home, no colour in a class string, brand as identity only. The governance, and
-what each gate holds, is [DESIGN.md](DESIGN.md).
+`import { ... } from "@robomous/ui-core/gates"` gives a consumer the same eight pure scan helpers
+and token facts this repo's own gates run — no colour in a class string, one status palette with
+one home, no rival colour family standing in for it, brand as identity only, and the token names
+read off the shipped stylesheet so a consumer can prove none of its own extensions shadows one.
+The rules themselves, and which gate holds each, are in [DESIGN.md](DESIGN.md).
 
 ## Release
 

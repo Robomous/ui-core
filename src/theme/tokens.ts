@@ -8,11 +8,11 @@
  * which parses the stylesheet and asserts the two agree, declaration for
  * declaration.
  *
- * `LIGHT_THEME`/`DARK_THEME` are the shadcn preset (`b2iH` — style
- * `nova`, base colour `neutral`, chart palette `neutral`) exactly as the CLI
- * 4.19.0 scratch generated it, plus `brand` (Robomous coral — identity only).
- * Consumer extensions such as VisionSet's `stage` and `origin-*` live in the
- * consumer's own token module. Everything else is shadcn's own vocabulary.
+ * `LIGHT_THEME`/`DARK_THEME` carry shadcn's semantic vocabulary on the neutral
+ * base colour and chart palette, plus one name of this package's own: `brand`,
+ * Robomous coral, identity only. A consumer's own vocabulary lives in the
+ * consumer's stylesheet and token module, never here — DESIGN.md,
+ * *Per-consumer extensions*.
  */
 
 export const LIGHT_THEME: Readonly<Record<string, string>> = Object.freeze({
