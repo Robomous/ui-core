@@ -104,7 +104,7 @@ test("no source puts a colour inside a class name", () => {
     offenders,
     [],
     "colour belongs to the token contract — add a token to " +
-      `src/styles.css and name the intent:\n${offenders.join("\n")}`,
+      `src/theme/styles.css and name the intent:\n${offenders.join("\n")}`,
   );
 });
 
@@ -168,7 +168,7 @@ test("components.json holds the schema-supported preset fields, and no others", 
     Object.keys(config).sort(),
     SCHEMA_SUPPORTED_KEYS,
     `${CONFIG_PATH} must carry exactly the fields shadcn's strict config schema defines. ` +
-      "A decoded preset property with no field here belongs in src/styles.css " +
+      "A decoded preset property with no field here belongs in src/theme/styles.css " +
       "as a value — see DESIGN.md 'Source of Truth'",
   );
 
@@ -178,7 +178,7 @@ test("components.json holds the schema-supported preset fields, and no others", 
   assert.equal(config.menuColor, "default");
   assert.equal(config.menuAccent, "subtle");
   assert.equal(config.tailwind.baseColor, "neutral");
-  assert.equal(config.tailwind.css, "src/styles.css");
+  assert.equal(config.tailwind.css, "src/theme/styles.css");
 });
 
 /**
@@ -230,7 +230,7 @@ test("the tokens have exactly one home, and it is the stylesheet", () => {
   assert.deepEqual(
     configs,
     [],
-    "Tailwind v4 is CSS-first: the tokens live in src/styles.css. " +
+    "Tailwind v4 is CSS-first: the tokens live in src/theme/styles.css. " +
       `A config file gives them a second definition that wins for some utilities and not others:\n${configs.join("\n")}`,
   );
 });

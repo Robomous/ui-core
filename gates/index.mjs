@@ -101,7 +101,7 @@ export function brandUsagesIn(file, text) {
     .map(({ line, at }) => ({ file, at, text: line.trim() }));
 }
 
-// ---- stylesheet parsing (from src/tokens.test.ts, translated TS→JS) ----
+// ---- stylesheet parsing (from src/theme/tokens.test.ts, translated TS→JS) ----
 
 /** Whitespace is presentation; a value that wraps is the same value — used internally by `rawDeclarations`. */
 function normalize(value) {
@@ -153,6 +153,6 @@ export function declarations(block) {
  * setting, not a colour token, and is excluded — it matches LIGHT_THEME's keys.
  */
 export function foundationTokenNames() {
-  const css = readFileSync(path.join(PKG, "src/styles.css"), "utf8");
+  const css = readFileSync(path.join(PKG, "src/theme/styles.css"), "utf8");
   return [...declarations(blockBody(css, ":root {")).keys()].filter((n) => n !== "radius");
 }

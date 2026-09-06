@@ -16,15 +16,15 @@
  */
 
 // The design tokens, and their prose contract in DESIGN.md.
-export { cssVar, DARK_THEME, LIGHT_THEME, THEME } from "./tokens.js";
+export { cssVar, DARK_THEME, LIGHT_THEME, THEME } from "./theme/tokens.js";
 
 export { cn } from "cn";
 
 // The one home for status colour outside the Badge.
-export { STATUS_INK, TONE_BORDER, TONE_FILL, type StatusTone } from "./statusTone.js";
+export { STATUS_INK, TONE_BORDER, TONE_FILL, type StatusTone } from "./theme/statusTone.js";
 
 // Primitives — Radix behaviour under shadcn Nova styling, iconed with lucide.
-export { Button, buttonVariants } from "./primitives/button.js";
+export { Button, buttonVariants } from "./components/button.js";
 export {
   Card,
   CardAction,
@@ -33,10 +33,10 @@ export {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "./primitives/card.js";
-export { Input } from "./primitives/input.js";
-export { Textarea } from "./primitives/textarea.js";
-export { Label } from "./primitives/label.js";
+} from "./components/card.js";
+export { Input } from "./components/input.js";
+export { Textarea } from "./components/textarea.js";
+export { Label } from "./components/label.js";
 export {
   Field,
   FieldContent,
@@ -48,7 +48,7 @@ export {
   FieldSeparator,
   FieldSet,
   FieldTitle,
-} from "./primitives/field.js";
+} from "./components/field.js";
 export {
   InputGroup,
   InputGroupAddon,
@@ -56,7 +56,7 @@ export {
   InputGroupInput,
   InputGroupText,
   InputGroupTextarea,
-} from "./primitives/input-group.js";
+} from "./components/input-group.js";
 export {
   Combobox,
   ComboboxChip,
@@ -74,13 +74,13 @@ export {
   ComboboxTrigger,
   ComboboxValue,
   useComboboxAnchor,
-} from "./primitives/combobox.js";
-export { Badge, badgeVariants } from "./primitives/badge.js";
-export { Alert, AlertAction, AlertDescription, AlertTitle } from "./primitives/alert.js";
-export { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger } from "./primitives/dialog.js";
-export { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "./primitives/sheet.js";
-export { Tabs, TabsContent, TabsList, tabsListVariants, TabsTrigger } from "./primitives/tabs.js";
-export { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectScrollDownButton, SelectScrollUpButton, SelectSeparator, SelectTrigger, SelectValue } from "./primitives/select.js";
+} from "./components/combobox.js";
+export { Badge, badgeVariants } from "./components/badge.js";
+export { Alert, AlertAction, AlertDescription, AlertTitle } from "./components/alert.js";
+export { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger } from "./components/dialog.js";
+export { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "./components/sheet.js";
+export { Tabs, TabsContent, TabsList, tabsListVariants, TabsTrigger } from "./components/tabs.js";
+export { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectScrollDownButton, SelectScrollUpButton, SelectSeparator, SelectTrigger, SelectValue } from "./components/select.js";
 export {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -97,11 +97,11 @@ export {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "./primitives/dropdown-menu.js";
-export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./primitives/tooltip.js";
-export { Progress } from "./primitives/progress.js";
-export { Skeleton } from "./primitives/skeleton.js";
-export { Toaster } from "./primitives/sonner.js";
+} from "./components/dropdown-menu.js";
+export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./components/tooltip.js";
+export { Progress } from "./components/progress.js";
+export { Skeleton } from "./components/skeleton.js";
+export { Toaster } from "./components/sonner.js";
 export { toast } from "sonner";
 export {
   Table,
@@ -112,4 +112,4 @@ export {
   TableHead,
   TableHeader,
   TableRow,
-} from "./primitives/table.js";
+} from "./components/table.js";

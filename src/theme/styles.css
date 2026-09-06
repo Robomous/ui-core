@@ -10,7 +10,7 @@
  * `DESIGN.md` and following shadcn's own extension convention — a value
  * in `:root`, a dark counterpart in `.dark`, exposure through `@theme
  * inline`. Consumers add their extensions in their own stylesheet after
- * importing this one. `src/tokens.ts` is the TypeScript mirror of this file
+ * importing this one. `tokens.ts` is the TypeScript mirror of this file
  * and `tokens.test.ts` asserts the two agree, declaration for declaration.
  *
  * A consuming app imports exactly this:

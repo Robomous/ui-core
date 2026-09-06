@@ -9,7 +9,7 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
-    "./styles.css": "./src/styles.css",
+    "./styles.css": "./src/theme/styles.css",
     "./gates": { "types": "./gates/index.d.mts", "import": "./gates/index.mjs" }
   },
   "files": ["dist", "src", "gates", "components.json"],

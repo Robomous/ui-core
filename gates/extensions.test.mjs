@@ -28,10 +28,10 @@ function variantClasses(source, key) {
   return m[1];
 }
 
-const BADGE = "src/primitives/badge.tsx";
+const BADGE = "src/components/badge.tsx";
 
 test("Badge's status vocabulary is exactly the four owned names", () => {
-  const source = read("src/primitives/badge.tsx");
+  const source = read("src/components/badge.tsx");
   for (const name of FOUNDATION_BADGE) {
     assert.ok(source.includes(`${name}:`), `badge.tsx is missing the ${name} variant`);
   }
@@ -91,9 +91,9 @@ test("competingStatusPaletteIn finds a rival colour family, and not the status p
 
 test("the status palette lives in exactly Badge and statusTone, nowhere else", () => {
   const ALLOWED_PALETTE_FILES = [
-    "src/primitives/badge.tsx",
-    "src/statusTone.ts",
-    "src/statusTone.test.ts",
+    "src/components/badge.tsx",
+    "src/theme/statusTone.ts",
+    "src/theme/statusTone.test.ts",
   ];
   const tracked = packageSources();
   assert.ok(tracked.length > 0, "the scan found no package sources, so it proves nothing");
@@ -105,7 +105,7 @@ test("the status palette lives in exactly Badge and statusTone, nowhere else", (
     offenders,
     [],
     "the status palette has exactly one home outside Badge and statusTone — read the tone from " +
-      `src/statusTone.ts instead:\n${offenders.join("\n")}`,
+      `src/theme/statusTone.ts instead:\n${offenders.join("\n")}`,
   );
 });
 
