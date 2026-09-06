@@ -815,15 +815,27 @@ En `exports`, la hoja de estilos cambia de ruta interna **conservando el especif
 
 Un error aquí rompe el `@import` de los dos consumidores. Verificar que `"src"` sigue en `files`.
 
-- [ ] **Step 5: Repuntar `components.json`**
+- [ ] **Step 5: Repuntar `components.json` — tres cosas, no una**
 
-El alias `ui` apunta a `@/primitives`. Sin este cambio, el próximo `shadcn add` escribiría en la carpeta vieja:
+Este archivo es la única razón por la que sobrevive el acoplamiento con el CLI, así que tiene que quedar exacto. El próximo `pnpm dlx shadcn@latest add <x>` lo lee entero.
 
-```json
-"aliases": { "components": "@/components", "utils": "@/lib/cn", "ui": "@/components", "lib": "@/lib", "hooks": "@/hooks" },
+**(a) El alias `ui`** apunta a `@/primitives`, carpeta que esta tarea renombra. Pasa a `@/components`.
+
+**(b) `tailwind.css`** dice `src/styles.css` y esta tarea mueve la hoja. Pasa a `src/theme/styles.css`. Ojo: `gates/tokens.test.mjs` **asierta ese valor literal**, así que hay que actualizar la aserción en el mismo paso o el gate falla.
+
+**(c) El alias `utils`** dice `@/lib/cn`, y `src/lib/` dejó de existir en la Tarea 6. Es el más peligroso de los tres: el CLI lo usa para escribir el import de `cn` en **cada componente que genere**, así que dejarlo apuntando al vacío rompe justo la capacidad que este rediseño quería conservar.
+
+No adivines su valor — mídelo. Genera un componente que no esté en el paquete, mira qué import escribe, y descártalo:
+
+```bash
+pnpm dlx shadcn@latest add avatar --overwrite --yes
+grep -n "import { cn }" src/components/avatar.tsx
+git checkout -- . && git clean -fd src/components
 ```
 
-Dejar `utils` como lo haya dejado la Tarea 6.
+Ajusta `utils` a lo que haga falta para que ese import resuelva — los 21 componentes ya usan `import { cn } from "cn"`, así que ese es el destino correcto — y repite la comprobación hasta que el archivo generado importe algo que exista.
+
+**El alias `lib`** (`@/lib`) se deja como está: no apunta a código existente, es el destino donde el CLI *pondría* un archivo de librería si algún día un registry lo trae, y lo crearía él mismo.
 
 - [ ] **Step 6: Repuntar las rutas que los gates escanean**
 
