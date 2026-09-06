@@ -18,7 +18,6 @@
 // The design tokens, and their prose contract in DESIGN.md.
 export { cssVar, DARK_THEME, LIGHT_THEME, THEME } from "./tokens.js";
 
-export { inlineLink } from "./lib/button.js";
 export { cn } from "./lib/cn.js";
 export { menuSurface } from "./lib/menu.js";
 export { twoLineTrigger } from "./lib/select.js";

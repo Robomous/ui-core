@@ -32,6 +32,9 @@ const buttonVariants = cva(
         "icon-sm":
           "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg",
         "icon-lg": "size-9",
+        // A link button is inline prose, not a boxed control: no height of its
+        // own and no padding, so it sits inside a sentence or a table cell.
+        inline: "h-auto p-0",
       },
     },
     defaultVariants: {

@@ -4,9 +4,9 @@
  * Not a snapshot of every class string — that would pin the design system to
  * whatever it happened to be on the day. What is asserted here is the handful of behaviours a screen
  * would silently lose: the merge that makes `className` a real override — and the
- * two geometry overrides that ride on it, `inlineLink` and `menuSurface`, whose
- * whole job is to beat a canonical utility — the `asChild` that keeps a link a
- * link, and the role an error is announced with.
+ * geometry override `menuSurface`, whose whole job is to beat a canonical
+ * utility — the `asChild` that keeps a link a link, and the role an error is
+ * announced with.
  *
  * The button no longer defaults `type`, so nothing here stops a "Cancel"
  * submitting a form; that is a call-site property now, and
@@ -22,7 +22,6 @@ import userEvent from "@testing-library/user-event";
 import type { JSX } from "react";
 import { describe, expect, it } from "vitest";
 
-import { inlineLink } from "../lib/button";
 import { menuSurface } from "../lib/menu";
 import { twoLineTrigger } from "../lib/select";
 import { Alert, AlertDescription, AlertTitle } from "./alert";
@@ -96,7 +95,7 @@ describe("Button", () => {
 
   it("hands back the height and padding a link button in prose cannot keep", () => {
     render(
-      <Button variant="link" className={inlineLink}>
+      <Button variant="link" size="inline">
         More
       </Button>,
     );
@@ -109,6 +108,14 @@ describe("Button", () => {
     expect(classes).toContain("p-0");
     expect(classes).not.toContain("h-8");
     expect(classes).not.toContain("px-2.5");
+  });
+
+  it("has an inline size that keeps a link button inside a sentence", () => {
+    render(<Button variant="link" size="inline">Read the docs</Button>);
+    const button = screen.getByRole("button", { name: "Read the docs" });
+    expect(button.getAttribute("data-size")).toBe("inline");
+    expect(button.className).toContain("h-auto");
+    expect(button.className).toContain("p-0");
   });
 });
 
