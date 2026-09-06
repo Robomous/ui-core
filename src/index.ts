@@ -19,7 +19,6 @@
 export { cssVar, DARK_THEME, LIGHT_THEME, THEME } from "./tokens.js";
 
 export { cn } from "./lib/cn.js";
-export { menuSurface } from "./lib/menu.js";
 
 // The one home for status colour outside the Badge.
 export { STATUS_INK, TONE_BORDER, TONE_FILL, type StatusTone } from "./statusTone.js";

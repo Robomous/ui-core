@@ -3,10 +3,8 @@
  *
  * Not a snapshot of every class string — that would pin the design system to
  * whatever it happened to be on the day. What is asserted here is the handful of behaviours a screen
- * would silently lose: the merge that makes `className` a real override — and the
- * geometry override `menuSurface`, whose whole job is to beat a canonical
- * utility — the `asChild` that keeps a link a link, and the role an error is
- * announced with.
+ * would silently lose: the merge that makes `className` a real override, the
+ * `asChild` that keeps a link a link, and the role an error is announced with.
  *
  * The button no longer defaults `type`, so nothing here stops a "Cancel"
  * submitting a form; that is a call-site property now, and
@@ -22,7 +20,6 @@ import userEvent from "@testing-library/user-event";
 import type { JSX } from "react";
 import { describe, expect, it } from "vitest";
 
-import { menuSurface } from "../lib/menu";
 import { Alert, AlertDescription, AlertTitle } from "./alert";
 import { Badge } from "./badge";
 import { Button } from "./button";
@@ -435,23 +432,38 @@ describe("DropdownMenu", () => {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" aria-label="Actions" />
         </DropdownMenuTrigger>
-        <DropdownMenuContent className={menuSurface}>
+        <DropdownMenuContent>
           <DropdownMenuItem>Check integrity of this connection</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>,
     );
     await user.click(screen.getByRole("button", { name: "Actions" }));
     const classes = (await screen.findByRole("menu")).className.split(" ");
-    // Canonical pins the surface to the trigger with
-    // `w-(--radix-dropdown-menu-trigger-width)`, which behind this icon-sized
-    // button is the 128px floor — long items wrap. `menuSurface` is in the same
-    // utility group, so tailwind-merge drops canonical's at render and the
-    // rendered class list is the assertion: this is the merge, not a hope about
-    // cascade order.
+    // The default sizes to items, not to the trigger: behind this icon-sized
+    // button, pinning to the trigger width would be a 128px ceiling that wraps
+    // every longer item. `min-w-32` is what is asserted below, surviving as
+    // the floor it was meant to be.
     expect(classes).toContain("w-auto");
     expect(classes).not.toContain("w-(--radix-dropdown-menu-trigger-width)");
     // The floor is a different group and survives, which is what keeps a
     // one-word menu from collapsing to its widest item.
     expect(classes).toContain("min-w-32");
+  });
+
+  it("sizes to its items and leaves on the frame it is dismissed", async () => {
+    const user = userEvent.setup();
+    render(
+      <DropdownMenu>
+        <DropdownMenuTrigger>Actions</DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem>Duplicate this model</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>,
+    );
+    await user.click(screen.getByRole("button", { name: "Actions" }));
+    const menu = await screen.findByRole("menu");
+    expect(menu.className).toContain("w-auto");
+    expect(menu.className).not.toContain("--radix-dropdown-menu-trigger-width");
+    expect(menu.className).not.toContain("data-closed:animate-out");
   });
 });

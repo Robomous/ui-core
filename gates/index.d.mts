@@ -12,7 +12,6 @@ export function legacyVocabularyIn(file: string, text: string): string[];
 export function statusPaletteIn(file: string, text: string): string[];
 export function competingStatusPaletteIn(file: string, text: string): string[];
 export function statusTokenUtilitiesIn(file: string, text: string): string[];
-export function menuSurfaceGapsIn(file: string, text: string): string[];
 
 // ---- colour discipline ----
 export function colouredClassesIn(file: string, text: string): string[];

@@ -234,20 +234,6 @@ export function statusTokenUtilitiesIn(file, text) {
     .map(({ line, at }) => `${file}:${at}: ${line.trim()}`);
 }
 
-/**
- * Every `DropdownMenuContent` call site owns `lib/menu.ts`'s `menuSurface` —
- * the constant that carries the canonical surface classes plus the exit-
- * animation and sizing fixes documented there. A call site that drops it
- * silently reverts to the bare Radix surface.
- */
-
-/** Every `file:line` in `text` opening a `DropdownMenuContent` without `menuSurface` on it. */
-export function menuSurfaceGapsIn(file, text) {
-  return openTagsIn(text, "DropdownMenuContent")
-    .filter(({ tag }) => !tag.includes("menuSurface"))
-    .map(({ at, tag }) => `${file}:${lineAt(text, at)}: ${tag.split("\n")[0].trim()}`);
-}
-
 // ---- colour discipline (from tests/scripts/design_tokens.test.mjs) ----
 
 /**

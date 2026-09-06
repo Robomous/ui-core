@@ -9,7 +9,6 @@ import {
   FOUNDATION_BADGE,
   competingStatusPaletteIn,
   legacyVocabularyIn,
-  menuSurfaceGapsIn,
   statusPaletteIn,
   statusTokenUtilitiesIn,
   variantClasses,
@@ -265,40 +264,5 @@ test("no package source reaches for the retired success/warning token utility", 
     offenders,
     [],
     `a source reaches for the retired success/warning token utility:\n${offenders.join("\n")}`,
-  );
-});
-
-test("menuSurfaceGapsIn flags a DropdownMenuContent missing menuSurface, and stays silent when it carries it", () => {
-  assert.deepEqual(
-    menuSurfaceGapsIn("a.tsx", `<DropdownMenuContent align="end">x</DropdownMenuContent>`),
-    [`a.tsx:1: <DropdownMenuContent align="end">`],
-  );
-  assert.deepEqual(
-    menuSurfaceGapsIn(
-      "b.tsx",
-      `<DropdownMenuContent align="end" className={menuSurface}>x</DropdownMenuContent>`,
-    ),
-    [],
-  );
-  assert.deepEqual(
-    menuSurfaceGapsIn(
-      "c.tsx",
-      `<DropdownMenuContent className={cn(menuSurface, "w-64")}>x</DropdownMenuContent>`,
-    ),
-    [],
-  );
-});
-
-test("every DropdownMenuContent call site outside the shadcn snapshot carries menuSurface", () => {
-  const tracked = packageSources();
-  assert.ok(tracked.length > 0, "the scan found no package sources, so it proves nothing");
-
-  const offenders = tracked.flatMap((file) =>
-    menuSurfaceGapsIn(file, readFileSync(path.join(REPO, file), "utf8")),
-  );
-  assert.deepEqual(
-    offenders,
-    [],
-    `a DropdownMenuContent call site is missing lib/menu.ts's menuSurface:\n${offenders.join("\n")}`,
   );
 });
