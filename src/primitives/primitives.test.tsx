@@ -23,7 +23,6 @@ import type { JSX } from "react";
 import { describe, expect, it } from "vitest";
 
 import { menuSurface } from "../lib/menu";
-import { twoLineTrigger } from "../lib/select";
 import { Alert, AlertDescription, AlertTitle } from "./alert";
 import { Badge } from "./badge";
 import { Button } from "./button";
@@ -163,9 +162,10 @@ describe("fields", () => {
 });
 
 /**
- * The two-line option — composed at the call site rather than a primitive prop,
- * which is why what is asserted here is the trigger's own behaviour and not a
- * layout this file would otherwise have to keep in step with a call site.
+ * The two-line option — a `multiline` prop on the trigger itself rather than a
+ * class string composed at the call site, which is why what is asserted here
+ * is the trigger's own behaviour and not a layout this file would otherwise
+ * have to keep in step with a call site.
  *
  * The claim worth a test is the one that is easy to lose: the trigger shows the
  * *same* two lines the list does, because Radix renders the selected item's own
@@ -176,7 +176,7 @@ describe("Select", () => {
   function pickOne(): JSX.Element {
     return (
       <Select defaultValue="a">
-        <SelectTrigger data-testid="model" className={twoLineTrigger}>
+        <SelectTrigger data-testid="model" multiline>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -212,9 +212,10 @@ describe("Select", () => {
     expect(trigger.className).toContain("min-h-8");
     // Nothing truncates: half a model id is not a model id.
     expect(trigger.className).not.toContain("truncate");
-    // `twoLineTrigger` names canonical's own modifier chains, so `cn`'s merge
-    // replaces the fixed height and the value clamp rather than stacking beside
-    // them — a real check of the merge at render, not an echo of the constant.
+    // `multiline` is a prop, not a class string arriving from outside, so it
+    // does not need to outrank anything — but `cn`'s merge still has to replace
+    // the fixed height and the value clamp rather than stack beside them, which
+    // is what this checks at render, not an echo of the prop's own classes.
     expect(trigger.className).toContain("data-[size=default]:h-auto");
     expect(trigger.className).toContain("line-clamp-none");
     expect(trigger.className).not.toContain("data-[size=default]:h-8");
@@ -229,6 +230,21 @@ describe("Select", () => {
     const className = (viewport as HTMLElement).className;
     expect(className).toContain("w-full");
     expect(className).toContain("min-w-(--radix-select-trigger-width)");
+  });
+
+  it("grows and stops clamping its value when multiline", () => {
+    render(
+      <Select>
+        <SelectTrigger multiline aria-label="Export target">
+          <SelectValue placeholder="Pick one" />
+        </SelectTrigger>
+      </Select>,
+    );
+    const trigger = screen.getByRole("combobox", { name: "Export target" });
+    expect(trigger.className).toContain("data-[size=default]:h-auto");
+    expect(trigger.className).not.toContain("data-[size=default]:h-8");
+    expect(trigger.className).toContain("line-clamp-none");
+    expect(trigger.className).not.toContain("line-clamp-1");
   });
 });
 
