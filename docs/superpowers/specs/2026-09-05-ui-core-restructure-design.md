@@ -200,8 +200,15 @@ limita a los campos que el esquema admite **sobrevive** (§4.4).
 | `progressAria` | **arreglo** en `Progress` | `<Progress value={n} />` basta |
 
 **`DropdownMenuContent`.** Las dos reglas de `menuSurface` pasan a las clases
-base. `data-closed:animate-none!` corrige que un menú siga montado durante su
-animación de salida y se trague la pulsación que debería abrir el siguiente.
+base. El helper corregía con `data-closed:animate-none!` que un menú siguiera
+montado durante su animación de salida y se tragara la pulsación que debía
+abrir el siguiente.
+
+> **Refinado en el plan de implementación:** en vez de neutralizar la animación
+> con `animate-none!`, se **borran** las tres utilidades `data-closed:*` de la
+> cadena base. Sobrescribir una utilidad tenía sentido cuando la corrección
+> llegaba desde fuera; siendo el componente propio, quitarla es más claro.
+> El efecto es el mismo y `DESIGN.md` documenta la implementación real.
 `w-auto` reemplaza `w-(--radix-dropdown-menu-trigger-width)`, que ancla la
 superficie al ancho del disparador — detrás de un botón de icono eso son 128px
 y todo ítem más largo se parte. `min-w-32` permanece como piso.
