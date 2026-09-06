@@ -710,9 +710,15 @@ grep -n "openTagsIn\|SEMANTIC_NAMES" gates/*.mjs gates/*.d.mts
 
 Esperado: solo sus propias definiciones. Si aparece otro uso, resolverlo antes de borrar.
 
-- [ ] **Step 3: Volver internos `normalize` y `FOUNDATION_BADGE`**
+- [ ] **Step 3: Sacar de la superficie lo que solo usan los tests**
 
-Quitarles la palabra `export` en `gates/index.mjs` y borrar sus declaraciones de `gates/index.d.mts`. Siguen usándose dentro del módulo y del test de Badge, pero ningún consumidor los importa.
+Tres símbolos no los importa ningún consumidor, pero **no basta con quitarles `export`**: los tests viven en otro archivo y los importan desde `./index.mjs`. Cada uno va a un sitio distinto.
+
+- `normalize` — solo lo usa `rawDeclarations` dentro del propio módulo. Quitarle `export` y borrar su declaración de `gates/index.d.mts`. Es el único de los tres que sí puede volverse interno sin más.
+- `variantClasses` — lo usa once veces el test `a status Badge paints a soft surface and readable ink, never a coloured stroke`, que sobrevive. **Mover la función entera a `gates/extensions.test.mjs`**, borrarla de `index.mjs` y de `index.d.mts`, y quitarla del bloque de import del test. Es un parser neutral de cadenas de variantes, no un mecanismo de fidelidad; su sitio es el archivo que lo usa.
+- `FOUNDATION_BADGE` — lo usa el test de vocabulario de status que escribió la Tarea 1. **Mover la constante a `gates/extensions.test.mjs`** igual que la anterior.
+
+Así la superficie publicada queda en exactamente ocho, sin que ningún test pierda lo que necesita.
 
 - [ ] **Step 4: Borrar los tests correspondientes**
 
