@@ -57,14 +57,14 @@ describe("Button", () => {
   });
 
   it("lets a caller override a conflicting utility rather than emitting both", () => {
-    // Without `tailwind-merge` both `px-4` and `px-6` survive and which one wins is
+    // Without `tailwind-merge` both `px-2.5` and `px-6` survive and which one wins is
     // decided by the order Tailwind wrote them into the stylesheet — a rule nobody
     // can see from the call site. This is what makes `className` an extension
     // point rather than a suggestion.
     render(<Button className="px-6">Wide</Button>);
     const className = screen.getByRole("button", { name: "Wide" }).className;
     expect(className).toContain("px-6");
-    expect(className).not.toContain("px-4");
+    expect(className).not.toContain("px-2.5");
   });
 
   it("renders the child element with asChild, so a link stays a link", () => {
@@ -93,21 +93,19 @@ describe("Button", () => {
     expect(classes).not.toMatch(/(^|\s)underline(\s|$)/);
   });
 
-  it("hands back the height and padding a link button in prose cannot keep", () => {
+  it("lets a caller's className outrank the inline size", () => {
     render(
-      <Button variant="link" size="inline">
+      <Button variant="link" size="inline" className="h-8">
         More
       </Button>,
     );
 
-    // `Button` merges `className` over `buttonVariants` with tailwind-merge, so
-    // this is the merge itself: canonical's `h-8 px-2.5` is gone from the
-    // rendered attribute rather than merely outranked by a later rule.
+    // `h-auto` and `h-8` are the same utility group, so tailwind-merge has to
+    // drop the one the variant supplied. Without the merge both survive and
+    // which wins is decided by stylesheet order — a rule the call site cannot see.
     const classes = screen.getByRole("button").className.split(" ");
-    expect(classes).toContain("h-auto");
-    expect(classes).toContain("p-0");
-    expect(classes).not.toContain("h-8");
-    expect(classes).not.toContain("px-2.5");
+    expect(classes).toContain("h-8");
+    expect(classes).not.toContain("h-auto");
   });
 
   it("has an inline size that keeps a link button inside a sentence", () => {
