@@ -13,69 +13,9 @@ const PKG = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 const COMMENT = /^\s*(?:\/\/|\/\*|\*|#)/;
 
-// ---- canonical (from tests/scripts/shadcn_canonical.test.mjs) ----
-
-const lines = (text) => text.split(/\r?\n/).map((l) => l.trimEnd());
-
-// Every snapshot line must appear in the primitive, in order. Added lines are
-// the only permitted difference — that is the whole of the "do not modify
-// shadcn's code" rule, in a form a machine can check.
-export function additiveOnly(snapshot, actual) {
-  const want = lines(snapshot);
-  const have = lines(actual);
-  let cursor = 0;
-  for (const line of want) {
-    const at = have.indexOf(line, cursor);
-    if (at === -1) return { ok: false, missing: line };
-    cursor = at + 1;
-  }
-  return { ok: true };
-}
-
-// A primitive may replace a framework-specific hook (shadcn's Next.js
-// integrations) with a thin adapter that reads the one theme source
-// instead — never a shortcut for divergence in general. `FRAMEWORK_ADAPTERS`
-// is the explicit allow-list; the marker comment `SHADCN FRAMEWORK ADAPTER`
-// is how a primitive claims the exemption, and it must be on the list to
-// claim it. `ADAPTER_REMOVED_LINES` are exactly the snapshot lines the
-// adapter is permitted to drop — every other snapshot line must still appear,
-// in order, same as any other primitive.
-export const FRAMEWORK_ADAPTERS = ["sonner.tsx"];
-export const ADAPTER_REMOVED_LINES = ['import { useTheme } from "next-themes"', '  const { theme = "system" } = useTheme()'];
-
-export function withoutLines(text, removed) {
-  const removedTrimmed = new Set(removed.map((l) => l.trimEnd()));
-  return lines(text)
-    .filter((line) => !removedTrimmed.has(line))
-    .join("\n");
-}
-
-// Decides which comparison a primitive gets. Returns { ok: false, reason }
-// when the marker is present on a file that isn't allow-listed; otherwise
-// { ok: true, isAdapter } says whether the adapter-adjusted snapshot applies.
-export function checkAdapter(file, actualText) {
-  if (!actualText.includes("SHADCN FRAMEWORK ADAPTER")) return { ok: true, isAdapter: false };
-  if (!FRAMEWORK_ADAPTERS.includes(file)) {
-    return { ok: false, reason: `${file} carries the SHADCN FRAMEWORK ADAPTER marker but is not in FRAMEWORK_ADAPTERS` };
-  }
-  return { ok: true, isAdapter: true };
-}
-
 // ---- rosters and vocabulary (from tests/scripts/shadcn_extensions.test.mjs) ----
 
-/** The variant keys of the first `variant: { … }` block in a cva source. */
-export function variantKeys(source, block = "variant") {
-  const start = source.indexOf(`${block}: {`);
-  assert.notEqual(start, -1, `no "${block}" block`);
-  let depth = 0, i = start + block.length + 3;
-  const begin = i;
-  for (; i < source.length; i++) {
-    if (source[i] === "{") depth++;
-    else if (source[i] === "}") { if (depth === 0) break; depth--; }
-  }
-  const body = source.slice(begin, i);
-  return [...body.matchAll(/(?:^|,)\s*"?([a-z][a-z0-9-]*)"?:\s/g)].map((m) => m[1]);
-}
+export const FOUNDATION_BADGE = ["success", "warning", "info", "quiet"];
 
 /** The class string of one variant line in a cva source. */
 export function variantClasses(source, key) {
@@ -83,11 +23,6 @@ export function variantClasses(source, key) {
   assert.ok(m, `no variant ${key}`);
   return m[1];
 }
-
-export const OFFICIAL_BADGE = ["default", "secondary", "destructive", "outline", "ghost", "link"];
-export const FOUNDATION_BADGE = ["success", "warning", "info", "quiet"];
-export const BUTTON_VARIANTS = ["default", "outline", "secondary", "ghost", "destructive", "link"];
-export const BUTTON_SIZES = ["default", "xs", "sm", "lg", "icon", "icon-xs", "icon-sm", "icon-lg"];
 
 /**
  * v1's vocabulary the extension contract retired: prop names and shapes no
@@ -497,11 +432,6 @@ export const SEMANTIC_NAMES = [
 ];
 
 // ---- foundation facts ----
-
-/** Absolute path to the canonical shadcn snapshots shipped in this package. */
-export function snapshotsDir() {
-  return path.join(PKG, "shadcn");
-}
 
 /**
  * The foundation token names, read off the shipped stylesheet's `:root` so

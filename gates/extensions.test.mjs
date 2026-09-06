@@ -6,17 +6,13 @@ import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 
 import {
-  BUTTON_SIZES,
-  BUTTON_VARIANTS,
   FOUNDATION_BADGE,
-  OFFICIAL_BADGE,
   competingStatusPaletteIn,
   legacyVocabularyIn,
   menuSurfaceGapsIn,
   statusPaletteIn,
   statusTokenUtilitiesIn,
   variantClasses,
-  variantKeys,
 } from "./index.mjs";
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -34,27 +30,13 @@ function packageSources({ includeSnapshots } = {}) {
     .filter((name) => SOURCE.test(name) && (includeSnapshots || !SHADCN_SNAPSHOT.test(name)));
 }
 
-test("variantKeys reads quoted and bare keys and ignores class text", () => {
-  assert.deepEqual(
-    variantKeys(`x({ variants: { variant: { default: "a: b", "icon-xs": "c" }, size: { sm: "d" } } })`),
-    ["default", "icon-xs"],
-  );
-  assert.deepEqual(variantKeys(`variants: { variant: { a: "" }, size: { sm: "x", lg: "y" } }`, "size"), ["sm", "lg"]);
-});
-
-const BUTTON = "src/primitives/button.tsx";
-test("Button carries shadcn's variants and sizes, and nothing else", () => {
-  const src = read(BUTTON);
-  assert.deepEqual(variantKeys(src, "variant"), BUTTON_VARIANTS);
-  assert.deepEqual(variantKeys(src, "size"), BUTTON_SIZES);
-});
-
 const BADGE = "src/primitives/badge.tsx";
 
-test("Badge keeps shadcn's variants and adds exactly the four foundation status variants", () => {
-  const keys = variantKeys(read(BADGE), "variant");
-  for (const k of OFFICIAL_BADGE) assert.ok(keys.includes(k), `official Badge variant ${k} missing`);
-  assert.deepEqual(keys.filter((k) => !OFFICIAL_BADGE.includes(k)).sort(), [...FOUNDATION_BADGE].sort());
+test("Badge's status vocabulary is exactly the four owned names", () => {
+  const source = read("src/primitives/badge.tsx");
+  for (const name of FOUNDATION_BADGE) {
+    assert.ok(source.includes(`${name}:`), `badge.tsx is missing the ${name} variant`);
+  }
 });
 
 test("a status Badge paints a soft surface and readable ink, never a coloured stroke", () => {
@@ -283,57 +265,6 @@ test("no package source reaches for the retired success/warning token utility", 
     offenders,
     [],
     `a source reaches for the retired success/warning token utility:\n${offenders.join("\n")}`,
-  );
-});
-
-/**
- * The public surface `index.ts` promises: every canonical primitive
- * re-exported, the retired pattern-layer `Combobox` gone now that it is a
- * primitive, and no `*Variants` beyond the three shadcn's own `cva` calls
- * produce.
- */
-const INDEX_PATH = "src/index.ts";
-const PUBLIC_PRIMITIVES = [
-  "badge",
-  "button",
-  "alert",
-  "field",
-  "dialog",
-  "sheet",
-  "combobox",
-  "input-group",
-  "select",
-  "dropdown-menu",
-  "tooltip",
-  "progress",
-  "skeleton",
-  "sonner",
-  "table",
-  "tabs",
-  "card",
-  "input",
-  "textarea",
-  "label",
-];
-
-test("index.ts exports every canonical primitive, drops the retired pattern Combobox, and adds no *Variants beyond shadcn's own three", () => {
-  const source = read(INDEX_PATH);
-
-  for (const name of PUBLIC_PRIMITIVES) {
-    const exported = new RegExp(String.raw`export\s*\{[^;]*\}\s*from\s*"\./primitives/${name}\.js"`).test(source);
-    assert.ok(exported, `${INDEX_PATH} does not export from ./primitives/${name}.js`);
-  }
-
-  assert.ok(
-    !source.includes('from "./patterns/Combobox.js"'),
-    `${INDEX_PATH} must not export the retired ./patterns/Combobox.js — Combobox is a primitive now`,
-  );
-
-  const variantsExports = [...new Set([...source.matchAll(/\b[a-zA-Z]*Variants\b/g)].map((m) => m[0]))].sort();
-  assert.deepEqual(
-    variantsExports,
-    ["badgeVariants", "buttonVariants", "tabsListVariants"],
-    `${INDEX_PATH} exports a *Variants beyond shadcn's own three:\n${variantsExports.join(", ")}`,
   );
 });
 

@@ -4,26 +4,9 @@
  * its types are maintained here beside it.
  */
 
-// ---- canonical ----
-export function additiveOnly(
-  snapshot: string,
-  actual: string,
-): { ok: true } | { ok: false; missing: string };
-export const FRAMEWORK_ADAPTERS: string[];
-export const ADAPTER_REMOVED_LINES: string[];
-export function withoutLines(text: string, removed: readonly string[]): string;
-export function checkAdapter(
-  file: string,
-  actualText: string,
-): { ok: true; isAdapter: boolean } | { ok: false; reason: string };
-
 // ---- rosters and vocabulary ----
-export function variantKeys(source: string, block?: string): string[];
 export function variantClasses(source: string, key: string): string;
-export const OFFICIAL_BADGE: string[];
 export const FOUNDATION_BADGE: string[];
-export const BUTTON_VARIANTS: string[];
-export const BUTTON_SIZES: string[];
 export function openTagsIn(text: string, tagName: string): { at: number; tag: string }[];
 export function legacyVocabularyIn(file: string, text: string): string[];
 export function statusPaletteIn(file: string, text: string): string[];
@@ -47,5 +30,4 @@ export function declarations(block: string): Map<string, string>;
 export const SEMANTIC_NAMES: string[];
 
 // ---- foundation facts ----
-export function snapshotsDir(): string;
 export function foundationTokenNames(): string[];
