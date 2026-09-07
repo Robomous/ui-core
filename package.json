@@ -1,6 +1,6 @@
 {
   "name": "@robomous/ui-core",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Robomous design system: twenty-one owned React components, the design tokens they resolve through, and the gates that hold the rules behind them.",
   "license": "Apache-2.0",
   "repository": {
