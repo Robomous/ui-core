@@ -18,7 +18,7 @@ importers:
         specifier: ^0.7.1
         version: 0.7.1
       cn:
-        specifier: ^0.2.5
+        specifier: ^0.2.4
         version: 0.2.5
       lucide-react:
         specifier: ^1.32.0
