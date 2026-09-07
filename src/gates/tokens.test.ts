@@ -37,9 +37,9 @@ const bracket = (prefix: string, inner: string) => `${prefix}-[${inner}]`;
 const brand = (prefix: string, suffix = "") => `${prefix}-brand${suffix}`;
 
 test("the scan finds a colour smuggled into a class, and nothing that merely looks like one", () => {
-  expect(colouredClassesIn("a.tsx", `  <div className="bg-[${HEX.slice(0, 1)}eb5a47]" />`)).toEqual([
-    `a.tsx:1: <div className="bg-[${HEX.slice(0, 1)}eb5a47]" />`,
-  ]);
+  expect(colouredClassesIn("a.tsx", `  <div className="bg-[${HEX.slice(0, 1)}eb5a47]" />`)).toEqual(
+    [`a.tsx:1: <div className="bg-[${HEX.slice(0, 1)}eb5a47]" />`],
+  );
   expect(colouredClassesIn("b.tsx", `  className="${bracket("text", "var(--accent)")}"`)).toEqual([
     `b.tsx:1: className="${bracket("text", "var(--accent)")}"`,
   ]);
@@ -48,7 +48,9 @@ test("the scan finds a colour smuggled into a class, and nothing that merely loo
   ]);
 
   // A token utility is the whole point of the rule and must pass.
-  expect(colouredClassesIn("d.tsx", `  className="bg-primary text-primary-foreground"`)).toEqual([]);
+  expect(colouredClassesIn("d.tsx", `  className="bg-primary text-primary-foreground"`)).toEqual(
+    [],
+  );
   // The accent at 10% is a token with an opacity modifier, not a colour.
   expect(colouredClassesIn("e.tsx", `  className="bg-primary/10 border-primary"`)).toEqual([]);
   // An arbitrary value that is *not* a colour stays legal — the rule is about
@@ -57,7 +59,9 @@ test("the scan finds a colour smuggled into a class, and nothing that merely loo
   // An inline style carrying a schema-supplied colour is the sanctioned road:
   // `classColor` answers with whatever the kernel stored, and Tailwind has never
   // seen it, so no utility could name it.
-  expect(colouredClassesIn("g.tsx", `  style={{ background: classColor(declared, name) }}`)).toEqual([]);
+  expect(
+    colouredClassesIn("g.tsx", `  style={{ background: classColor(declared, name) }}`),
+  ).toEqual([]);
   // A docstring explaining the rule must pass, or the gate forbids its own
   // explanation — the mistake a boundary scan makes when it matches its own prose.
   expect(colouredClassesIn("h.tsx", `   * Never write \`bg-[${"#"}eb5a47]\`.`)).toEqual([]);
@@ -66,19 +70,26 @@ test("the scan finds a colour smuggled into a class, and nothing that merely loo
   // A colour-mix of two tokens names no colour of its own — the preset's own
   // Button hover step.
   expect(
-    colouredClassesIn("x.tsx", 'className="hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)]"'),
+    colouredClassesIn(
+      "x.tsx",
+      'className="hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)]"',
+    ),
   ).toEqual([]);
   // A colour-mix that mixes in a literal is still a colour smuggled into a class.
   expect(
-    colouredClassesIn("x.tsx", `className="${bracket("bg", "color-mix(in_srgb,#fff,var(--x))")}"`).length,
+    colouredClassesIn("x.tsx", `className="${bracket("bg", "color-mix(in_srgb,#fff,var(--x))")}"`)
+      .length,
   ).toBe(1);
   // A named CSS colour inside color-mix is still a colour.
   expect(
-    colouredClassesIn("x.tsx", `className="${bracket("bg", "color-mix(in_oklch,red,var(--x))")}"`).length,
+    colouredClassesIn("x.tsx", `className="${bracket("bg", "color-mix(in_oklch,red,var(--x))")}"`)
+      .length,
   ).toBe(1);
   // Whatever order the tokens come in, and whichever colour space, two tokens
   // stay two tokens.
-  expect(colouredClassesIn("x.tsx", 'className="bg-[color-mix(in_srgb,var(--a)_40%,var(--b))]"').length).toBe(0);
+  expect(
+    colouredClassesIn("x.tsx", 'className="bg-[color-mix(in_srgb,var(--a)_40%,var(--b))]"').length,
+  ).toBe(0);
 });
 
 test("the brand scan counts a usage, and not the comment that states the rule", () => {
@@ -86,13 +97,19 @@ test("the brand scan counts a usage, and not the comment that states the rule", 
   expect(brandUsagesIn("a.tsx", `  <span className="${brand("text")}">Robomous</span>`)).toEqual([
     { file: "a.tsx", at: 1, text: `<span className="${brand("text")}">Robomous</span>` },
   ]);
-  expect(brandUsagesIn("b.tsx", `  className="h-full ${brand("bg")} transition-transform"`)).toEqual([
+  expect(
+    brandUsagesIn("b.tsx", `  className="h-full ${brand("bg")} transition-transform"`),
+  ).toEqual([
     { file: "b.tsx", at: 1, text: `className="h-full ${brand("bg")} transition-transform"` },
   ]);
   // An opacity modifier is still a usage of the brand colour.
-  expect(brandUsagesIn("c.tsx", `  className="${brand("bg", "/10")}"`).map((u) => u.at)).toEqual([1]);
+  expect(brandUsagesIn("c.tsx", `  className="${brand("bg", "/10")}"`).map((u) => u.at)).toEqual([
+    1,
+  ]);
   // A comment line states the rule rather than applying it.
-  expect(brandUsagesIn("d.css", `   * a third \`${brand("bg")}\` is a design decision`)).toEqual([]);
+  expect(brandUsagesIn("d.css", `   * a third \`${brand("bg")}\` is a design decision`)).toEqual(
+    [],
+  );
   expect(brandUsagesIn("e.tsx", `  // never add ${brand("bg")} here`)).toEqual([]);
   // Another token on the same prefixes is not the brand.
   expect(brandUsagesIn("f.tsx", `  className="bg-primary text-primary-foreground"`)).toEqual([]);

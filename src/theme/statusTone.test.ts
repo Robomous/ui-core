@@ -13,7 +13,11 @@ describe("status tones", () => {
     expect(STATUS_INK.warning).toBe("text-amber-700 dark:text-amber-400");
     expect(STATUS_INK.success).toBe("text-emerald-700 dark:text-emerald-400");
     expect(STATUS_INK.info).toBe("text-sky-700 dark:text-sky-400");
-    for (const v of [...Object.values(TONE_FILL), ...Object.values(TONE_BORDER), ...Object.values(STATUS_INK)]) {
+    for (const v of [
+      ...Object.values(TONE_FILL),
+      ...Object.values(TONE_BORDER),
+      ...Object.values(STATUS_INK),
+    ]) {
       expect(v).not.toMatch(/\b(?:bg|border|text)-(?:success|warning)\b/);
     }
   });

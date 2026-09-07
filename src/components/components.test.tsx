@@ -33,13 +33,7 @@ import { Progress } from "./progress";
 import { FieldError } from "./field";
 import { Input } from "./input";
 import { Label } from "./label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "./sheet";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "./table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
@@ -103,7 +97,11 @@ describe("Button", () => {
   });
 
   it("has an inline size that keeps a link button inside a sentence", () => {
-    render(<Button variant="link" size="inline">Read the docs</Button>);
+    render(
+      <Button variant="link" size="inline">
+        Read the docs
+      </Button>,
+    );
     const button = screen.getByRole("button", { name: "Read the docs" });
     expect(button.getAttribute("data-size")).toBe("inline");
     expect(button.className).toContain("h-auto");
@@ -130,13 +128,16 @@ describe("Alert and Badge", () => {
     expect(screen.getByText("done").getAttribute("data-slot")).toBe("badge");
   });
 
-  it.each(["success", "warning", "info", "quiet"] as const)("%s is a Badge variant keyed on data", (variant) => {
-    render(<Badge variant={variant}>x</Badge>);
-    const el = screen.getByText("x");
-    expect(el.getAttribute("data-variant")).toBe(variant);
-    expect(el.className).toContain("border-transparent");
-    expect(el.className).not.toMatch(/border-(emerald|amber|sky)/);
-  });
+  it.each(["success", "warning", "info", "quiet"] as const)(
+    "%s is a Badge variant keyed on data",
+    (variant) => {
+      render(<Badge variant={variant}>x</Badge>);
+      const el = screen.getByText("x");
+      expect(el.getAttribute("data-variant")).toBe(variant);
+      expect(el.className).toContain("border-transparent");
+      expect(el.className).not.toMatch(/border-(emerald|amber|sky)/);
+    },
+  );
 });
 
 describe("fields", () => {
@@ -414,7 +415,16 @@ describe("Dialog", () => {
 
 describe("sheet", () => {
   it("renders a dialog with its title and description wired by Radix", async () => {
-    render(<Sheet open><SheetContent><SheetHeader><SheetTitle>Filters</SheetTitle><SheetDescription>Narrow the list</SheetDescription></SheetHeader></SheetContent></Sheet>);
+    render(
+      <Sheet open>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Filters</SheetTitle>
+            <SheetDescription>Narrow the list</SheetDescription>
+          </SheetHeader>
+        </SheetContent>
+      </Sheet>,
+    );
     const dialog = await screen.findByRole("dialog");
     expect(dialog.getAttribute("data-slot")).toBe("sheet-content");
     expect(dialog.getAttribute("data-side")).toBe("right");

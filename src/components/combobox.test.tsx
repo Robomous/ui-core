@@ -1,7 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
-import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "./combobox";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "./combobox";
 
 const FRUIT = ["apple", "banana", "cherry"];
 
@@ -11,7 +18,13 @@ function Demo() {
       <ComboboxInput placeholder="Pick" aria-label="Fruit" />
       <ComboboxContent>
         <ComboboxEmpty>No matches</ComboboxEmpty>
-        <ComboboxList>{(item: string) => <ComboboxItem key={item} value={item}>{item}</ComboboxItem>}</ComboboxList>
+        <ComboboxList>
+          {(item: string) => (
+            <ComboboxItem key={item} value={item}>
+              {item}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
       </ComboboxContent>
     </Combobox>
   );

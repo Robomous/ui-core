@@ -29,19 +29,13 @@
       height: 0;
     }
     to {
-      height: var(
-        --radix-accordion-content-height,
-        var(--accordion-panel-height, auto)
-      );
+      height: var(--radix-accordion-content-height, var(--accordion-panel-height, auto));
     }
   }
 
   @keyframes accordion-up {
     from {
-      height: var(
-        --radix-accordion-content-height,
-        var(--accordion-panel-height, auto)
-      );
+      height: var(--radix-accordion-content-height, var(--accordion-panel-height, auto));
     }
     to {
       height: 0;
@@ -222,8 +216,7 @@
     animation-timeline: scroll(self y), scroll(self y);
     animation-range:
       0 var(--scroll-fade-reveal, calc(var(--spacing) * 24)),
-      calc(100% - var(--scroll-fade-reveal, calc(var(--spacing) * 24)))
-        100%;
+      calc(100% - var(--scroll-fade-reveal, calc(var(--spacing) * 24))) 100%;
     animation-fill-mode: both;
   }
 
@@ -263,8 +256,7 @@
     animation-timeline: scroll(self y), scroll(self y);
     animation-range:
       0 var(--scroll-fade-reveal, calc(var(--spacing) * 24)),
-      calc(100% - var(--scroll-fade-reveal, calc(var(--spacing) * 24)))
-        100%;
+      calc(100% - var(--scroll-fade-reveal, calc(var(--spacing) * 24))) 100%;
     animation-fill-mode: both;
   }
 
@@ -313,8 +305,7 @@
     animation-timeline: scroll(self inline), scroll(self inline);
     animation-range:
       0 var(--scroll-fade-reveal, calc(var(--spacing) * 24)),
-      calc(100% - var(--scroll-fade-reveal, calc(var(--spacing) * 24)))
-        100%;
+      calc(100% - var(--scroll-fade-reveal, calc(var(--spacing) * 24))) 100%;
     animation-fill-mode: both;
   }
 
@@ -375,10 +366,7 @@
   @supports (animation-timeline: scroll()) {
     animation: scroll-fade-reveal-b 1ms ease-in-out;
     animation-timeline: scroll(self y);
-    animation-range: calc(
-        100% - var(--scroll-fade-reveal, calc(var(--spacing) * 24))
-      )
-      100%;
+    animation-range: calc(100% - var(--scroll-fade-reveal, calc(var(--spacing) * 24))) 100%;
     animation-fill-mode: both;
   }
 
@@ -438,10 +426,7 @@
   @supports (animation-timeline: scroll()) {
     animation: scroll-fade-reveal-e 1ms ease-in-out;
     animation-timeline: scroll(self x);
-    animation-range: calc(
-        100% - var(--scroll-fade-reveal, calc(var(--spacing) * 24))
-      )
-      100%;
+    animation-range: calc(100% - var(--scroll-fade-reveal, calc(var(--spacing) * 24))) 100%;
     animation-fill-mode: both;
   }
 
@@ -517,10 +502,7 @@
   @supports (animation-timeline: scroll()) {
     animation: scroll-fade-reveal-e 1ms ease-in-out;
     animation-timeline: scroll(self inline);
-    animation-range: calc(
-        100% - var(--scroll-fade-reveal, calc(var(--spacing) * 24))
-      )
-      100%;
+    animation-range: calc(100% - var(--scroll-fade-reveal, calc(var(--spacing) * 24))) 100%;
     animation-fill-mode: both;
   }
 
@@ -587,21 +569,16 @@
 @utility shimmer {
   --_spread: var(--shimmer-spread, calc(3ch + 40px));
   --_base: currentColor;
-  --_highlight: var(
-    --shimmer-color,
-    oklch(from currentColor l c h / calc(alpha* 0.2))
-  );
+  --_highlight: var(--shimmer-color, oklch(from currentColor l c h / calc(alpha* 0.2)));
 
   background-image: var(
     --shimmer-image,
     linear-gradient(
       calc(90deg + var(--shimmer-angle)),
       var(--_base) calc(50% - var(--_spread)),
-      color-mix(in oklch, var(--_highlight), var(--_base) 50%)
-        calc(50% - var(--_spread) * 0.5),
+      color-mix(in oklch, var(--_highlight), var(--_base) 50%) calc(50% - var(--_spread) * 0.5),
       var(--_highlight) 50%,
-      color-mix(in oklch, var(--_highlight), var(--_base) 50%)
-        calc(50% + var(--_spread) * 0.5),
+      color-mix(in oklch, var(--_highlight), var(--_base) 50%) calc(50% + var(--_spread) * 0.5),
       var(--_base) calc(50% + var(--_spread))
     )
   );
@@ -616,10 +593,7 @@
   @variant dark {
     --_highlight: var(
       --shimmer-color,
-      oklch(
-        from currentColor max(0.8, calc(l + 0.4)) c h /
-          calc(alpha + 0.4)
-      )
+      oklch(from currentColor max(0.8, calc(l + 0.4)) c h / calc(alpha + 0.4))
     );
   }
 

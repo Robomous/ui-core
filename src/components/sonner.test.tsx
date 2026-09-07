@@ -16,7 +16,9 @@ describe("toaster theme", () => {
     const { container } = render(<Toaster />);
     toast("hi");
     await waitFor(() => {
-      expect(container.querySelector("[data-sonner-toaster]")?.getAttribute("data-sonner-theme")).toBe("light");
+      expect(
+        container.querySelector("[data-sonner-toaster]")?.getAttribute("data-sonner-theme"),
+      ).toBe("light");
     });
   });
   it("is dark when <html> carries .dark", async () => {
@@ -24,18 +26,24 @@ describe("toaster theme", () => {
     const { container } = render(<Toaster />);
     toast("hi");
     await waitFor(() => {
-      expect(container.querySelector("[data-sonner-toaster]")?.getAttribute("data-sonner-theme")).toBe("dark");
+      expect(
+        container.querySelector("[data-sonner-toaster]")?.getAttribute("data-sonner-theme"),
+      ).toBe("dark");
     });
   });
   it("follows <html> from light to dark after mount, via the MutationObserver", async () => {
     const { container } = render(<Toaster />);
     toast("hi");
     await waitFor(() => {
-      expect(container.querySelector("[data-sonner-toaster]")?.getAttribute("data-sonner-theme")).toBe("light");
+      expect(
+        container.querySelector("[data-sonner-toaster]")?.getAttribute("data-sonner-theme"),
+      ).toBe("light");
     });
     document.documentElement.classList.add("dark");
     await waitFor(() => {
-      expect(container.querySelector("[data-sonner-toaster]")?.getAttribute("data-sonner-theme")).toBe("dark");
+      expect(
+        container.querySelector("[data-sonner-toaster]")?.getAttribute("data-sonner-theme"),
+      ).toBe("dark");
     });
   });
 });

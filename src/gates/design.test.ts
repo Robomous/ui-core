@@ -70,8 +70,13 @@ test("statusPaletteIn finds the emerald/amber/sky family, and not a token or a c
     `a.tsx:1: className="${cls("bg", "emerald-500/10")}"`,
   ]);
   expect(
-    statusPaletteIn("b.tsx", `  className="${cls("border", "amber-400")} dark:${cls("border", "amber-300")}"`),
-  ).toEqual([`b.tsx:1: className="${cls("border", "amber-400")} dark:${cls("border", "amber-300")}"`]);
+    statusPaletteIn(
+      "b.tsx",
+      `  className="${cls("border", "amber-400")} dark:${cls("border", "amber-300")}"`,
+    ),
+  ).toEqual([
+    `b.tsx:1: className="${cls("border", "amber-400")} dark:${cls("border", "amber-300")}"`,
+  ]);
   expect(statusPaletteIn("c.tsx", `  className="${cls("ring", "sky-500")}"`)).toEqual([
     `c.tsx:1: className="${cls("ring", "sky-500")}"`,
   ]);
@@ -83,7 +88,9 @@ test("statusPaletteIn finds the emerald/amber/sky family, and not a token or a c
   // The family name without a shade is not yet a colour.
   expect(statusPaletteIn("f.tsx", `  className="bg-emerald"`)).toEqual([]);
   // A comment recalling the palette states history, not a usage.
-  expect(statusPaletteIn("g.tsx", `  // never ${cls("bg", "emerald-500")} outside statusTone`)).toEqual([]);
+  expect(
+    statusPaletteIn("g.tsx", `  // never ${cls("bg", "emerald-500")} outside statusTone`),
+  ).toEqual([]);
 });
 
 test("competingStatusPaletteIn finds a rival colour family, and not the status palette itself", () => {
@@ -96,7 +103,9 @@ test("competingStatusPaletteIn finds a rival colour family, and not the status p
   expect(competingStatusPaletteIn("c.tsx", `  className="${cls("border", "blue-400")}"`)).toEqual([
     `c.tsx:1: className="${cls("border", "blue-400")}"`,
   ]);
-  expect(competingStatusPaletteIn("d.tsx", `  className="${cls("bg", "emerald-500")}"`)).toEqual([]);
+  expect(competingStatusPaletteIn("d.tsx", `  className="${cls("bg", "emerald-500")}"`)).toEqual(
+    [],
+  );
   expect(
     competingStatusPaletteIn("e.tsx", `  // never ${cls("bg", "red-500")} for a destructive state`),
   ).toEqual([]);
@@ -109,7 +118,10 @@ test("the status palette lives in exactly Badge and statusTone, nowhere else", (
     "src/theme/statusTone.test.ts",
   ];
   const tracked = packageSources();
-  expect(tracked.length > 0, "the scan found no package sources, so it proves nothing").toBeTruthy();
+  expect(
+    tracked.length > 0,
+    "the scan found no package sources, so it proves nothing",
+  ).toBeTruthy();
 
   const offenders = tracked
     .filter((file) => !ALLOWED_PALETTE_FILES.includes(file))
@@ -123,7 +135,10 @@ test("the status palette lives in exactly Badge and statusTone, nowhere else", (
 
 test("no competing colour family stands in for the status palette anywhere in the package", () => {
   const tracked = packageSources();
-  expect(tracked.length > 0, "the scan found no package sources, so it proves nothing").toBeTruthy();
+  expect(
+    tracked.length > 0,
+    "the scan found no package sources, so it proves nothing",
+  ).toBeTruthy();
 
   const offenders = tracked.flatMap((file) =>
     competingStatusPaletteIn(file, readFileSync(path.join(REPO, file), "utf8")),
@@ -158,12 +173,13 @@ test("src/index.ts exports every component module in src/components", () => {
     .split("\0")
     .filter((name) => name.endsWith(".tsx") && !name.includes(".test."))
     .map((name) => path.basename(name, ".tsx"));
-  expect(modules.length > 0, "no component modules were found, so this proves nothing").toBeTruthy();
+  expect(
+    modules.length > 0,
+    "no component modules were found, so this proves nothing",
+  ).toBeTruthy();
 
   const surface = read("src/index.ts");
-  const missing = modules.filter(
-    (name) => !surface.includes(`from "./components/${name}.js"`),
-  );
+  const missing = modules.filter((name) => !surface.includes(`from "./components/${name}.js"`));
   expect(
     missing,
     "these components exist but no consumer can import them — add an export to src/index.ts, " +

@@ -23,7 +23,8 @@ const COMMENT = /^\s*(?:\/\/|\/\*|\*|#)/;
  * home — see `statusTone.ts`'s own docstring — so a third place naming the
  * family is a fork of the palette, not a use of it.
  */
-const STATUS_PALETTE = /\b(?:bg|text|border|ring|fill|stroke|from|to|via|outline|decoration|shadow)-(?:emerald|amber|sky)-\d/;
+const STATUS_PALETTE =
+  /\b(?:bg|text|border|ring|fill|stroke|from|to|via|outline|decoration|shadow)-(?:emerald|amber|sky)-\d/;
 
 /** Every `file:line` in `text` painting with the status palette, outside a comment. */
 export function statusPaletteIn(file: string, text: string): string[] {

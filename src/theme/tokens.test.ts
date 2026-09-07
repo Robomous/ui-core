@@ -256,7 +256,7 @@ describe("structure", () => {
   it("reaches its own package's classes: @source after the imports", () => {
     const sourceAt = STYLESHEET.indexOf('@source ".";');
     const lastImportAt = STYLESHEET.lastIndexOf("@import");
-    expect(sourceAt, "styles.css has no @source \".\";").toBeGreaterThan(-1);
+    expect(sourceAt, 'styles.css has no @source ".";').toBeGreaterThan(-1);
     expect(sourceAt).toBeGreaterThan(lastImportAt);
   });
 
