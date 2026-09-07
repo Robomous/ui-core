@@ -34,10 +34,22 @@
 
 /*
  * The package's own components, so a class string that only ever appears
- * inside `ui-core` still produces CSS in the consumer's build. Relative to
- * this file, which is what `@source` takes.
+ * inside `ui-core` still produces CSS in the consumer's build.
+ *
+ * `@source` resolves **relative to this file**, and this file is in
+ * `src/theme/`. So the target is `..` — `src/`, which holds `components/` —
+ * and not `.`, which would be `src/theme/` and contains no component at all.
+ * A consumer's Tailwind auto-detects its own sources and never looks inside
+ * `node_modules`, so this directive is the only thing that puts these
+ * components' class strings in front of the compiler: point it one directory
+ * too shallow and every consumer builds a stylesheet with no `h-8`, no
+ * `line-clamp-1` and no variant utility in it, while every check in this
+ * repository stays green.
+ *
+ * `src/gates/design.test.ts` resolves this path and fails if it stops
+ * reaching the components.
  */
-@source ".";
+@source "..";
 
 @custom-variant dark (&:is(.dark *));
 

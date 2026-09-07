@@ -186,3 +186,44 @@ test("src/index.ts exports every component module in src/components", () => {
       `or move the module next to its only caller:\n${missing.join("\n")}`,
   ).toEqual([]);
 });
+
+/**
+ * The stylesheet's `@source` still reaches the components.
+ *
+ * `styles.css` ships as source and a consumer's Tailwind compiles it. That
+ * compiler auto-detects the *consumer's* files and never walks
+ * `node_modules`, so `@source` is the only thing that puts this package's
+ * class strings in front of it. The directive resolves relative to the
+ * stylesheet, so moving the stylesheet moves the target — and pointing it one
+ * directory too shallow costs a consumer every utility that only this package
+ * writes, with no error anywhere: the CSS compiles, it is simply missing
+ * `h-8`, `line-clamp-1` and every variant utility the components rely on.
+ *
+ * Nothing else here can catch that, because nothing here compiles CSS. This
+ * resolves the path and asks whether the components are under it.
+ */
+test("the stylesheet's @source resolves to a directory that holds the components", () => {
+  const stylesheet = read("src/theme/styles.css");
+  const directives = [...stylesheet.matchAll(/^\s*@source\s+"([^"]+)"\s*;/gm)].map((m) => m[1]);
+  expect(directives.length, "styles.css declares no @source, so it scans nothing").toBeGreaterThan(
+    0,
+  );
+
+  const stylesheetDir = path.join(REPO, "src", "theme");
+  const componentDir = path.join(REPO, "src", "components");
+
+  const reaching = directives.filter((spec) => {
+    const target = path.resolve(stylesheetDir, spec);
+    // `@source` scans a directory recursively, so it reaches the components
+    // when its target is the component directory or an ancestor of it.
+    const rel = path.relative(target, componentDir);
+    return rel === "" || (!rel.startsWith("..") && !path.isAbsolute(rel));
+  });
+
+  expect(
+    reaching,
+    "no @source in src/theme/styles.css reaches src/components, so a consumer's build would " +
+      "emit none of this package's own utilities. @source resolves relative to the stylesheet: " +
+      `from src/theme/ the components are at "..". Declared: ${directives.join(", ")}`,
+  ).not.toEqual([]);
+});
