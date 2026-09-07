@@ -2,139 +2,196 @@
 
 ## Purpose and Ownership
 
-This document governs how the Robomous design system looks and behaves. It is not a component
-catalogue: the components are shadcn's, and their classes, anatomy and states are read from
-the files the CLI wrote rather than transcribed here. What it owns is the *governance* — which
-layer decides what, what this package may add, what it may not change, and which gate holds each
-rule. Where a rule is machine-checked the gate is named, because a rule nothing checks is a
-preference.
+This package owns its components. Not a copy of them, not a styled wrapper around something it
+must leave intact — the twenty-one files in `src/components/` are this repository's to edit, and
+a change to one of them needs a reason, a test and a review, which is the same thing every other
+file here needs. A component here is **written, not generated**: it is ordinary source, and the
+only thing that separates it from a screen's own component is the set of rules below.
 
-**This package owns the foundation; consumers own their extensions.** The foundation is the
-shadcn preset plus `brand`, the twenty-one primitives held canonical-plus-additive, and the
-status vocabulary (`statusTone.ts`, the Badge's four status variants). A consumer's domain
-components, screens, navigation, and product behaviour are the consumer's own, governed in the
-consumer's repository — see *Per-consumer extensions*.
+This document is not a component catalogue. A component's anatomy, its variants and its class
+strings are read from `src/components/`, where they live, rather than transcribed here where they
+would go stale. What this document governs is the smaller and more durable thing: **the rules
+this package holds itself to** — where a colour may be spelled, where a token may live, what the
+brand paints, which vocabulary a status speaks. Where a rule is machine-checked the gate is
+named, because a rule nothing checks is a preference.
 
-## Source of Truth
+**This package owns its components; consumers own their extensions.** A consumer's domain
+components, screens, navigation and product behaviour are the consumer's own, governed in the
+consumer's repository — see *Per-consumer extensions*, which is the contract two downstream
+repositories run on today.
 
-Four layers decide the visual result inside this package. **When two disagree, the earlier one
-wins.** A consumer's patterns and screens sit above all four, in the consumer's repo.
+## The Rules, and the Gate That Holds Each
 
-| # | Layer | Where it lives | Decides |
-| --- | --- | --- | --- |
-| 1 | CLI configuration | [`components.json`](components.json) | The fields shadcn's own tools read — style, base colour, icon library, menu treatment, aliases |
-| 2 | Decoded preset intent | preset code `b2iH`, shadcn CLI **4.19.0** | Every value the config schema has no field for — radius, fonts, chart palette, both themes |
-| 3 | Official registry output | [`shadcn/`](shadcn) snapshots, realised in [`src/primitives/`](src/primitives) | A primitive's API, anatomy, variants, sizes, states and styling |
-| 4 | Foundation additive extensions | `src/primitives/badge.tsx`, `src/tokens.ts`, `src/styles.css` | Semantic variants and tokens the preset has no name for |
+Seven rules, and each one has a gate that holds it. The gates are ordinary vitest files under
+`src/gates/`, so `pnpm test` runs them with everything else; there is no second test command.
 
-A consumer may not reach past its own pattern layer to restyle a primitive, and a primitive may
-not encode a screen's decision. A value missing from `components.json` is not drift: the config
-schema is **strict** and rejects a property it has no field for, so the preset's radius, fonts
-and chart palette live in `styles.css` as runtime values instead. The stylesheet is the one that
-runs; [`src/tokens.ts`](src/tokens.ts) mirrors it for callers that cannot read CSS (a
-`<canvas>`, a test), and `src/tokens.test.ts` asserts the two agree declaration for declaration.
+| Rule | Held by |
+| --- | --- |
+| Never a colour inside a class string | `colouredClassesIn`, run by [`src/gates/tokens.test.ts`](src/gates/tokens.test.ts) over every tracked `.ts`, `.tsx` and `.css` |
+| The brand colour is identity; it paints nothing here | `brandUsagesIn`, same file, asserted against an empty list of sites |
+| The tokens have exactly one home, the stylesheet | Same file refuses a `tailwind.config.*` anywhere in the tree; [`src/theme/tokens.test.ts`](src/theme/tokens.test.ts) holds the TypeScript mirror to it declaration for declaration |
+| One icon set, and only one | Same file, over every manifest and every import |
+| The status palette lives in `Badge` and `statusTone`, nowhere else | `statusPaletteIn`, run by [`src/gates/design.test.ts`](src/gates/design.test.ts) over the package's own sources |
+| No rival colour family stands in for the status palette | `competingStatusPaletteIn`, same file |
+| Every component module is part of the public surface | Same file, comparing `src/components/` against the exports in `src/index.ts` |
 
-## shadcn Foundation
+Each scanner is a pure function over one file's text, so its own test proves it twice: once on
+fabricated input that must be caught, once on input that merely resembles a violation and must
+pass. A gate that cannot be shown to fail is not evidence.
 
-Preset `b2iH`, generated with shadcn CLI **4.19.0**, decodes to:
+**The scanners are published**, because the rules do not stop at this package's edge. A consumer
+imports them and runs the same scans over its own sources, with its own extension registry:
 
-| Property | Value | Where it lands |
-| --- | --- | --- |
-| `style` | `nova` on the Radix base | `components.json` → `"style": "radix-nova"` |
-| `baseColor` | `neutral` | `components.json` → `tailwind.baseColor` |
-| `chart` | `neutral` | `styles.css` → `--chart-1` … `--chart-5` |
-| `icons` | `lucide` | `components.json` → `iconLibrary` |
-| `font` | `geist` | `styles.css` → `--font-sans: 'Geist Variable', sans-serif` |
-| `heading` | `inherit` | `styles.css` → `--font-heading: var(--font-sans)` |
-| `radius` | `medium` | `styles.css` → `--radius: 0.625rem` |
-| `menu` | `default` / `subtle` | `components.json` → `menuColor`, `menuAccent` |
-| `pointer` | on | `styles.css` base layer → `cursor: pointer` on pressable controls |
+```ts
+import { colouredClassesIn, foundationTokenNames } from "@robomous/ui-core/gates";
+```
 
-**What `components.json` can hold** is its whole current content: `style`, `rsc` (`false`),
-`tsx` (`true`), `tailwind` (`config` empty, `css` `src/styles.css`, `baseColor` `neutral`,
-`cssVariables` `true`, `prefix` empty), `iconLibrary`, `rtl` (`false`), the five `aliases`
-(`@/components`, `@/lib/cn`, `@/primitives`, `@/lib`, `@/hooks`), `menuColor`, `menuAccent`,
-`registries` (empty). **What it cannot hold:** the radius, either font, the chart palette, any
-colour — `gates/tokens.test.mjs` holds the file to that set, so nobody adds a documentary
-field the CLI then rejects. Radix supplies behaviour under every primitive and Nova is the
-styling on top; Base UI is an accepted official dependency for the same reason — shadcn's own
-Combobox is Base UI-backed, and nothing else here uses it.
+`@robomous/ui-core/gates` exports exactly eight things — the four scanners above, three CSS
+readers (`blockBody`, `rawDeclarations`, `declarations`) that a consumer needs to parse its own
+stylesheet the way this package parses its own, and `foundationTokenNames()`, which reads the
+token names off the shipped stylesheet so a consumer can assert that none of its extensions
+shadows one.
 
-## Primitive Governance
+A rule stated in this document that no gate holds is a rule under review, not an exemption.
 
-> Components in the primitive layer preserve the API, anatomy, official variants, default
-> variants, sizes, states, data attributes, accessibility behavior, and Nova styling generated
-> by the configured shadcn foundation. This package may add semantic variants only when they are
-> additive and do not reinterpret an upstream variant. Product-specific compositions belong
-> above primitives, in a consumer. A behavioral deviation from upstream requires a reproduced
-> defect, a regression test, and an explicit SHADCN DEVIATION comment.
+## Tokens
 
-The primitive layer is exactly these twenty-one files: `alert`, `badge`, `button`, `card`,
-`combobox`, `dialog`, `dropdown-menu`, `field`, `input`, `input-group`, `label`, `progress`,
-`select`, `separator`, `sheet`, `skeleton`, `sonner`, `table`, `tabs`, `textarea`, `tooltip`.
+**The tokens have one home: [`src/theme/styles.css`](src/theme/styles.css).** Tailwind v4 is
+CSS-first, so the stylesheet is not a mirror of a config — it *is* the config, and every utility
+in this package and in every consuming app resolves through it. There is no `tailwind.config.js`
+in this repository and there must not be one: a second file declaring the same names would win
+for some utilities and not others, and the failure would read as a styling bug rather than as
+two sources of truth.
 
-**The snapshot gate.** `shadcn/<name>.tsx` is the CLI's pristine output, and
-`gates/canonical.test.mjs` refuses any primitive that is not its snapshot **plus
-added lines** — a removed line, a reworded class, a renamed prop all fail. Import paths are
-relativised (`@/lib/cn` → `../lib/cn`, `@/primitives/x` → `./x`) because the package is compiled
-by `tsc` rather than bundled with a path alias; the gate accounts for that rewrite and nothing
-else.
+[`src/theme/tokens.ts`](src/theme/tokens.ts) is that stylesheet as TypeScript, for the two kinds
+of caller that cannot read CSS — a `<canvas>` or `<svg>` that needs a colour as a string, and a
+test. It is a mirror, never a second definition: `src/theme/tokens.test.ts` parses the
+stylesheet's `:root`, `.dark` and `@theme inline` blocks and asserts the two agree declaration
+for declaration, in both directions, so a value added to one and forgotten in the other fails.
 
-**Allowed:** an added `cva` variant line whose meaning the foundation has no name for (today,
-four on the Badge), and a framework adapter under *Allowed shadcn Deviations*. **Forbidden:**
-changing an official variant's classes; renaming or dropping a subcomponent; adding a prop;
-changing a default variant or size; touching focus, keyboard or `aria` behaviour; adjusting
-geometry. Each of those belongs above the primitive — at a call site, or in a consumer's
-pattern.
+Both themes are declared in full, which is what makes switching theme a variable swap rather
+than a cascade. Every rule in this document is therefore written against a **role** rather than
+a light-mode value: "the page" resolves per theme and is never asserted to be white.
+
+**Radius is a value, not a setting.** `--radius: 0.625rem` lives in the stylesheet, and every
+step derives from it in `@theme inline` (`radius-sm` at `× 0.6` through `radius-4xl` at `× 2.6`).
+No arbitrary radius appears outside that scale. A design value belongs where it runs: written in
+the stylesheet it is one declaration every utility resolves through, and written anywhere else it
+is documentation that drifts from the thing it describes.
+
+**The variant layer.** [`src/theme/tailwind.css`](src/theme/tailwind.css), imported by the
+stylesheet ahead of the token blocks, declares the `data-*` variants the components' state styles
+qualify on — `data-open`, `data-closed`, `data-active`, `data-disabled` and the rest. Each matches
+both the `data-state="open"` attribute the behaviour libraries set and the bare `[data-open]`
+form, which is the reason it is declared rather than left to Tailwind's own shorthand: the
+shorthand covers only the bare attribute, so it would emit a rule for every state style in the
+package and match none of them. That failure is silent — the CSS compiles and the components stop
+reacting — so `src/theme/imports.test.ts` asserts the file both exists and is committed.
 
 ## Color and Theme
 
-shadcn's semantic names are the only vocabulary. There is no second layer (`surface`, `error`,
+The semantic names are the only vocabulary. There is no second layer (`surface`, `error`,
 `foreground-secondary`) and no alias renaming what a token already means — `destructive` stays
 `destructive`. Two roles are worth restating because they are the two that get confused:
 `primary` is the one high-emphasis colour, and `accent` is the interactive hover/focus surface,
 the token a row or a menu item lights up with and never what a button fills with.
 `chart-1`…`chart-5` identify a series, never a status.
 
-Both themes are declared in full, so switching theme is a variable swap. Every rule here is
-written against a role rather than a light-mode value: "the page" resolves per theme and is
-never asserted to be white.
+**Never a colour inside a class string.** `bg-[#eb5a47]`, `text-[rgb(...)]`,
+`ring-[var(--something)]` — all of them put a colour where the token contract cannot see it, and
+`colouredClassesIn` refuses them across the whole tree. An arbitrary value that is *not* a colour
+stays legal, because the rule is about colour: a one-off `translate-y-[3px]` is geometry. The one
+sanctioned exception is a `color-mix` whose arguments are all tokens — the Button's own hover
+step is one — because mixing two tokens names no colour of its own.
 
-**The one retained extension** is `brand` (Robomous coral, identity only). Consumer vocabulary
-such as VisionSet's `stage` and `origin-*` lives in the consumer's own stylesheet and token
-module — see *Per-consumer extensions*.
-
-The former `success` and `warning` tokens are **retired**, with their `-foreground` companions:
-status colour is a Badge variant or `src/statusTone.ts`, so a status hue is spelled in one
-place instead of two. `gates/tokens.test.mjs` re-checks the retired vocabulary
-by an independent method from `src/tokens.test.ts`. **There is no `info` token** — the Badge has
-an `info` variant and `statusTone.ts` an `info` ink, neither of which implies one; adding one is
-a design decision to make here first.
+**The one name** beyond that vocabulary is `brand`: Robomous orange, identity only.
 
 ### Where the brand is
 
-Robomous coral is identity: a consuming app's wordmark and the styleguide swatch that shows the
-value off. **Two sites, enumerated per consuming app**, in that app's own gate. A functional
-control reaching for `brand` is a semantic-colour violation however many other sites already use
-it correctly, and the gate and this section move together or not at all.
+Robomous orange — `oklch(0.663 0.205 39.9)`, `#F5580B` — is identity: a wordmark, and the
+styleguide swatch that shows the value off. It is not a functional-UI colour, and a control
+reaching for it is a semantic-colour violation however many other sites already use it correctly.
 
-This package itself has **zero brand sites**: it declares the `--brand` token and never paints
-with it, and `gates/tokens.test.mjs` enforces that.
+It measures 3.34:1 against `background`, which clears 3:1 for large text and non-text marks and
+misses 4.5:1 for body copy. A wordmark is exempt from that threshold; a button label would not
+be, which is the contrast argument for the rule the paragraph above states on other grounds.
+
+**This package has zero brand sites.** It declares the `--brand` token and never paints with it;
+`brandUsagesIn` is asserted against an empty list, so the first `bg-brand` written here fails.
+Brand sites are a consuming app's decision, enumerated and gated in that app's own repository.
 
 ### Menus and the page's palette
 
-`menuColor: default` means a menu, select or combobox surface paints on the same `popover`
-tokens as the page around it, and follows that page from light to dark. Nova's alternative,
-`inverted`, gives each of those surfaces the literal `dark` class, so a floating panel is the
-dark theme's `popover` whatever the page is doing; in a light application it arrives as a black
-rectangle that reads as a different product. The tooltip is not a counterexample: Nova paints it
-`bg-foreground text-background`, which flips by construction, because one line of text has no
-palette of its own to keep in step. `menuAccent: subtle` means items highlight with `accent`,
-the token every other hover state uses.
+A menu, select or combobox surface paints on the same `popover` tokens as the page around it,
+and follows that page from light to dark. The alternative — giving each floating surface the
+literal `dark` class — makes a panel the dark theme's `popover` whatever the page is doing, and
+in a light application it arrives as a black rectangle that reads as a different product. The
+tooltip is not a counterexample: it is painted `bg-foreground text-background`, which flips by
+construction, because one line of text has no palette of its own to keep in step. Menu items
+highlight with `accent`, the token every other hover state uses.
+
+## Status Vocabulary
+
+**Four names, and one place each of them is spelled.**
+
+`Badge` carries the four status variants — `success`, `warning`, `info`, `quiet` — and
+[`src/theme/statusTone.ts`](src/theme/statusTone.ts) carries the tones for everything that is not
+a chip. Those two files are the entire vocabulary. A third file naming the same colour family is
+not a use of the palette; it is a fork of it, which is why `statusPaletteIn` scans for the family
+and allows exactly `badge.tsx`, `statusTone.ts` and `statusTone.test.ts`.
+
+The reason is not tidiness. A status hue spelled in two places drifts, and it drifts silently:
+the second spelling looks correct in isolation and only reads as wrong beside the first, on a
+screen neither author was looking at. Held to one place, "warning" is a name, and its value is a
+detail.
+
+### The Badge's four status variants
+
+| Variant | Reads as |
+| --- | --- |
+| `success` | emerald — settled |
+| `warning` | amber — waiting on a person |
+| `info` | sky — informational |
+| `quiet` | muted — a state that exists without asking for attention |
+
+Each hue is the `destructive` recipe on another family: a `/10` surface, ink at `700` (`400` in
+dark), a focus ring at matching opacity, a hover step for the anchor case. `quiet` is the one
+that is not a hue — the absence of one. **Geometry is untouched**: every status variant keeps the
+base string's height, padding, type size, radius and transparent hairline, and names no size, no
+radius and no border colour. `src/gates/design.test.ts` asserts each of the four paints a soft
+surface and readable ink and never a coloured stroke.
+
+### The status palette
+
+One family, five roles: **emerald** settled, **amber** waiting on a person, **sky**
+informational, **muted** no signal, **destructive** failed. Those three hues are the only colour
+families outside the semantic tokens, and the treatment is always **soft surface plus moderate
+ink**, so a chip carries a hue without competing with `primary`. **No rival family** — `green`,
+`lime`, `teal`, `yellow`, `orange`, `blue`, `cyan`, `red` — appears anywhere;
+`competingStatusPaletteIn` holds that half, because a rule with one allowed spelling is only
+enforceable if the near-misses are refused too.
+
+**Screen authors never pick a shade.** A status takes a Badge variant, or reads its colour from
+`statusTone.ts`, whose utilities are written out whole rather than assembled — Tailwind scans
+source *text*, so a class built at runtime is a rule the build never emitted, and the failure is
+silent:
+
+| Export | Values | Use |
+| --- | --- | --- |
+| `StatusTone` | `neutral · accent · success · warning · destructive` | The type every tone-taking prop speaks |
+| `TONE_BORDER` | `border-emerald-500 dark:border-emerald-400`, `border-amber-500 dark:border-amber-400`, `border-border`, `border-primary`, `border-destructive` | A tone's stroke, where the stroke is the mark |
+| `TONE_FILL` | `bg-emerald-500 dark:bg-emerald-400`, `bg-amber-500 dark:bg-amber-400`, `bg-muted-foreground`, `bg-primary`, `bg-destructive` | A solid mark — a dot, a timeline cell — where a `/10` surface would vanish at 4px |
+| `STATUS_INK` | `text-emerald-700 dark:text-emerald-400`, `text-amber-700 dark:text-amber-400`, `text-sky-700 dark:text-sky-400` | An icon or a run of inline text carrying a status |
+
+There is **no `info` token** and no `success`/`warning` token. A status hue is a Badge variant or
+a `statusTone` entry, so it is spelled once; adding a token for one is a design decision to make
+here first. Status Badge contrast is measured against page and card surfaces — on a full
+`bg-muted` panel the warning ink measures ~4.3:1, so a status Badge is not placed on a muted
+panel without a re-check.
 
 ## Action Hierarchy
 
-Six official Button variants, one intent each:
+Six Button variants, one intent each:
 
 | Variant | Intent |
 | --- | --- |
@@ -145,14 +202,16 @@ Six official Button variants, one intent each:
 | `destructive` | The action that ends something |
 | `link` | Navigation wearing a control's affordance |
 
-Sizes are `default`, `xs`, `sm`, `lg`, `icon`, `icon-xs`, `icon-sm`, `icon-lg`. **One dominant
-action per view**; which action that is on which screen is a consumer's product behaviour.
+Sizes are `default`, `xs`, `sm`, `lg`, `icon`, `icon-xs`, `icon-sm`, `icon-lg`, and `inline`.
+`inline` is the odd one and earns its place: `h-auto p-0`, for a `link` button that lives inside
+a sentence or a table cell, where a control's height and padding would push the line apart.
+
+**One dominant action per view**; which action that is on which screen is a consumer's product
+behaviour.
 
 **A status is not a step in the action hierarchy.** `success` describes an outcome, never a
-control's emphasis, and there is no variant for it — a saved form reports itself with a toast or
-a Badge while its button stays `default`. Three names a v1 call site may still reach for —
-`primary`, `success`, `md` — **do not exist** here, and
-`gates/extensions.test.mjs` pins the variant and size lists exactly.
+control's emphasis, and there is no Button variant for it — a saved form reports itself with a
+toast or a Badge while its button stays `default`.
 
 ## Status and Feedback
 
@@ -166,59 +225,11 @@ a Badge while its button stays `default`. Three names a v1 call site may still r
 **Colour is never the only signal.** Every status carries a redundant channel — a word, an icon,
 a shape.
 
-## Badge Variants
-
-Official: `default`, `secondary`, `destructive`, `outline`, `ghost`, `link`. The foundation adds
-exactly four status variants, as four added `cva` entries, verbatim:
-
-| Variant | Classes |
-| --- | --- |
-| `success` | `bg-emerald-500/10 text-emerald-700 focus-visible:ring-emerald-500/20 dark:bg-emerald-400/10 dark:text-emerald-400 dark:focus-visible:ring-emerald-400/40 [a]:hover:bg-emerald-500/20 dark:[a]:hover:bg-emerald-400/20` |
-| `warning` | `bg-amber-500/10 text-amber-700 focus-visible:ring-amber-500/20 dark:bg-amber-400/10 dark:text-amber-400 dark:focus-visible:ring-amber-400/40 [a]:hover:bg-amber-500/20 dark:[a]:hover:bg-amber-400/20` |
-| `info` | `bg-sky-500/10 text-sky-700 focus-visible:ring-sky-500/20 dark:bg-sky-400/10 dark:text-sky-400 dark:focus-visible:ring-sky-400/40 [a]:hover:bg-sky-500/20 dark:[a]:hover:bg-sky-400/20` |
-| `quiet` | `bg-muted text-muted-foreground [a]:hover:bg-muted/80` |
-
-Each is Nova's own `destructive` recipe on another hue: a `/10` surface, ink at `700` (`400` in
-dark), a focus ring at matching opacity, a hover step for the anchor case. `quiet` is the one
-that is not a hue — the absence of one, for a state that exists without asking for attention.
-
-**Geometry is untouched.** The base string keeps its height, padding, type size, radius and
-transparent hairline, and no added variant names a size, a radius or a border colour.
-
-## Status Palette
-
-One family, five roles: **emerald** settled, **amber** waiting on a person, **sky**
-informational, **muted** no signal, **destructive** failed. Those three hues are the only ones
-outside the semantic tokens, and the treatment is always **soft surface plus moderate ink** — a
-`/10` fill with `700`/`400` text — so a chip carries a hue without competing with `primary`.
-
-The `emerald`, `amber` and `sky` utilities are permitted in exactly three files:
-`src/primitives/badge.tsx`, [`src/statusTone.ts`](src/statusTone.ts) and its test. A fourth
-place naming the family is a fork of the palette, not a use of it. **No competing family** —
-`green`, `lime`, `teal`, `yellow`, `orange`, `blue`, `cyan`, `red` — appears anywhere.
-`gates/extensions.test.mjs` holds both halves, and a consumer runs the same scans over its own
-sources with the helpers from `@robomous/ui-core/gates`.
-
-**Screen authors never pick a shade.** A status takes a Badge variant, or reads its colour from
-`statusTone.ts`, whose utilities are written out whole rather than assembled — Tailwind scans
-source text, so a class built at runtime is a rule the build never emitted:
-
-| Export | Values | Use |
-| --- | --- | --- |
-| `StatusTone` | `neutral · accent · success · warning · destructive` | The type every tone-taking prop speaks |
-| `TONE_BORDER` | `border-emerald-500 dark:border-emerald-400`, `border-amber-500 dark:border-amber-400`, `border-border`, `border-primary`, `border-destructive` | A tone's stroke, where the stroke is the mark |
-| `TONE_FILL` | `bg-emerald-500 dark:bg-emerald-400`, `bg-amber-500 dark:bg-amber-400`, `bg-muted-foreground`, `bg-primary`, `bg-destructive` | A solid mark — a dot, a timeline cell — where the Badge's `/10` surface would vanish at 4px |
-| `STATUS_INK` | `text-emerald-700 dark:text-emerald-400`, `text-amber-700 dark:text-amber-400`, `text-sky-700 dark:text-sky-400` | An icon or a run of inline text carrying a status |
-
-Status Badge contrast is measured against page/card surfaces; on a full `bg-muted` panel the
-warning ink measures ~4.3:1, so a status Badge is not placed on a muted panel without a re-check.
-
 ## Alerts
 
-The official anatomy, and only it: `Alert`, `AlertTitle`, `AlertDescription`, `AlertAction` — a
-title is a child, never a prop. Variants are `default` and `destructive`; there is no
-informational or settled Alert, because a condition worth interrupting the page for is either
-neutral or bad.
+The anatomy, and only it: `Alert`, `AlertTitle`, `AlertDescription`, `AlertAction` — a title is a
+child, never a prop. Variants are `default` and `destructive`; there is no informational or
+settled Alert, because a condition worth interrupting the page for is either neutral or bad.
 
 An Alert's border is **structural**: `default` takes the card surface, and `destructive` keeps
 that same surface, recolouring only the ink. No saturated surface, no coloured stroke. An Alert
@@ -231,7 +242,7 @@ floats and closes; `muted` recesses. A component picks one — it does not compo
 Elevation is a ring plus a resting shadow, never a coloured border and never a gradient.
 
 **Borders are structural**: a hairline separates or contains. **Status is not a stroke** — no
-status is communicated by recolouring a border, which is why every added Badge variant keeps
+status is communicated by recolouring a border, which is why every status Badge keeps
 `border-transparent`, and why `TONE_BORDER` exists only for marks whose whole body *is* the
 stroke. `outline` on its own, Badge or Button, takes `border-border`, because `outline` means
 "bounded", not "notable".
@@ -240,47 +251,44 @@ stroke. `outline` on its own, Badge or Button, takes `border-border`, because `o
 
 The base layer applies `border-border` and `outline-ring/50` to every element, naming the
 outline's **colour only**. Focus *geometry* belongs to the component: one blanket
-`:focus-visible` declaration in the stylesheet overrides every primitive's ring at once and wins
-on layer order, so each focusable primitive carries Nova's own treatment instead. Focus is never
-removed and never colour-only.
+`:focus-visible` declaration in the stylesheet overrides every component's ring at once and wins
+on layer order, so each focusable component carries its own `focus-visible:ring-3
+focus-visible:ring-ring/50` instead. `src/theme/tokens.test.ts` asserts that absence, because the
+absence is the point — a single global rule is how thirteen components' rings got overridden at
+once. Focus is never removed and never colour-only.
 
 ## Typography
 
 - **One family: Geist**, through `--font-sans`, bundled offline through
   `@fontsource-variable/geist`. No runtime fetch to a font host, ever.
 - **`font-heading` survives as a hook, not a difference.** It resolves to `--font-sans`, so a
-  heading is the same face at another size and weight; `h1`–`h4` carry it in the base layer, so
-  a later preset that splits the families again lands in one declaration.
+  heading is the same face at another size and weight; `h1`–`h4` carry it in the base layer, so a
+  later decision to split the families again lands in one declaration.
 - **One justified technical role: `font-mono`**, on Tailwind's default stack. It marks
   machine-shaped content — identifiers, hashes, model references, measurements. Prose never
   wears it.
-- Size and weight come from the primitive, or from Tailwind's ordinary scale. There is no
-  custom type-scale token: `--text-page`, `--text-section`, `--text-body` and `--text-meta`
-  are retired, and `gates/tokens.test.mjs` keeps them retired.
+- Size and weight come from the component, or from Tailwind's ordinary scale. There is no custom
+  type-scale token, and `src/theme/tokens.test.ts` keeps the retired ones retired.
 
 ## Density, Spacing, and Radius
 
 Two scales answer two questions, and conflating them is the anti-pattern this section exists to
-prevent. **Component geometry is Nova's**, fixed per control by the foundation: a control's
-height, padding and internal gaps are not a per-screen choice, and this document does not
-restate them — `src/primitives/` carries them and the snapshot gate holds them. **Page and
-layout rhythm is the consumer's own composition**, on Tailwind's ordinary spacing scale: `p-6`,
-`gap-4`, `space-y-8`. Dense where the content is plural — data surfaces show more of the thing
-the reader came for; generous where prose and forms are read one thing at a time.
+prevent. **Component geometry belongs to the component**: a control's height, padding and
+internal gaps are set once in `src/components/`, not per screen, and this document does not
+restate them. **Page and layout rhythm is the consumer's own composition**, on Tailwind's
+ordinary spacing scale: `p-6`, `gap-4`, `space-y-8`. Dense where the content is plural — data
+surfaces show more of the thing the reader came for; generous where prose and forms are read one
+thing at a time.
 
-**Radius is a runtime value, not a config field.** The preset's `radius: medium` materialises as
-`--radius: 0.625rem` (10px) in `styles.css`, mirrored by `tokens.ts` and pinned by
-`src/tokens.test.ts`; `components.json` holds no radius field because the schema defines none.
-Every other step derives from `--radius` in `@theme inline` (`radius-sm` at `× 0.6` through
-`radius-4xl` at `× 2.6`), and no arbitrary radius appears outside that scale.
+Radius derives from `--radius`, per *Tokens*.
 
 ## Icons
 
-`lucide-react` is the set, and the only one. No package declares a second icon library, and
-`gates/tokens.test.mjs` refuses one that reappears in a manifest or an import.
-The rule is *one* set rather than one particular set — what costs a reader is two of them on a
+`lucide-react` is the set, and the only one. No manifest declares a second icon library and no
+source imports one; `src/gates/tokens.test.ts` refuses one that reappears in either place. The
+rule is *one* set rather than one particular set — what costs a reader is two of them on a
 screen, where the same idea arrives at two weights and two grids. Changing which one is a
-decision to make here, not a dependency to add. Icon size comes from the primitive that contains
+decision to make here, not a dependency to add. Icon size comes from the component that contains
 the icon; a call site does not resize an icon to fit a control it did not measure.
 
 ## Motion
@@ -289,19 +297,14 @@ Motion orients or confirms, and never stands between somebody and their next act
 **enter** animation is free to play: the surface it introduces did not exist a frame ago, so
 nothing is waiting on it. An **exit** animation is not, and the difference is not taste.
 
-**A menu leaves on the frame it is dismissed.** While Radix runs an exit animation the content
-stays mounted and the dismissable layer with it, so a press meant to open the next menu is read
-twice — as the open, and as an interaction outside the closing surface — and the two cancel. At a
-100ms exit that window covers the gap between an `Escape` and the click after it, which a fast
-hand meets routinely. Canonical `dropdown-menu.tsx` animates out like any other floating
-surface and the snapshot gate holds it there, so the rule is a **call-site constant**, not a
-primitive edit: every `DropdownMenuContent` applies `menuSurface`
-([`src/lib/menu.ts`](src/lib/menu.ts), `data-closed:animate-none! w-auto`). Both halves are one
-rule — a menu that behaves like a menu — and travel together, `w-auto` freeing the surface from
-canonical's trigger-width pin, which behind an icon-sized button leaves a 128px floor every
-longer item wraps against. A surface whose trigger cannot be pressed again straight away — a
-dialog's, a tooltip's — keeps its exit animation and never takes the constant. `TooltipProvider`
-defaults `delayDuration` to `0`; a screen wanting Radix's debounce sets it on the provider.
+**A menu leaves on the frame it is dismissed.** While an exit animation runs the content stays
+mounted and the dismissable layer with it, so a press meant to open the next menu is read twice —
+as the open, and as an interaction outside the closing surface — and the two cancel. At a 100ms
+exit that window covers the gap between an `Escape` and the click after it, which a fast hand
+meets routinely. `DropdownMenuContent` therefore has no exit animation, in its own base classes,
+as its default. A surface whose trigger cannot be pressed again straight away — a dialog's, a
+tooltip's — keeps its exit animation. `TooltipProvider` defaults `delayDuration` to `0`; a screen
+wanting the debounce sets it on the provider.
 
 `prefers-reduced-motion` sits above all of this: the base layer collapses every animation and
 transition to a single frame under that query, so no component opts in.
@@ -315,87 +318,125 @@ transition to a single frame under that query, so no component opts in.
 - **Focus is always visible**, per *Borders and focus*: never removed, never colour-only.
 - **No colour-only communication.** Status, selection, validity and provenance each carry a
   redundant channel.
+- **A component announces its own state.** `Progress` forwards its `value` to the underlying
+  Radix root, so `aria-valuenow` is emitted from `<Progress value={42} />` with nothing asked of
+  the caller. The general form of that rule is in *Why the Patch Layer Is Gone*, and it is the
+  sharpest argument in this document.
 - **Field anatomy carries the wiring.** `Field`, `FieldLabel`, `FieldDescription`, `FieldError`,
   `FieldGroup`, `FieldSet`, `FieldLegend`, `FieldContent`, `FieldTitle`, `FieldSeparator`: a
   description and an error are subcomponents, so `aria-describedby` and `aria-invalid` come from
-  the primitive rather than from a screen remembering.
-- **Dialog and Sheet keep their official anatomy** — trigger, overlay, content, header, title,
+  the component rather than from a screen remembering.
+- **Dialog and Sheet keep their full anatomy** — trigger, overlay, content, header, title,
   description, footer, close. Focus trap and return, `Escape`, and the labelled-by relationships
-  are Radix's guarantees, which is why no primitive here is hand-rolled from a `<div>`.
+  are Radix's guarantees, which is why nothing here is hand-rolled from a `<div>`.
+
+## Adding a Component
+
+A component is a file in `src/components/`, written here. There is no generator to run and
+nothing to reconcile against: the work is designing the API and then holding it to the rules
+above.
+
+1. **Take behaviour from Radix or Base UI**, and wrap it. Focus trap and return, `Escape`, arrow
+   movement, the `aria-*` relationships and the `data-state` attributes the variant layer keys
+   off are theirs to guarantee. A floating surface, a menu or a composite widget hand-rolled from
+   a `<div>` will be wrong in ways that only show up on a keyboard or a screen reader.
+2. **Spell colour only through the tokens** — `bg-primary`, `text-muted-foreground`. Never a
+   literal in a class string, never a second name for something the vocabulary already covers.
+3. **Put the geometry in the component.** Height, padding, gaps and radius are decided once,
+   here, on the radius scale — not passed in by a screen.
+4. **Draw from `lucide-react`,** and size the icon from the component that contains it.
+5. **Give it `data-slot`,** the hook a parent uses to reach a child's layout without knowing its
+   internals, and a `className` that merges last through `cn` so a consumer can adjust without
+   fighting specificity.
+6. **Export it from [`src/index.ts`](src/index.ts).** The surface is listed name by name rather
+   than re-exported wholesale, which is what keeps the promise auditable — and is also how a
+   finished component can sit in the directory reaching nobody. `src/gates/design.test.ts`
+   compares the two and fails naming what it cannot import.
+7. **Test the behaviour a screen would silently lose**, in
+   [`src/components/components.test.tsx`](src/components/components.test.tsx): the `className`
+   merge, `asChild`, the announced error, the state a consumer reads. Appearance is not what
+   these tests are for; the behaviour a caller depends on is.
+
+**Where a decision goes.** If a caller wants something the component does not offer, the answer is
+a prop or a variant *in the component* — never a class string spread onto it from the call site.
+The reasoning is in *Why the Patch Layer Is Gone*, and it is the same either way: if the addition
+reads as a decision the caller is making, it is a prop; if it reads as a limitation, it is a
+defect, and the component is right here to fix.
+
+## Why the Patch Layer Is Gone
+
+Four helper modules used to live in `src/lib/`, and they are worth a section because they are the
+clearest evidence for everything above.
+
+| Helper | What a caller spread onto a component | Why it existed |
+| --- | --- | --- |
+| `menuSurface` | class overrides on every `DropdownMenuContent` | the component's base classes were not editable |
+| `twoLineTrigger` | class overrides on a `SelectTrigger` | a variant could not be added to `SelectTrigger` |
+| `inlineLink` | class overrides on a `Button` | a size could not be added to `Button` |
+| `progressAria` | `aria-*` attributes on a `Progress` | `Progress` could not be fixed |
+
+**None of the four described a decision the caller was making. All four described a limitation.**
+That is the tell, and it is a general one: a helper whose name answers "what did the author
+decide?" is a real abstraction, and a helper whose name answers "what could the author not reach?"
+is a workaround wearing an abstraction's clothes. The second kind spreads — every call site has to
+know about it, no call site is reminded to, and the module's existence looks like design rather
+than like a bill coming due.
+
+Once ownership was real, all four evaporated into the components they had been patching from
+outside:
+
+- `menuSurface` became `DropdownMenuContent`'s base classes. A menu sizes to its items rather
+  than to its trigger, and does not animate on the way out. Both are now the default, so there is
+  nothing to remember and nothing to forget.
+- `twoLineTrigger` became `<SelectTrigger multiline>`. A boolean prop, orthogonal to size,
+  because "let the value wrap" is a decision the caller genuinely makes.
+- `inlineLink` became `<Button variant="link" size="inline">`. It was always a size; it just could
+  not be written where sizes live.
+- `progressAria` became a one-line fix: `Progress` now passes `value` through to the Radix root.
+
+**`progressAria` is the sharpest case, and it was not a styling workaround.** `Progress`
+destructured `value` out of its props to compute the indicator's `translateX` and then never
+forwarded it — and the Radix root is what derives `aria-valuenow` from `value`. The component
+therefore announced nothing to assistive technology. The helper made every caller repeat the
+number by hand, and **no gate existed to catch a caller who forgot**: accessibility was opt-in,
+per call site, silently. A defect in a component that could not be edited became a chore
+distributed to everyone who used it.
+
+`src/lib/` no longer exists. The rule this leaves behind: **when a call site is patching a
+component from the outside, the fix belongs in the component.** If the patch reads as a decision
+the caller is making, give it a prop or a variant. If it reads as a limitation, it is a defect,
+and the component is right here.
 
 ## Per-consumer extensions
 
-The foundation is closed: this package's `:root` carries the shadcn preset
-plus `brand`, and its gates hold the primitives to canonical-plus-additive.
-A consumer that needs its own vocabulary (VisionSet's `stage` and `origin-*`
-are the reference examples) extends in its own repo, never here:
+This package's `:root` carries the semantic vocabulary plus `brand`, and nothing else. A
+consumer that needs its own vocabulary extends in its own repository, never here:
 
 1. Declare the variable in the consumer's stylesheet, after
-   `@import "@robomous/ui-core/styles.css";` — a value in `:root`, a dark
-   counterpart in `.dark`, exposure through `@theme inline`, shadcn's own
-   extension convention.
-2. Mirror it in the consumer's token module and register it in the
-   consumer's extensions list.
-3. Gate it: import the parsers and `foundationTokenNames()` from
-   `@robomous/ui-core/gates` and assert (a) the consumer stylesheet and token
-   module agree declaration-for-declaration, (b) no extension name shadows a
-   foundation name.
+   `@import "@robomous/ui-core/styles.css";` — a value in `:root`, a dark counterpart in `.dark`,
+   exposure through `@theme inline`, the same three steps every name here takes.
+2. Mirror it in the consumer's token module and register it in the consumer's extensions list.
+3. Gate it: import the parsers and `foundationTokenNames()` from `@robomous/ui-core/gates` and
+   assert (a) the consumer's stylesheet and token module agree declaration-for-declaration, and
+   (b) no extension name shadows one of this package's.
 
-An extension that turns out to be universal is a candidate to move here —
-that is a design decision and a PR against this repository, with the
+A consumer may not reach past its own layer to restyle a component here, and a component here may
+not encode a screen's decision. An extension that turns out to be universal is a candidate to move
+into this package — that is a design decision and a PR against this repository, with the
 justification written into this file.
-
-## Allowed shadcn Deviations
-
-**Policy.** A behavioural change to a primitive requires all three of: a **reproduced defect**
-(not a preference, not a hypothetical), a **regression test** that fails on the canonical file
-and passes on the changed one, and an explicit `SHADCN DEVIATION` comment naming the defect.
-Absent any one of them, the change belongs at a call site.
-
-**Current list: none.** No primitive carries a `SHADCN DEVIATION` marker. The historic
-DropdownMenu rapid-reopen patch was retired — its rule lives in `menuSurface` at the call site.
-
-**Framework adapters are a separate, narrower category.** A primitive may replace an upstream
-integration that assumes a framework a consumer does not run, and nothing else. There is exactly
-one: `src/primitives/sonner.tsx` replaces shadcn's `next-themes` `useTheme` — a Next.js
-integration — with a hook reading `.dark` on `<html>`, the one theme source under Vite. It
-carries a `SHADCN FRAMEWORK ADAPTER` comment, it is the only entry in `FRAMEWORK_ADAPTERS` in
-`gates/index.mjs`, and the gate names the exact snapshot lines it may remove. An adapter is not
-a licence for divergence in general, and the marker on an unlisted file fails the gate.
-
-## Updating shadcn Components
-
-Install or refresh:
-
-```
-pnpm shadcn:add <name>
-```
-
-That writes the CLI's pristine output to `shadcn/<name>.tsx`, then relativises
-the import paths in `src/primitives/<name>.tsx`. The CLI version is pinned at **4.19.0** in the
-installer, matching the `shadcn` dependency in `package.json`, so a refresh
-cannot quietly move the foundation. `shadcn add <name> --diff` reports what upstream changed; it
-is inspection only.
-
-**Accept upstream by default.** A refresh that changes a class, a size or an anatomy is the
-foundation moving, and this package follows it — keeping the primitives canonical is what makes
-that a routine update rather than a merge. `shadcn:add` itself runs `--overwrite --yes`, so the
-discipline is not to withhold the flag but to know what it will replace: **`add --diff` first,
-then reapply** the additive lines this document names (today, only the Badge's four), re-run
-`pnpm test:gates`, and check the consumers' visual baselines. An overwrite that drops those four
-lines, or the sonner adapter, type-checks and fails the gate — the gate doing its job, but the
-diff is easier to read before the fact than after.
 
 ## Verification
 
-| Gate | Holds |
+One command, `pnpm test`, runs everything: the component behaviour tests, the token contract, and
+the gates.
+
+| File | Holds |
 | --- | --- |
-| `gates/canonical.test.mjs` | Every primitive is its snapshot plus added lines; the framework-adapter allow-list |
-| `gates/extensions.test.mjs` | Button's variants and sizes exactly; the Badge's four additions and their classes; the status palette's three files; no competing colour family; no retired v1 vocabulary |
-| `gates/tokens.test.mjs` | No colour in a class string; `components.json` within the schema-supported set; zero brand sites in this package; the retired token vocabulary; one icon library |
-| `src/tokens.test.ts` | `styles.css` and `tokens.ts` agree declaration for declaration, and no retired token has returned |
+| [`src/gates/tokens.test.ts`](src/gates/tokens.test.ts) | No colour in a class string; the brand paints nothing here; the tokens have one home; one icon set |
+| [`src/gates/design.test.ts`](src/gates/design.test.ts) | The status palette lives only in `Badge` and `statusTone`; no rival colour family; each status Badge variant is a soft surface and readable ink, never a stroke; every component module is exported |
+| [`src/theme/tokens.test.ts`](src/theme/tokens.test.ts) | `styles.css` and `tokens.ts` agree declaration for declaration; the radius scale derives; no retired token has returned; no stylesheet-level focus geometry |
+| [`src/theme/imports.test.ts`](src/theme/imports.test.ts) | Everything `styles.css` imports resolves: each package is installed and exports the file it names, each sibling exists and is committed |
+| [`src/components/components.test.tsx`](src/components/components.test.tsx) | The behaviours a screen would silently lose — the `className` merge, `asChild`, the announced error, and the four components whose API this restructure changed |
 
 Consumers run the same vocabulary scans over their own sources with the helpers published at
 `@robomous/ui-core/gates`.
-
-A rule in this document that no gate holds is a rule under review, not an exemption.

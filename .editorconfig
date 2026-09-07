@@ -1,0 +1,27 @@
+# The one place this repository states its own formatting.
+#
+# Without it, style lives only inside the committed files as a convention, and
+# every editor applies its own defaults instead — which is how `styles.css`
+# came back from a save at four-space indent while the other forty files stayed
+# at two. Every mainstream editor reads this file natively, with nothing to
+# install, so the rule travels with the checkout rather than with whoever set
+# their editor up correctly.
+#
+# `.gitattributes` is the other half: it holds the line endings, which git
+# rewrites on checkout and an editor never sees.
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+max_line_length = 100
+
+# Two trailing spaces are a hard line break in Markdown, so trimming them here
+# would silently edit the prose rather than tidy it.
+[*.md]
+trim_trailing_whitespace = false

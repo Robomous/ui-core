@@ -9,10 +9,8 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    // The Rules of Hooks over the whole package, unlike the annotator, where the
-    // same plugin is scoped to `src/adapters/react/**`. There the scope was the
-    // point: a rule about React should have nothing to say about a package that is
-    // mostly not React. Here every module is a component or is imported by one, so
+    // The Rules of Hooks over the whole package rather than scoped to a React
+    // subdirectory: every module here is a component or is imported by one, so
     // the scope is the package.
     files: ["src/**/*.ts", "src/**/*.tsx"],
     plugins: { "react-hooks": reactHooks },

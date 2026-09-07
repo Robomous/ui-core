@@ -1,0 +1,22 @@
+# Build output and generated files.
+dist/
+pnpm-lock.yaml
+
+# Markdown is formatted by hand here, and Prettier's markdown printer fights
+# that on two counts rather than helping:
+#
+# 1. It rewrites `*emphasis*` as `_emphasis_`. The repository uses the asterisk
+#    form throughout, the two render identically, and the change is 40-odd
+#    lines of diff that mean nothing.
+# 2. It pads table cells so the pipes line up. `DESIGN.md`'s tables carry long
+#    sentences, so alignment pushes single lines past 170 characters — in the
+#    two files whose whole convention is a hard wrap at 100.
+#
+# Prose wrapping itself is safe (`proseWrap` defaults to preserve); it is the
+# other two that make the docs worse. They stay hand-formatted, held to the
+# 100-column guide in `.editorconfig`.
+*.md
+
+# Process records, kept as written at the time.
+docs/superpowers/
+.superpowers/

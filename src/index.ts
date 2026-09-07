@@ -1,9 +1,9 @@
 /**
  * `@robomous/ui-core` — the Robomous design system.
  *
- * Extracted from Robomous/VisionSet. UI primitives: Radix behaviour under
- * shadcn Nova styling, iconed with lucide; the foundation design tokens; and
- * the status-tone vocabulary. A consumer imports exactly:
+ * Twenty-one React components this package owns outright, the design tokens
+ * they resolve through, and the status-tone vocabulary. A consumer imports
+ * exactly:
  *
  * ```ts
  * import "@robomous/ui-core/styles.css";   // once, in the app's entry
@@ -11,24 +11,22 @@
  * ```
  *
  * The public surface is listed explicitly rather than `export *`, so what this
- * package promises stays auditable. The gates that keep the primitives
- * canonical are published too: `import { ... } from "@robomous/ui-core/gates"`.
+ * package promises stays auditable. The scanners behind this repository's own
+ * design rules are published too, for a consumer to run over its own sources:
+ * `import { ... } from "@robomous/ui-core/gates"`. DESIGN.md names each rule
+ * and the gate that holds it.
  */
 
 // The design tokens, and their prose contract in DESIGN.md.
-export { cssVar, DARK_THEME, LIGHT_THEME, THEME } from "./tokens.js";
+export { cssVar, DARK_THEME, LIGHT_THEME, THEME } from "./theme/tokens.js";
 
-export { inlineLink } from "./lib/button.js";
-export { cn } from "./lib/cn.js";
-export { menuSurface } from "./lib/menu.js";
-export { twoLineTrigger } from "./lib/select.js";
-export { progressAria } from "./lib/progress.js";
+export { cn } from "cn";
 
 // The one home for status colour outside the Badge.
-export { STATUS_INK, TONE_BORDER, TONE_FILL, type StatusTone } from "./statusTone.js";
+export { STATUS_INK, TONE_BORDER, TONE_FILL, type StatusTone } from "./theme/statusTone.js";
 
-// Primitives — Radix behaviour under shadcn Nova styling, iconed with lucide.
-export { Button, buttonVariants } from "./primitives/button.js";
+// The components — Radix and Base UI behaviour, iconed with lucide.
+export { Button, buttonVariants } from "./components/button.js";
 export {
   Card,
   CardAction,
@@ -37,10 +35,10 @@ export {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "./primitives/card.js";
-export { Input } from "./primitives/input.js";
-export { Textarea } from "./primitives/textarea.js";
-export { Label } from "./primitives/label.js";
+} from "./components/card.js";
+export { Input } from "./components/input.js";
+export { Textarea } from "./components/textarea.js";
+export { Label } from "./components/label.js";
 export {
   Field,
   FieldContent,
@@ -52,7 +50,7 @@ export {
   FieldSeparator,
   FieldSet,
   FieldTitle,
-} from "./primitives/field.js";
+} from "./components/field.js";
 export {
   InputGroup,
   InputGroupAddon,
@@ -60,7 +58,7 @@ export {
   InputGroupInput,
   InputGroupText,
   InputGroupTextarea,
-} from "./primitives/input-group.js";
+} from "./components/input-group.js";
 export {
   Combobox,
   ComboboxChip,
@@ -78,13 +76,44 @@ export {
   ComboboxTrigger,
   ComboboxValue,
   useComboboxAnchor,
-} from "./primitives/combobox.js";
-export { Badge, badgeVariants } from "./primitives/badge.js";
-export { Alert, AlertAction, AlertDescription, AlertTitle } from "./primitives/alert.js";
-export { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger } from "./primitives/dialog.js";
-export { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "./primitives/sheet.js";
-export { Tabs, TabsContent, TabsList, tabsListVariants, TabsTrigger } from "./primitives/tabs.js";
-export { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectScrollDownButton, SelectScrollUpButton, SelectSeparator, SelectTrigger, SelectValue } from "./primitives/select.js";
+} from "./components/combobox.js";
+export { Badge, badgeVariants } from "./components/badge.js";
+export { Alert, AlertAction, AlertDescription, AlertTitle } from "./components/alert.js";
+export {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogOverlay,
+  DialogPortal,
+  DialogTitle,
+  DialogTrigger,
+} from "./components/dialog.js";
+export {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "./components/sheet.js";
+export { Tabs, TabsContent, TabsList, tabsListVariants, TabsTrigger } from "./components/tabs.js";
+export {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectScrollDownButton,
+  SelectScrollUpButton,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from "./components/select.js";
 export {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -101,11 +130,12 @@ export {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "./primitives/dropdown-menu.js";
-export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./primitives/tooltip.js";
-export { Progress } from "./primitives/progress.js";
-export { Skeleton } from "./primitives/skeleton.js";
-export { Toaster } from "./primitives/sonner.js";
+} from "./components/dropdown-menu.js";
+export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./components/tooltip.js";
+export { Progress } from "./components/progress.js";
+export { Separator } from "./components/separator.js";
+export { Skeleton } from "./components/skeleton.js";
+export { Toaster } from "./components/sonner.js";
 export { toast } from "sonner";
 export {
   Table,
@@ -116,4 +146,4 @@ export {
   TableHead,
   TableHeader,
   TableRow,
-} from "./primitives/table.js";
+} from "./components/table.js";
