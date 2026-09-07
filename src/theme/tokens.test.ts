@@ -2,8 +2,8 @@
  * @vitest-environment node
  *
  * The token contract: `styles.css` is the one home for a colour (`:root`,
- * `.dark`, `@theme inline`, the base layer) — shadcn's semantic vocabulary
- * plus `brand`, the one Robomous extension. `tokens.ts` is the mirror a
+ * `.dark`, `@theme inline`, the base layer) — the semantic vocabulary plus
+ * `brand`, the one Robomous extension. `tokens.ts` is the mirror a
  * `<canvas>`/`<svg>` or a test reads a colour off of; this suite parses the
  * stylesheet structurally and asserts the two agree, declaration for
  * declaration, and that none of the tokens this rewrite retired have crept
@@ -23,9 +23,14 @@ import { cssVar, DARK_THEME, LIGHT_THEME, THEME } from "./tokens";
 
 const STYLESHEET = readFileSync(fileURLToPath(new URL("./styles.css", import.meta.url)), "utf8");
 
-/** Whitespace is presentation; a value that wraps is the same value. */
+/**
+ * Whitespace and quote style are presentation: a value that wraps, and a font
+ * family spelled in double quotes rather than single, are the same value. Both
+ * change under an ordinary formatter run and neither changes what a browser
+ * resolves, so neither may fail this suite.
+ */
 function normalize(value: string): string {
-  return value.replace(/\s+/g, " ").trim();
+  return value.replace(/\s+/g, " ").replace(/"/g, "'").trim();
 }
 
 /**
@@ -65,9 +70,9 @@ function declarations(block: string): Map<string, string> {
   return map;
 }
 
-// The shadcn standard vocabulary, exactly as the CLI 4.18.0 scratch emitted
-// it — not derived from `tokens.ts`, so a mistake in the mirror cannot also
-// erase the thing it was supposed to mirror.
+// The semantic vocabulary, written out here rather than derived from
+// `tokens.ts`, so a mistake in the mirror cannot also erase the thing it was
+// supposed to mirror.
 const CHART_NAMES = ["chart-1", "chart-2", "chart-3", "chart-4", "chart-5"];
 const SIDEBAR_NAMES = [
   "sidebar",
@@ -101,10 +106,10 @@ const BASE_SEMANTIC_NAMES = [
 ];
 const SEMANTIC_NAMES = [...BASE_SEMANTIC_NAMES, ...CHART_NAMES, ...SIDEBAR_NAMES];
 
-// The one extension this package keeps beyond shadcn's vocabulary.
+// The one name this package keeps beyond the semantic vocabulary.
 const EXTENSION_NAMES = ["brand"];
 
-const ORANGE_CHART = {
+const NEUTRAL_CHART = {
   "chart-1": "oklch(0.87 0 0)",
   "chart-2": "oklch(0.556 0 0)",
   "chart-3": "oklch(0.439 0 0)",
@@ -115,7 +120,7 @@ const ORANGE_CHART = {
 describe(":root", () => {
   const root = declarations(blockBody(STYLESHEET, ":root {"));
 
-  it("declares every standard shadcn semantic variable, the one extension, and --radius, and nothing else", () => {
+  it("declares every semantic variable, the one extension, and --radius, and nothing else", () => {
     expect([...root.keys()].sort()).toEqual(
       [...SEMANTIC_NAMES, ...EXTENSION_NAMES, "radius"].sort(),
     );
@@ -134,13 +139,13 @@ describe(":root", () => {
     expect(lightKeys).toEqual(rootKeys);
   });
 
-  it("pins --radius to the preset's medium step, in both the CSS and THEME", () => {
+  it("pins --radius to the medium step, in both the CSS and THEME", () => {
     expect(root.get("radius")).toBe("0.625rem");
     expect(THEME.radius).toBe("0.625rem");
   });
 
   it("pins the neutral chart palette exactly", () => {
-    for (const [name, value] of Object.entries(ORANGE_CHART)) {
+    for (const [name, value] of Object.entries(NEUTRAL_CHART)) {
       expect(root.get(name)).toBe(value);
     }
   });
@@ -149,7 +154,7 @@ describe(":root", () => {
 describe(".dark", () => {
   const dark = declarations(blockBody(STYLESHEET, ".dark {"));
 
-  it("declares every standard shadcn semantic variable and the one extension, and nothing else (no --radius)", () => {
+  it("declares every semantic variable and the one extension, and nothing else (no --radius)", () => {
     expect([...dark.keys()].sort()).toEqual([...SEMANTIC_NAMES, ...EXTENSION_NAMES].sort());
   });
 
@@ -164,7 +169,7 @@ describe(".dark", () => {
   });
 
   it("pins the neutral chart palette exactly, unchanged from light", () => {
-    for (const [name, value] of Object.entries(ORANGE_CHART)) {
+    for (const [name, value] of Object.entries(NEUTRAL_CHART)) {
       expect(dark.get(name)).toBe(value);
     }
   });
@@ -231,7 +236,9 @@ describe("structure", () => {
     const anchors = [
       '@import "tailwindcss";',
       '@import "tw-animate-css";',
-      '@import "shadcn/tailwind.css";',
+      // The variant and utility layer, ahead of the token blocks: a variant
+      // has to exist before a utility can qualify on it.
+      '@import "./tailwind.css";',
       // One family, so one font import: the heading face resolves to the body's
       // rather than naming a second one.
       '@import "@fontsource-variable/geist";',
@@ -253,7 +260,7 @@ describe("structure", () => {
     expect(sourceAt).toBeGreaterThan(lastImportAt);
   });
 
-  it("applies the base-layer ring/border rule shadcn ships", () => {
+  it("applies the base-layer ring/border rule to every element", () => {
     expect(/\*\s*\{\s*@apply border-border outline-ring\/50;\s*\}/.test(STYLESHEET)).toBe(true);
   });
 

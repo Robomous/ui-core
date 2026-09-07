@@ -29,13 +29,10 @@ consumer adds its own extensions in its own stylesheet after importing this one.
 
 ## Adding a component
 
-```
-pnpm dlx shadcn@latest add <name>
-```
-
-The CLI reads `components.json` and writes into `src/components/`. What arrives is a starting
-point, not a contract: the file is this repository's from that moment, and editing it is ordinary
-work.
+Write it. A component is a file in `src/components/` that wraps Radix or Base UI behaviour,
+spells colour only through the tokens, keeps its own geometry, and is exported by name from
+`src/index.ts`. [DESIGN.md](DESIGN.md) has the checklist and the reasoning behind each item; the
+gates hold the parts of it that a review would otherwise have to catch by eye.
 
 ## The gates
 

@@ -84,7 +84,7 @@ export function colouredClassesIn(file: string, text: string): string[] {
 }
 
 /**
- * `DESIGN.md` "Where the brand is": coral is identity, not a functional-UI
+ * `DESIGN.md` "Where the brand is": the brand is identity, not a functional-UI
  * colour — the wordmark and the styleguide swatch that shows it off, nothing
  * a person acts on. This is not a headcount: the gate does not exist to hold
  * a count of sites, it exists so brand can never migrate onto a control (a

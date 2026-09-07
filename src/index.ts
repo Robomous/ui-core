@@ -102,6 +102,7 @@ export {
 } from "./components/dropdown-menu.js";
 export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./components/tooltip.js";
 export { Progress } from "./components/progress.js";
+export { Separator } from "./components/separator.js";
 export { Skeleton } from "./components/skeleton.js";
 export { Toaster } from "./components/sonner.js";
 export { toast } from "sonner";

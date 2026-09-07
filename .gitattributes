@@ -1,0 +1,19 @@
+# Line endings are this repository's decision, not each machine's `core.autocrlf`.
+#
+# Unset, the same file is different bytes on Windows and on Linux: twenty files
+# in this tree carry CRLF, every git command on a Windows checkout warns that it
+# is converting them, and a diff can come back as "every line changed" for a
+# commit that changed one. `eol=lf` normalises the index *and* the working tree,
+# so the bytes are the same everywhere — including in the published package,
+# where `styles.css` and `tailwind.css` ship as source and get read by somebody
+# else's build.
+#
+# Every tracked file here is text; there is nothing `text=auto` could mangle.
+* text=auto eol=lf
+
+# Generated: collapsed by default in GitHub's diff view, where a dependency
+# change otherwise arrives as two thousand lines nobody reads. Not marked
+# `-diff`, because suppressing the diff locally too would hide the one thing
+# worth checking in a lockfile — whether a dependency turned up that the
+# manifest change did not explain.
+pnpm-lock.yaml linguist-generated

@@ -8,24 +8,24 @@
  * which parses the stylesheet and asserts the two agree, declaration for
  * declaration.
  *
- * `LIGHT_THEME`/`DARK_THEME` carry shadcn's semantic vocabulary on the neutral
- * base colour and chart palette, plus one name of this package's own: `brand`,
- * Robomous coral, identity only. A consumer's own vocabulary lives in the
+ * `LIGHT_THEME`/`DARK_THEME` carry the semantic vocabulary on a neutral base
+ * colour and chart palette, plus one name of this package's own: `brand`,
+ * Robomous orange, identity only. A consumer's own vocabulary lives in the
  * consumer's stylesheet and token module, never here — DESIGN.md,
  * *Per-consumer extensions*.
  */
 
 export const LIGHT_THEME: Readonly<Record<string, string>> = Object.freeze({
   background: "oklch(1 0 0)",
-  foreground: "oklch(0.145 0 0)",
+  foreground: "oklch(0.2 0 0)",
   card: "oklch(1 0 0)",
   "card-foreground": "oklch(0.145 0 0)",
   popover: "oklch(1 0 0)",
   "popover-foreground": "oklch(0.145 0 0)",
-  primary: "oklch(0.205 0 0)",
+  primary: "oklch(0.2 0 0)",
   "primary-foreground": "oklch(0.985 0 0)",
   secondary: "oklch(0.97 0 0)",
-  "secondary-foreground": "oklch(0.205 0 0)",
+  "secondary-foreground": "oklch(0.269 0 0)",
   muted: "oklch(0.97 0 0)",
   "muted-foreground": "oklch(0.556 0 0)",
   accent: "oklch(0.97 0 0)",
@@ -48,9 +48,9 @@ export const LIGHT_THEME: Readonly<Record<string, string>> = Object.freeze({
   "sidebar-border": "oklch(0.922 0 0)",
   "sidebar-ring": "oklch(0.708 0 0)",
 
-  // Robomous coral. Identity only — the wordmark and its styleguide swatch
-  // — never a functional-UI colour.
-  brand: "oklch(0.653 0.178 32.3)",
+  // Robomous orange (#F5580B). Identity only — the wordmark and its styleguide
+  // swatch — never a functional-UI colour.
+  brand: "oklch(0.663 0.205 39.9)",
 });
 
 export const DARK_THEME: Readonly<Record<string, string>> = Object.freeze({
@@ -86,7 +86,7 @@ export const DARK_THEME: Readonly<Record<string, string>> = Object.freeze({
   "sidebar-border": "oklch(1 0 0 / 10%)",
   "sidebar-ring": "oklch(0.556 0 0)",
 
-  brand: "oklch(0.653 0.178 32.3)",
+  brand: "oklch(0.663 0.205 39.9)",
 });
 
 /** The two provenance facts a colour string alone cannot carry. */

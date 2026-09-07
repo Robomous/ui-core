@@ -133,3 +133,40 @@ test("no competing colour family stands in for the status palette anywhere in th
     `a competing colour family stands in for the status palette:\n${offenders.join("\n")}`,
   ).toEqual([]);
 });
+
+/**
+ * Every component module is part of the public surface.
+ *
+ * `src/index.ts` lists its exports one by one rather than re-exporting a
+ * directory, which is what keeps the promise auditable — and is also what lets
+ * a finished component sit in `src/components/` for months without ever
+ * reaching a consumer. `separator.tsx` did exactly that: written, imported by
+ * `field.tsx`, never exported, and nothing noticed because every other check
+ * here reads the files rather than the surface.
+ *
+ * A module that is deliberately internal has no home in `src/components/`; move
+ * it beside its one caller instead, and this gate stops asking about it.
+ */
+test("src/index.ts exports every component module in src/components", () => {
+  const listed = spawnSync("git", ["ls-files", "-z", "src/components"], {
+    cwd: REPO,
+    encoding: "utf8",
+  });
+  expect(listed.status, `git ls-files failed: ${listed.stderr}`).toBe(0);
+
+  const modules = listed.stdout
+    .split("\0")
+    .filter((name) => name.endsWith(".tsx") && !name.includes(".test."))
+    .map((name) => path.basename(name, ".tsx"));
+  expect(modules.length > 0, "no component modules were found, so this proves nothing").toBeTruthy();
+
+  const surface = read("src/index.ts");
+  const missing = modules.filter(
+    (name) => !surface.includes(`from "./components/${name}.js"`),
+  );
+  expect(
+    missing,
+    "these components exist but no consumer can import them — add an export to src/index.ts, " +
+      `or move the module next to its only caller:\n${missing.join("\n")}`,
+  ).toEqual([]);
+});

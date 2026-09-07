@@ -5,17 +5,10 @@
 This package owns its components. Not a copy of them, not a styled wrapper around something it
 must leave intact — the twenty-one files in `src/components/` are this repository's to edit, and
 a change to one of them needs a reason, a test and a review, which is the same thing every other
-file here needs.
+file here needs. A component here is **written, not generated**: it is ordinary source, and the
+only thing that separates it from a screen's own component is the set of rules below.
 
-That is a correction. This repository was built on the premise that its job was to guard the
-fidelity of what the shadcn CLI generated, and it kept a directory of pristine copies and a gate
-comparing every component against its copy to prove it. What the package actually needed from
-that machinery was one capability: **being able to install a component**, which is
-`components.json` and nothing else. The components are going to be restyled. Fidelity to a
-generator's output was never the goal, and holding it cost a layer of patches applied from
-outside components nobody was allowed to open — see *Why the Patch Layer Is Gone*.
-
-So this document is not a component catalogue. A component's anatomy, its variants and its class
+This document is not a component catalogue. A component's anatomy, its variants and its class
 strings are read from `src/components/`, where they live, rather than transcribed here where they
 would go stale. What this document governs is the smaller and more durable thing: **the rules
 this package holds itself to** — where a colour may be spelled, where a token may live, what the
@@ -29,19 +22,18 @@ repositories run on today.
 
 ## The Rules, and the Gate That Holds Each
 
-Seven rules survive, and each one has a gate that holds it. The gates are ordinary vitest files
-under `src/gates/`, so `pnpm test` runs them with everything else; there is no second test
-command.
+Seven rules, and each one has a gate that holds it. The gates are ordinary vitest files under
+`src/gates/`, so `pnpm test` runs them with everything else; there is no second test command.
 
 | Rule | Held by |
 | --- | --- |
 | Never a colour inside a class string | `colouredClassesIn`, run by [`src/gates/tokens.test.ts`](src/gates/tokens.test.ts) over every tracked `.ts`, `.tsx` and `.css` |
 | The brand colour is identity; it paints nothing here | `brandUsagesIn`, same file, asserted against an empty list of sites |
 | The tokens have exactly one home, the stylesheet | Same file refuses a `tailwind.config.*` anywhere in the tree; [`src/theme/tokens.test.ts`](src/theme/tokens.test.ts) holds the TypeScript mirror to it declaration for declaration |
-| `components.json` carries only the fields shadcn's strict config schema defines | Same file, by key rather than by count, so a failure names what moved |
 | One icon set, and only one | Same file, over every manifest and every import |
 | The status palette lives in `Badge` and `statusTone`, nowhere else | `statusPaletteIn`, run by [`src/gates/design.test.ts`](src/gates/design.test.ts) over the package's own sources |
 | No rival colour family stands in for the status palette | `competingStatusPaletteIn`, same file |
+| Every component module is part of the public surface | Same file, comparing `src/components/` against the exports in `src/index.ts` |
 
 Each scanner is a pure function over one file's text, so its own test proves it twice: once on
 fabricated input that must be caught, once on input that merely resembles a violation and must
@@ -58,8 +50,7 @@ import { colouredClassesIn, foundationTokenNames } from "@robomous/ui-core/gates
 readers (`blockBody`, `rawDeclarations`, `declarations`) that a consumer needs to parse its own
 stylesheet the way this package parses its own, and `foundationTokenNames()`, which reads the
 token names off the shipped stylesheet so a consumer can assert that none of its extensions
-shadows one. Everything else the gates once exported existed to serve the fidelity apparatus and
-went with it.
+shadows one.
 
 A rule stated in this document that no gate holds is a rule under review, not an exemption.
 
@@ -82,24 +73,24 @@ Both themes are declared in full, which is what makes switching theme a variable
 than a cascade. Every rule in this document is therefore written against a **role** rather than
 a light-mode value: "the page" resolves per theme and is never asserted to be white.
 
-**Radius is a value, not a config field.** `--radius: 0.625rem` lives in the stylesheet, and
-every step derives from it in `@theme inline` (`radius-sm` at `× 0.6` through `radius-4xl` at
-`× 2.6`). No arbitrary radius appears outside that scale. This is the property that keeps
-inviting a mistake — `components.json` looks like the place to write it down — and the answer is
-below.
+**Radius is a value, not a setting.** `--radius: 0.625rem` lives in the stylesheet, and every
+step derives from it in `@theme inline` (`radius-sm` at `× 0.6` through `radius-4xl` at `× 2.6`).
+No arbitrary radius appears outside that scale. A design value belongs where it runs: written in
+the stylesheet it is one declaration every utility resolves through, and written anywhere else it
+is documentation that drifts from the thing it describes.
 
-**What `components.json` may hold.** The shadcn config schema is strict: it rejects a property
-it has no field for, and a rejected file breaks every `shadcn` invocation that reads it. So the
-file carries the fields the schema defines — the style, `rsc`, `tsx`, the `tailwind` block
-(pointing at `src/theme/styles.css`, base colour `neutral`, CSS variables on), the icon library,
-`rtl`, the five aliases, the two menu settings and `registries` — and nothing else. A design
-value with no field there is not missing; it lives in the stylesheet as a value that runs.
-`src/gates/tokens.test.ts` holds the file to that key set so nobody adds a documentary field the
-CLI would then reject.
+**The variant layer.** [`src/theme/tailwind.css`](src/theme/tailwind.css), imported by the
+stylesheet ahead of the token blocks, declares the `data-*` variants the components' state styles
+qualify on — `data-open`, `data-closed`, `data-active`, `data-disabled` and the rest. Each matches
+both the `data-state="open"` attribute the behaviour libraries set and the bare `[data-open]`
+form, which is the reason it is declared rather than left to Tailwind's own shorthand: the
+shorthand covers only the bare attribute, so it would emit a rule for every state style in the
+package and match none of them. That failure is silent — the CSS compiles and the components stop
+reacting — so `src/theme/imports.test.ts` asserts the file both exists and is committed.
 
 ## Color and Theme
 
-shadcn's semantic names are the only vocabulary. There is no second layer (`surface`, `error`,
+The semantic names are the only vocabulary. There is no second layer (`surface`, `error`,
 `foreground-secondary`) and no alias renaming what a token already means — `destructive` stays
 `destructive`. Two roles are worth restating because they are the two that get confused:
 `primary` is the one high-emphasis colour, and `accent` is the interactive hover/focus surface,
@@ -113,13 +104,17 @@ stays legal, because the rule is about colour: a one-off `translate-y-[3px]` is 
 sanctioned exception is a `color-mix` whose arguments are all tokens — the Button's own hover
 step is one — because mixing two tokens names no colour of its own.
 
-**The one extension** beyond shadcn's vocabulary is `brand`: Robomous coral, identity only.
+**The one name** beyond that vocabulary is `brand`: Robomous orange, identity only.
 
 ### Where the brand is
 
-Robomous coral is identity — a wordmark, and the styleguide swatch that shows the value off. It
-is not a functional-UI colour, and a control reaching for it is a semantic-colour violation
-however many other sites already use it correctly.
+Robomous orange — `oklch(0.663 0.205 39.9)`, `#F5580B` — is identity: a wordmark, and the
+styleguide swatch that shows the value off. It is not a functional-UI colour, and a control
+reaching for it is a semantic-colour violation however many other sites already use it correctly.
+
+It measures 3.34:1 against `background`, which clears 3:1 for large text and non-text marks and
+misses 4.5:1 for body copy. A wordmark is exempt from that threshold; a button label would not
+be, which is the contrast argument for the rule the paragraph above states on other grounds.
 
 **This package has zero brand sites.** It declares the `--brand` token and never paints with it;
 `brandUsagesIn` is asserted against an empty list, so the first `bg-brand` written here fails.
@@ -335,35 +330,38 @@ transition to a single frame under that query, so no component opts in.
   description, footer, close. Focus trap and return, `Escape`, and the labelled-by relationships
   are Radix's guarantees, which is why nothing here is hand-rolled from a `<div>`.
 
-## Installing a Component
+## Adding a Component
 
-```
-pnpm dlx shadcn@latest add <name>
-```
+A component is a file in `src/components/`, written here. There is no generator to run and
+nothing to reconcile against: the work is designing the API and then holding it to the rules
+above.
 
-That is the whole procedure. The CLI reads [`components.json`](components.json) — the style, the
-base colour, the icon library, the menu settings, the stylesheet's path and the `@/components`
-alias — and writes the component into `src/components/`. `pnpm dlx` fetches the CLI on demand,
-so nobody has to install a tool to add a component.
+1. **Take behaviour from Radix or Base UI**, and wrap it. Focus trap and return, `Escape`, arrow
+   movement, the `aria-*` relationships and the `data-state` attributes the variant layer keys
+   off are theirs to guarantee. A floating surface, a menu or a composite widget hand-rolled from
+   a `<div>` will be wrong in ways that only show up on a keyboard or a screen reader.
+2. **Spell colour only through the tokens** — `bg-primary`, `text-muted-foreground`. Never a
+   literal in a class string, never a second name for something the vocabulary already covers.
+3. **Put the geometry in the component.** Height, padding, gaps and radius are decided once,
+   here, on the radius scale — not passed in by a screen.
+4. **Draw from `lucide-react`,** and size the icon from the component that contains it.
+5. **Give it `data-slot`,** the hook a parent uses to reach a child's layout without knowing its
+   internals, and a `className` that merges last through `cn` so a consumer can adjust without
+   fighting specificity.
+6. **Export it from [`src/index.ts`](src/index.ts).** The surface is listed name by name rather
+   than re-exported wholesale, which is what keeps the promise auditable — and is also how a
+   finished component can sit in the directory reaching nobody. `src/gates/design.test.ts`
+   compares the two and fails naming what it cannot import.
+7. **Test the behaviour a screen would silently lose**, in
+   [`src/components/components.test.tsx`](src/components/components.test.tsx): the `className`
+   merge, `asChild`, the announced error, the state a consumer reads. Appearance is not what
+   these tests are for; the behaviour a caller depends on is.
 
-The `shadcn` package is nevertheless a real dependency of this one, for a reason that has nothing
-to do with the CLI: `styles.css` opens with `@import "shadcn/tailwind.css"`, and the stylesheet
-ships as **source** for the consumer's own Tailwind build to compile. So that import resolves in
-the consumer's tree, not in this one, and dropping the package would break every consumer while
-every check here stayed green — there is no CSS build in this repository to notice.
-`src/theme/imports.test.ts` is the check: it resolves every package the stylesheet imports
-through that package's own `exports` map, under the `style` condition a CSS bundler asks for, and
-fails naming the specifier that landed nowhere.
-
-**What arrives is a starting point, not a contract.** The generated file is a first draft written
-by a tool that has never seen this product. Read it, then edit it: rename a prop, drop a
-subcomponent, rewrite a class string, fix an accessibility defect. Nothing compares that file to
-what the generator emitted, and nothing should — the components here are going to be restyled,
-and a gate defending the generator's output would be defending the thing being changed.
-
-What the gates do check is what this document actually claims: that no colour got smuggled into a
-class string on the way in, that the status palette did not sprout a fourth home, that the icon
-import is `lucide-react`. Those survive an edit; fidelity does not, and was never the point.
+**Where a decision goes.** If a caller wants something the component does not offer, the answer is
+a prop or a variant *in the component* — never a class string spread onto it from the call site.
+The reasoning is in *Why the Patch Layer Is Gone*, and it is the same either way: if the addition
+reads as a decision the caller is making, it is a prop; if it reads as a limitation, it is a
+defect, and the component is right here to fix.
 
 ## Why the Patch Layer Is Gone
 
@@ -411,12 +409,12 @@ and the component is right here.
 
 ## Per-consumer extensions
 
-This package's `:root` carries shadcn's semantic vocabulary plus `brand`, and nothing else. A
+This package's `:root` carries the semantic vocabulary plus `brand`, and nothing else. A
 consumer that needs its own vocabulary extends in its own repository, never here:
 
 1. Declare the variable in the consumer's stylesheet, after
    `@import "@robomous/ui-core/styles.css";` — a value in `:root`, a dark counterpart in `.dark`,
-   exposure through `@theme inline`, shadcn's own extension convention.
+   exposure through `@theme inline`, the same three steps every name here takes.
 2. Mirror it in the consumer's token module and register it in the consumer's extensions list.
 3. Gate it: import the parsers and `foundationTokenNames()` from `@robomous/ui-core/gates` and
    assert (a) the consumer's stylesheet and token module agree declaration-for-declaration, and
@@ -434,10 +432,10 @@ the gates.
 
 | File | Holds |
 | --- | --- |
-| [`src/gates/tokens.test.ts`](src/gates/tokens.test.ts) | No colour in a class string; the brand paints nothing here; the tokens have one home; `components.json` within the schema-supported key set; one icon set |
-| [`src/gates/design.test.ts`](src/gates/design.test.ts) | The status palette lives only in `Badge` and `statusTone`; no rival colour family; each status Badge variant is a soft surface and readable ink, never a stroke |
+| [`src/gates/tokens.test.ts`](src/gates/tokens.test.ts) | No colour in a class string; the brand paints nothing here; the tokens have one home; one icon set |
+| [`src/gates/design.test.ts`](src/gates/design.test.ts) | The status palette lives only in `Badge` and `statusTone`; no rival colour family; each status Badge variant is a soft surface and readable ink, never a stroke; every component module is exported |
 | [`src/theme/tokens.test.ts`](src/theme/tokens.test.ts) | `styles.css` and `tokens.ts` agree declaration for declaration; the radius scale derives; no retired token has returned; no stylesheet-level focus geometry |
-| [`src/theme/imports.test.ts`](src/theme/imports.test.ts) | Every package `styles.css` imports is installed and exports the file it names |
+| [`src/theme/imports.test.ts`](src/theme/imports.test.ts) | Everything `styles.css` imports resolves: each package is installed and exports the file it names, each sibling exists and is committed |
 | [`src/components/components.test.tsx`](src/components/components.test.tsx) | The behaviours a screen would silently lose — the `className` merge, `asChild`, the announced error, and the four components whose API this restructure changed |
 
 Consumers run the same vocabulary scans over their own sources with the helpers published at

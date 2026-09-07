@@ -146,54 +146,6 @@ test("the brand colour paints nothing here — brand sites are a consumer decisi
 });
 
 /**
- * `components.json` carries the preset properties shadcn's own tools read, and
- * only those: the fields its config schema defines. The schema is **strict** —
- * `rawConfigSchema.safeParse` answers `unrecognized_keys` for anything else — so
- * a decoded preset property the schema has no field for cannot be added here
- * even as documentation. It would not be ignored; it would break every `shadcn`
- * invocation that reads the file.
- *
- * `radius` is the property that keeps inviting the mistake: the preset decodes to
- * `radius: medium`, and the obvious repair for "the config does not say so" is to
- * write it in. The medium step's one home is `styles.css`'s `--radius: 0.625rem`
- * (asserted by `tokens.test.ts`); this test is the other half, refusing the field
- * that would look like a second home while doing nothing. Keys rather than a
- * count, so a failure names what moved.
- */
-const CONFIG_PATH = "components.json";
-const SCHEMA_SUPPORTED_KEYS = [
-  "$schema",
-  "aliases",
-  "iconLibrary",
-  "menuAccent",
-  "menuColor",
-  "registries",
-  "rsc",
-  "rtl",
-  "style",
-  "tailwind",
-  "tsx",
-];
-
-test("components.json holds the schema-supported preset fields, and no others", () => {
-  const config = JSON.parse(readFileSync(path.join(REPO, CONFIG_PATH), "utf8"));
-  expect(
-    Object.keys(config).sort(),
-    `${CONFIG_PATH} must carry exactly the fields shadcn's strict config schema defines. ` +
-      "A design value with no field here belongs in src/theme/styles.css " +
-      "as a value that runs — see DESIGN.md 'Tokens'",
-  ).toEqual(SCHEMA_SUPPORTED_KEYS);
-
-  // The preset's own values, where the schema does have a field for them.
-  expect(config.style).toBe("radix-nova");
-  expect(config.iconLibrary).toBe("lucide");
-  expect(config.menuColor).toBe("default");
-  expect(config.menuAccent).toBe("subtle");
-  expect(config.tailwind.baseColor).toBe("neutral");
-  expect(config.tailwind.css).toBe("src/theme/styles.css");
-});
-
-/**
  * Lucide is the icon set, and the only one.
  *
  * The rule is "one icon library", not "this particular library". So this
