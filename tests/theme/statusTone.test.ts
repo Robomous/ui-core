@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { STATUS_INK, TONE_BORDER, TONE_FILL } from "./statusTone";
+import { STATUS_INK, TONE_BORDER, TONE_FILL } from "../../src/theme/statusTone";
 
 describe("status tones", () => {
   it("names one Tailwind family per status and never a retired token", () => {

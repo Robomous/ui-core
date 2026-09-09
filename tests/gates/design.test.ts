@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { expect, test } from "vitest";
 
-import { competingStatusPaletteIn, statusPaletteIn } from "./index.js";
+import { competingStatusPaletteIn, statusPaletteIn } from "../../src/gates/index.js";
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const read = (rel: string) => readFileSync(path.join(REPO, rel), "utf8");

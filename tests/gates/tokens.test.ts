@@ -12,7 +12,7 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { expect, test } from "vitest";
 
-import { brandUsagesIn, colouredClassesIn } from "./index.js";
+import { brandUsagesIn, colouredClassesIn } from "../../src/gates/index.js";
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 

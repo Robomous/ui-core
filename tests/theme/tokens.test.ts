@@ -19,9 +19,12 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-import { cssVar, DARK_THEME, LIGHT_THEME, THEME } from "./tokens";
+import { cssVar, DARK_THEME, LIGHT_THEME, THEME } from "../../src/theme/tokens";
 
-const STYLESHEET = readFileSync(fileURLToPath(new URL("./styles.css", import.meta.url)), "utf8");
+const STYLESHEET = readFileSync(
+  fileURLToPath(new URL("../../src/theme/styles.css", import.meta.url)),
+  "utf8",
+);
 
 /**
  * Whitespace and quote style are presentation: a value that wraps, and a font

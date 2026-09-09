@@ -27,9 +27,10 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "test": "vitest run",
+    "test": "vitest run --project unit",
+    "test:package": "vitest run --project package",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "eslint src && pnpm run typecheck",
+    "lint": "eslint . && pnpm run typecheck",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

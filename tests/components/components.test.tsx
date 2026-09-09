@@ -18,25 +18,37 @@ import userEvent from "@testing-library/user-event";
 import type { JSX } from "react";
 import { describe, expect, it } from "vitest";
 
-import { Alert, AlertDescription, AlertTitle } from "./alert";
-import { Badge } from "./badge";
-import { Button } from "./button";
-import { Card, CardTitle } from "./card";
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "./dialog";
+import { Alert, AlertDescription, AlertTitle } from "../../src/components/alert";
+import { Badge } from "../../src/components/badge";
+import { Button } from "../../src/components/button";
+import { Card, CardTitle } from "../../src/components/card";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../src/components/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "./dropdown-menu";
-import { Progress } from "./progress";
-import { FieldError } from "./field";
-import { Input } from "./input";
-import { Label } from "./label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "./sheet";
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "./table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
+} from "../../src/components/dropdown-menu";
+import { Progress } from "../../src/components/progress";
+import { FieldError } from "../../src/components/field";
+import { Input } from "../../src/components/input";
+import { Label } from "../../src/components/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../src/components/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "../../src/components/sheet";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "../../src/components/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../src/components/tabs";
 
 describe("Button", () => {
   it("keeps an explicit type", () => {

@@ -8,7 +8,7 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
-} from "./combobox";
+} from "../../src/components/combobox";
 
 const FRUIT = ["apple", "banana", "cherry"];
 

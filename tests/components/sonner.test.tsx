@@ -1,7 +1,7 @@
 import { render, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { toast } from "sonner";
-import { Toaster } from "./sonner";
+import { Toaster } from "../../src/components/sonner";
 
 afterEach(() => document.documentElement.classList.remove("dark"));
 
