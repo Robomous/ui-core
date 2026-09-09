@@ -1,7 +1,7 @@
 {
   "name": "@robomous/ui-core",
-  "version": "0.2.1",
-  "description": "Robomous design system: twenty-one owned React components, the design tokens they resolve through, and the gates that hold the rules behind them.",
+  "version": "0.3.0",
+  "description": "Robomous design system: owned React components over Radix and Base UI, and the one stylesheet they resolve through.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -21,8 +21,12 @@
     "dist",
     "src"
   ],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
+    "verify": "pnpm format:check && pnpm lint && pnpm test && pnpm build && pnpm test:package",
     "test": "vitest run --project unit",
     "test:package": "vitest run --project package",
     "typecheck": "tsc -p tsconfig.json --noEmit",
