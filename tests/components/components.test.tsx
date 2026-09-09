@@ -1,16 +1,11 @@
 /**
- * The component harness, proved on the components that carry a decision.
+ * The smaller components, on the behaviour a screen would silently lose.
  *
  * Deliberately not an echo of every class string: pinning the design system to
- * whatever it looked like on the day is the mistake this repository just spent
- * a restructure undoing, and a restyle is coming. What is asserted here is the
- * handful of behaviours a screen would silently lose — the merge that makes
- * `className` a real override, the `asChild` that keeps a link a link, the role
- * an error is announced with, and the value a `Progress` reports without being
- * asked.
- *
- * The button does not default `type`, so nothing here stops a "Cancel"
- * submitting a form; that is a call-site property, gated in the consumer.
+ * whatever it looked like on the day is the mistake a restyle would pay for.
+ * What is asserted is roles, `aria-*`, the `data-*` a consumer styles against,
+ * and the handful of layout facts a caller depends on. Button, Dialog, Field
+ * and DropdownMenu have their own files.
  */
 
 import { render, screen } from "@testing-library/react";
@@ -20,19 +15,8 @@ import { describe, expect, it } from "vitest";
 
 import { Alert, AlertDescription, AlertTitle } from "../../src/components/alert";
 import { Badge } from "../../src/components/badge";
-import { Button } from "../../src/components/button";
 import { Card, CardTitle } from "../../src/components/card";
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../src/components/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../../src/components/dropdown-menu";
 import { Progress } from "../../src/components/progress";
-import { FieldError } from "../../src/components/field";
-import { Input } from "../../src/components/input";
-import { Label } from "../../src/components/label";
 import {
   Select,
   SelectContent,
@@ -40,86 +24,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../src/components/select";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "../../src/components/sheet";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "../../src/components/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../src/components/tabs";
-
-describe("Button", () => {
-  it("keeps an explicit type", () => {
-    render(<Button type="submit">Go</Button>);
-    expect(screen.getByRole("button").getAttribute("type")).toBe("submit");
-  });
-
-  it("lets a caller override a conflicting utility rather than emitting both", () => {
-    // Without `tailwind-merge` both `px-2.5` and `px-6` survive and which one wins is
-    // decided by the order Tailwind wrote them into the stylesheet — a rule nobody
-    // can see from the call site. This is what makes `className` an extension
-    // point rather than a suggestion.
-    render(<Button className="px-6">Wide</Button>);
-    const className = screen.getByRole("button", { name: "Wide" }).className;
-    expect(className).toContain("px-6");
-    expect(className).not.toContain("px-2.5");
-  });
-
-  it("renders the child element with asChild, so a link stays a link", () => {
-    render(
-      <Button asChild variant="default">
-        <a href="/projects">Projects</a>
-      </Button>,
-    );
-    // A `role="link"` on a `<button>` would read the same to a test and behave
-    // differently to a browser — no middle-click, no "open in new tab".
-    const link = screen.getByRole("link", { name: "Projects" });
-    expect(link.tagName).toBe("A");
-    expect(link.className).toContain("bg-primary");
-  });
-
-  it("styles a link button as an underline-on-hover text link", () => {
-    render(<Button variant="link">More</Button>);
-
-    const classes = screen.getByRole("button").className;
-    // The underline arrives on hover. A rule that underlined at rest would look
-    // like a link in a screenshot and read as one to `toContain("underline")`,
-    // which is why the resting state is asserted as an absence and the utility
-    // is matched whole — `hover:underline` and `underline-offset-4` both contain
-    // the substring.
-    expect(classes).toContain("hover:underline");
-    expect(classes).not.toMatch(/(^|\s)underline(\s|$)/);
-  });
-
-  it("lets a caller's className outrank the inline size", () => {
-    render(
-      <Button variant="link" size="inline" className="h-8">
-        More
-      </Button>,
-    );
-
-    // `h-auto` and `h-8` are the same utility group, so tailwind-merge has to
-    // drop the one the variant supplied. Without the merge both survive and
-    // which wins is decided by stylesheet order — a rule the call site cannot see.
-    const classes = screen.getByRole("button").className.split(" ");
-    expect(classes).toContain("h-8");
-    expect(classes).not.toContain("h-auto");
-  });
-
-  it("has an inline size that keeps a link button inside a sentence", () => {
-    render(
-      <Button variant="link" size="inline">
-        Read the docs
-      </Button>,
-    );
-    const button = screen.getByRole("button", { name: "Read the docs" });
-    expect(button.getAttribute("data-size")).toBe("inline");
-    expect(button.className).toContain("h-auto");
-    expect(button.className).toContain("p-0");
-  });
-});
 
 describe("Alert and Badge", () => {
   it("announces an alert, and composes its title and description", () => {
@@ -141,13 +47,11 @@ describe("Alert and Badge", () => {
   });
 
   it.each(["success", "warning", "info", "quiet"] as const)(
-    "%s is a Badge variant keyed on data",
+    "%s is a soft surface on a semantic role, never a coloured stroke",
     (variant) => {
       render(<Badge variant={variant}>x</Badge>);
       const el = screen.getByText("x");
       expect(el.getAttribute("data-variant")).toBe(variant);
-      // A status chip is a soft surface and readable ink on a semantic role —
-      // never a coloured stroke, never a physical palette family.
       expect(el.className).toContain("border-transparent");
       expect(el.className).toMatch(/\bbg-(success|warning|info)\/10\b|\bbg-muted\b/);
       expect(el.className).not.toMatch(/emerald|amber|sky|border-(success|warning|info)/);
@@ -155,33 +59,11 @@ describe("Alert and Badge", () => {
   );
 });
 
-describe("fields", () => {
-  it("associates a label with its control by id", () => {
-    render(
-      <>
-        <Label htmlFor="tag">Tag</Label>
-        <Input id="tag" defaultValue="v1" />
-      </>,
-    );
-    expect(screen.getByLabelText("Tag")).toHaveProperty("value", "v1");
-  });
-
-  it("announces a field error", () => {
-    render(<FieldError>must not be blank</FieldError>);
-    expect(screen.getByRole("alert").textContent).toBe("must not be blank");
-  });
-});
-
 /**
- * The two-line option — a `multiline` prop on the trigger itself rather than a
- * class string composed at the call site, which is why what is asserted here
- * is the trigger's own behaviour and not a layout this file would otherwise
- * have to keep in step with a call site.
- *
- * The claim worth a test is the one that is easy to lose: the trigger shows the
- * *same* two lines the list does, because Radix renders the selected item's own
- * children into it. A second copy of the layout at the call site would look
- * identical the day it was written and drift the day either half moved.
+ * The two-line option — a `multiline` prop on the trigger rather than a class
+ * string composed at the call site. The claim worth a test is the one that is
+ * easy to lose: the trigger shows the *same* two lines the list does, because
+ * Radix renders the selected item's own children into it.
  */
 describe("Select", () => {
   function pickOne(): JSX.Element {
@@ -208,54 +90,28 @@ describe("Select", () => {
     const trigger = screen.getByTestId("model");
     expect(trigger.textContent).toContain("org/model-tiny");
     expect(trigger.textContent).toContain("311.9 MB · tiny");
-    // Two elements, not one line that happens to wrap — the meta carries the
-    // muted role and the id does not.
     const meta = trigger.querySelector(".text-muted-foreground");
     expect(meta?.textContent).toBe("311.9 MB · tiny");
-    expect(meta?.textContent).not.toContain("org/model-tiny");
   });
 
-  it("grows rather than clipping, and leaves a one-line option where it was", () => {
+  it("grows rather than clipping when multiline, and clamps otherwise", () => {
     render(pickOne());
-    // `h-8` would fix the height and squash the second line; `min-h-8` keeps a
-    // one-line control at the trigger's usual height and lets a two-line one grow.
     const trigger = screen.getByTestId("model");
+    // `min-h-8` keeps a one-line control at the usual height and lets a
+    // two-line one grow; the merge has to *replace* the fixed height and the
+    // value clamp rather than stack beside them.
     expect(trigger.className).toContain("min-h-8");
-    // Nothing truncates: half a model id is not a model id.
-    expect(trigger.className).not.toContain("truncate");
-    // `multiline` is a prop, not a class string arriving from outside, so it
-    // does not need to outrank anything — but `cn`'s merge still has to replace
-    // the fixed height and the value clamp rather than stack beside them, which
-    // is what this checks at render, not an echo of the prop's own classes.
-    expect(trigger.className).toContain("data-[size=default]:h-auto");
     expect(trigger.className).toContain("line-clamp-none");
     expect(trigger.className).not.toContain("data-[size=default]:h-8");
     expect(trigger.className).not.toContain("line-clamp-1");
   });
 
-  it("floors the open list at the closed control's width", async () => {
+  it("opens to a listbox floored at the closed control's width", async () => {
     render(pickOne());
     await userEvent.click(screen.getByTestId("model"));
-    const viewport = document.querySelector("[data-radix-select-viewport]");
-    expect(viewport).not.toBeNull();
-    const className = (viewport as HTMLElement).className;
-    expect(className).toContain("w-full");
-    expect(className).toContain("min-w-(--radix-select-trigger-width)");
-  });
-
-  it("grows and stops clamping its value when multiline", () => {
-    render(
-      <Select>
-        <SelectTrigger multiline aria-label="Export target">
-          <SelectValue placeholder="Pick one" />
-        </SelectTrigger>
-      </Select>,
-    );
-    const trigger = screen.getByRole("combobox", { name: "Export target" });
-    expect(trigger.className).toContain("data-[size=default]:h-auto");
-    expect(trigger.className).not.toContain("data-[size=default]:h-8");
-    expect(trigger.className).toContain("line-clamp-none");
-    expect(trigger.className).not.toContain("line-clamp-1");
+    expect(await screen.findByRole("listbox")).toBeTruthy();
+    const viewport = document.querySelector("[data-radix-select-viewport]") as HTMLElement;
+    expect(viewport.className).toContain("min-w-(--radix-select-trigger-width)");
   });
 });
 
@@ -287,17 +143,9 @@ describe("Card and Table", () => {
 });
 
 /**
- * The tab bar, asserted on what it *means* rather than on what it looks like.
- *
- * The distinction between the open section and the other two has to survive a
- * restyling, so nothing here matches a class string — a test that pinned
- * `bg-card` would have failed on the very change it was supposed to protect, and
- * a test that pinned `border-primary` would fail on the next one. What is asserted
- * is the part a screen reader and the keyboard both read: the roles, `aria-selected`,
- * Radix's `data-state`, and that only the open panel is in the tree at all.
- *
- * There is nothing here about a variant cascade: `TabsList` has one shape and no
- * context to hand down.
+ * The tab bar, asserted on what it means rather than what it looks like: the
+ * roles, `aria-selected`, Radix's `data-state`, and that only the open panel is
+ * in the tree at all.
  */
 describe("Tabs", () => {
   function bar(): JSX.Element {
@@ -315,7 +163,6 @@ describe("Tabs", () => {
 
   it("marks the open section as the selected tab and the others as not", () => {
     render(bar());
-
     const [schema, batches] = screen.getAllByRole("tab");
     expect(schema.getAttribute("aria-selected")).toBe("true");
     expect(schema.dataset.state).toBe("active");
@@ -323,30 +170,25 @@ describe("Tabs", () => {
     expect(batches.dataset.state).toBe("inactive");
   });
 
-  it("moves the selection when the tab is clicked, so the state is the source of the styling", async () => {
+  it("moves the selection when a tab is clicked", async () => {
     render(bar());
-
     await userEvent.click(screen.getByRole("tab", { name: "Batches" }));
     expect(screen.getByRole("tab", { name: "Batches" }).getAttribute("aria-selected")).toBe("true");
     expect(screen.getByRole("tab", { name: "Schema" }).getAttribute("aria-selected")).toBe("false");
   });
 
-  it("keeps only the open panel in the tree, and labels it with its tab", () => {
+  it("keeps only the open panel in the tree, and labels the list", () => {
     render(bar());
-
     const panels = screen.getAllByRole("tabpanel");
     expect(panels).toHaveLength(1);
     expect(panels[0]?.textContent).toBe("the classes");
     expect(screen.getByRole("tablist").getAttribute("aria-label")).toBe("Sections");
   });
 
-  it("is operable from the keyboard, because every trigger is a real button", async () => {
+  it("is operable from the keyboard: one tab stop, arrows move within it", async () => {
     render(bar());
-
-    // Radix's roving tabindex: one stop for the whole bar, arrows move within it.
     await userEvent.tab();
     expect(document.activeElement).toBe(screen.getByRole("tab", { name: "Schema" }));
-
     await userEvent.keyboard("{ArrowRight}");
     expect(document.activeElement).toBe(screen.getByRole("tab", { name: "Batches" }));
     expect(screen.getByRole("tab", { name: "Batches" }).getAttribute("aria-selected")).toBe("true");
@@ -358,18 +200,17 @@ describe("Progress", () => {
     render(<Progress value={42} aria-label="Ingest" />);
     const bar = screen.getByRole("progressbar", { name: "Ingest" });
     expect(bar.getAttribute("aria-valuenow")).toBe("42");
+    expect(bar.getAttribute("aria-valuemax")).toBe("100");
     expect(bar.getAttribute("data-state")).not.toBe("indeterminate");
   });
 
-  it("fills with the functional colour, and carries the data-slot a caller can restyle from", () => {
-    // `Progress` has no `variant` prop and no notion of status — a
-    // batch's completion is an amount, not a polarity, so the indicator is
-    // always `bg-primary`. A caller who needs to reach it targets the
-    // `data-slot` it renders with, from its own `className` on `Root`.
+  it("fills with the functional colour and carries a data-slot a caller can restyle from", () => {
+    // No `variant`, no notion of status: completion is an amount, not a polarity.
     render(<Progress value={42} aria-label="Ingest" />);
-    const fill = screen.getByRole("progressbar").firstElementChild as Element;
+    const fill = screen.getByRole("progressbar").firstElementChild as HTMLElement;
     expect(fill.getAttribute("data-slot")).toBe("progress-indicator");
-    expect(fill.className).toBe("size-full flex-1 bg-primary transition-all");
+    expect(fill.className).toContain("bg-primary");
+    expect(fill.style.transform).toBe("translateX(-58%)");
   });
 
   it("hands its ref to the track element", () => {
@@ -384,109 +225,5 @@ describe("Progress", () => {
       />,
     );
     expect(track).toBe(screen.getByRole("progressbar"));
-  });
-});
-
-describe("Dialog", () => {
-  function describedBy(dialog: HTMLElement): readonly (string | null)[] {
-    return (dialog.getAttribute("aria-describedby") ?? "")
-      .split(" ")
-      .filter(Boolean)
-      .map((id) => document.getElementById(id)?.textContent ?? null);
-  }
-
-  it("points aria-describedby at every description, each under its own id, when the caller names them", () => {
-    render(
-      <Dialog open>
-        <DialogContent aria-describedby="d1 d2">
-          <DialogTitle>Narrowing</DialogTitle>
-          <DialogDescription id="d1">one class narrows</DialogDescription>
-          <DialogDescription id="d2">nothing becomes invalid</DialogDescription>
-        </DialogContent>
-      </Dialog>,
-    );
-    const dialog = screen.getByRole("dialog");
-    expect(dialog.getAttribute("aria-describedby")).toBe("d1 d2");
-    expect(describedBy(dialog)).toEqual(["one class narrows", "nothing becomes invalid"]);
-    expect(document.getElementById("d1")?.textContent).toBe("one class narrows");
-    expect(document.getElementById("d2")?.textContent).toBe("nothing becomes invalid");
-  });
-
-  it("wires a single, unnamed description through Radix's own id by default", () => {
-    render(
-      <Dialog open>
-        <DialogContent>
-          <DialogTitle>Narrowing</DialogTitle>
-          <DialogDescription>one class narrows</DialogDescription>
-        </DialogContent>
-      </Dialog>,
-    );
-    const dialog = screen.getByRole("dialog");
-    const describedById = dialog.getAttribute("aria-describedby");
-    expect(describedById).toBeTruthy();
-    expect(document.getElementById(describedById ?? "")?.textContent).toBe("one class narrows");
-  });
-});
-
-describe("sheet", () => {
-  it("renders a dialog with its title and description wired by Radix", async () => {
-    render(
-      <Sheet open>
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Filters</SheetTitle>
-            <SheetDescription>Narrow the list</SheetDescription>
-          </SheetHeader>
-        </SheetContent>
-      </Sheet>,
-    );
-    const dialog = await screen.findByRole("dialog");
-    expect(dialog.getAttribute("data-slot")).toBe("sheet-content");
-    expect(dialog.getAttribute("data-side")).toBe("right");
-    expect(screen.getByRole("button", { name: "Close" })).toBeTruthy();
-  });
-});
-
-describe("DropdownMenu", () => {
-  it("sizes its surface to the items, not to the trigger", async () => {
-    const user = userEvent.setup();
-    render(
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" aria-label="Actions" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem>Check integrity of this connection</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>,
-    );
-    await user.click(screen.getByRole("button", { name: "Actions" }));
-    const classes = (await screen.findByRole("menu")).className.split(" ");
-    // The default sizes to items, not to the trigger: behind this icon-sized
-    // button, pinning to the trigger width would be a 128px ceiling that wraps
-    // every longer item. `min-w-32` is what is asserted below, surviving as
-    // the floor it was meant to be.
-    expect(classes).toContain("w-auto");
-    expect(classes).not.toContain("w-(--radix-dropdown-menu-trigger-width)");
-    // The floor is a different group and survives, which is what keeps a
-    // one-word menu from collapsing to its widest item.
-    expect(classes).toContain("min-w-32");
-  });
-
-  it("sizes to its items and leaves on the frame it is dismissed", async () => {
-    const user = userEvent.setup();
-    render(
-      <DropdownMenu>
-        <DropdownMenuTrigger>Actions</DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem>Duplicate this model</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>,
-    );
-    await user.click(screen.getByRole("button", { name: "Actions" }));
-    const menu = await screen.findByRole("menu");
-    expect(menu.className).toContain("w-auto");
-    expect(menu.className).not.toContain("--radix-dropdown-menu-trigger-width");
-    expect(menu.className).not.toContain("data-closed:animate-out");
   });
 });

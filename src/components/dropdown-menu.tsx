@@ -22,9 +22,14 @@ function DropdownMenuTrigger({
 
 // A menu sizes to its items, not to its trigger — behind an icon-sized button
 // the trigger width is a 128px ceiling that wraps every longer item; min-w-32
-// survives as the floor it was meant to be. And it leaves on the frame it is
-// dismissed: while an exit animation runs, the dismissable layer stays mounted
-// and swallows the press that should open the next menu.
+// survives as the floor it was meant to be.
+//
+// Neither this surface nor a submenu's animates on the way out. While an exit
+// animation runs, Radix keeps the closed surface mounted and its dismissable
+// layer with it, so the press meant to open the next menu is read as an
+// interaction outside the closing one and swallowed. Enter animations stay:
+// nothing is waiting on a surface that did not exist a frame ago.
+// `tests/components/dropdown-menu.test.tsx` holds this for both surfaces.
 function DropdownMenuContent({
   className,
   align = "start",
@@ -226,7 +231,7 @@ function DropdownMenuSubContent({
     <DropdownMenuPrimitive.SubContent
       data-slot="dropdown-menu-sub-content"
       className={cn(
-        "z-50 min-w-[96px] origin-(--radix-dropdown-menu-content-transform-origin) overflow-hidden rounded-lg bg-popover p-1 text-popover-foreground shadow-lg ring-1 ring-foreground/10 duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
+        "z-50 min-w-24 origin-(--radix-dropdown-menu-content-transform-origin) overflow-hidden rounded-lg bg-popover p-1 text-popover-foreground shadow-lg ring-1 ring-foreground/10 duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
         className,
       )}
       {...props}

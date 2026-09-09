@@ -49,6 +49,7 @@ function Button({
   variant = "default",
   size = "default",
   asChild = false,
+  type,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
@@ -61,6 +62,11 @@ function Button({
       data-slot="button"
       data-variant={variant}
       data-size={size}
+      // A native <button> inside a <form> submits by default. A design-system
+      // button is an action first, so submitting is opt-in: `type="submit"`.
+      // With `asChild` the child element keeps its own semantics — an anchor
+      // has no `type`, and forcing one onto it would be wrong.
+      type={asChild ? type : (type ?? "button")}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />
