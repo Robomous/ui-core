@@ -26,7 +26,9 @@
   ],
   "scripts": {
     "build": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.build.json",
-    "verify": "pnpm format:check && pnpm lint && pnpm test && pnpm build && pnpm test:package",
+    "verify": "pnpm format:check && pnpm lint && pnpm test && pnpm build && pnpm catalog:check && pnpm test:package",
+    "catalog": "pnpm build && pnpm --filter @robomous/ui-core-catalog dev",
+    "catalog:check": "pnpm --filter @robomous/ui-core-catalog typecheck && pnpm --filter @robomous/ui-core-catalog build",
     "test": "vitest run --project unit",
     "test:package": "vitest run --project package",
     "typecheck": "tsc -p tsconfig.json --noEmit",

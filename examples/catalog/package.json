@@ -1,0 +1,25 @@
+{
+  "name": "@robomous/ui-core-catalog",
+  "private": true,
+  "description": "Manual inspection of @robomous/ui-core: foundations, components and states, in light and dark. Imports the real package; owns examples only.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@robomous/ui-core": "workspace:*",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.1.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.0"
+  }
+}
