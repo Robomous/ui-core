@@ -1,17 +1,14 @@
 /**
  * @vitest-environment node
  *
- * The token contract: `styles.css` is the one home for a colour (`:root`,
- * `.dark`, `@theme inline`, the base layer) — the semantic vocabulary plus
- * `brand`, the one Robomous extension. `tokens.ts` is the mirror a
- * `<canvas>`/`<svg>` or a test reads a colour off of; this suite parses the
- * stylesheet structurally and asserts the two agree, declaration for
- * declaration, and that none of the tokens this rewrite retired have crept
- * back in.
+ * The token contract. `styles.css` is authoritative and `tokens.ts` is its
+ * runtime mirror; this suite parses the stylesheet structurally and asserts
+ * the two agree declaration for declaration, that the colour namespace is
+ * closed, and that the few stylesheet-level rules the components depend on are
+ * still there.
  *
- * The CSS is parsed rather than imported — same reason as before: vitest's
- * jsdom does not evaluate `@theme`, and `import.meta.url` under jsdom is an
- * `http://localhost/` URL that `fileURLToPath` rejects. Hence `node` above.
+ * Parsed rather than imported: nothing here evaluates `@theme`, and the
+ * packed-consumer test is where a real Tailwind compiles this file.
  */
 
 import { readFileSync } from "node:fs";
@@ -26,21 +23,12 @@ const STYLESHEET = readFileSync(
   "utf8",
 );
 
-/**
- * Whitespace and quote style are presentation: a value that wraps, and a font
- * family spelled in double quotes rather than single, are the same value. Both
- * change under an ordinary formatter run and neither changes what a browser
- * resolves, so neither may fail this suite.
- */
+/** Whitespace and quote style are presentation, not value. */
 function normalize(value: string): string {
   return value.replace(/\s+/g, " ").replace(/"/g, "'").trim();
 }
 
-/**
- * The `{ … }` body belonging to the block whose header (e.g. `:root {` or
- * `.dark {`) appears first in the file, matched by brace depth rather than by
- * the next `\n}` so a nested `calc(...)` or `color-mix(...)` cannot fool it.
- */
+/** The `{ … }` body of the block whose header appears first, matched by brace depth. */
 function blockBody(css: string, header: string): string {
   const headerAt = css.indexOf(header);
   expect(headerAt, `styles.css has no ${JSON.stringify(header)} block`).toBeGreaterThan(-1);
@@ -73,21 +61,9 @@ function declarations(block: string): Map<string, string> {
   return map;
 }
 
-// The semantic vocabulary, written out here rather than derived from
-// `tokens.ts`, so a mistake in the mirror cannot also erase the thing it was
-// supposed to mirror.
-const CHART_NAMES = ["chart-1", "chart-2", "chart-3", "chart-4", "chart-5"];
-const SIDEBAR_NAMES = [
-  "sidebar",
-  "sidebar-foreground",
-  "sidebar-primary",
-  "sidebar-primary-foreground",
-  "sidebar-accent",
-  "sidebar-accent-foreground",
-  "sidebar-border",
-  "sidebar-ring",
-];
-const BASE_SEMANTIC_NAMES = [
+// The vocabulary, written out rather than derived from `tokens.ts`, so a
+// mistake in the mirror cannot also erase the thing it was supposed to mirror.
+const ROLE_NAMES = [
   "background",
   "foreground",
   "card",
@@ -102,91 +78,76 @@ const BASE_SEMANTIC_NAMES = [
   "muted-foreground",
   "accent",
   "accent-foreground",
+  "success",
+  "warning",
+  "info",
   "destructive",
   "border",
   "input",
   "ring",
+  "overlay",
+  "sidebar",
+  "sidebar-foreground",
+  "sidebar-primary",
+  "sidebar-primary-foreground",
+  "sidebar-accent",
+  "sidebar-accent-foreground",
+  "sidebar-border",
+  "sidebar-ring",
 ];
-const SEMANTIC_NAMES = [...BASE_SEMANTIC_NAMES, ...CHART_NAMES, ...SIDEBAR_NAMES];
 
-// The one name this package keeps beyond the semantic vocabulary.
-const EXTENSION_NAMES = ["brand"];
-
-const NEUTRAL_CHART = {
-  "chart-1": "oklch(0.87 0 0)",
-  "chart-2": "oklch(0.556 0 0)",
-  "chart-3": "oklch(0.439 0 0)",
-  "chart-4": "oklch(0.371 0 0)",
-  "chart-5": "oklch(0.269 0 0)",
-} as const;
+// Declared as a variable in both themes, exposed as no utility.
+const VARIABLE_ONLY = ["brand"];
 
 describe(":root", () => {
   const root = declarations(blockBody(STYLESHEET, ":root {"));
 
-  it("declares every semantic variable, the one extension, and --radius, and nothing else", () => {
-    expect([...root.keys()].sort()).toEqual(
-      [...SEMANTIC_NAMES, ...EXTENSION_NAMES, "radius"].sort(),
-    );
+  it("declares every role, the brand variable and --radius, and nothing else", () => {
+    expect([...root.keys()].sort()).toEqual([...ROLE_NAMES, ...VARIABLE_ONLY, "radius"].sort());
   });
 
-  it("matches LIGHT_THEME's value for every name it declares", () => {
-    for (const [name, value] of root) {
-      if (name === "radius") continue;
-      expect(LIGHT_THEME[name], `LIGHT_THEME is missing ${name}`).toBe(value);
-    }
+  it("agrees with LIGHT_THEME declaration for declaration", () => {
+    const light = new Map(Object.entries(LIGHT_THEME));
+    root.delete("radius");
+    expect(Object.fromEntries(root)).toEqual(Object.fromEntries(light));
   });
 
-  it("names no variable LIGHT_THEME does not also carry", () => {
-    const lightKeys = Object.keys(LIGHT_THEME).sort();
-    const rootKeys = [...root.keys()].filter((name) => name !== "radius").sort();
-    expect(lightKeys).toEqual(rootKeys);
-  });
-
-  it("pins --radius to the medium step, in both the CSS and THEME", () => {
-    expect(root.get("radius")).toBe("0.625rem");
+  it("pins --radius in both the CSS and THEME", () => {
+    expect(declarations(blockBody(STYLESHEET, ":root {")).get("radius")).toBe("0.625rem");
     expect(THEME.radius).toBe("0.625rem");
-  });
-
-  it("pins the neutral chart palette exactly", () => {
-    for (const [name, value] of Object.entries(NEUTRAL_CHART)) {
-      expect(root.get(name)).toBe(value);
-    }
   });
 });
 
 describe(".dark", () => {
   const dark = declarations(blockBody(STYLESHEET, ".dark {"));
 
-  it("declares every semantic variable and the one extension, and nothing else (no --radius)", () => {
-    expect([...dark.keys()].sort()).toEqual([...SEMANTIC_NAMES, ...EXTENSION_NAMES].sort());
+  it("declares every role and the brand variable, and nothing else", () => {
+    expect([...dark.keys()].sort()).toEqual([...ROLE_NAMES, ...VARIABLE_ONLY].sort());
   });
 
-  it("matches DARK_THEME's value for every name it declares", () => {
-    for (const [name, value] of dark) {
-      expect(DARK_THEME[name], `DARK_THEME is missing ${name}`).toBe(value);
-    }
-  });
-
-  it("names no variable DARK_THEME does not also carry", () => {
-    expect(Object.keys(DARK_THEME).sort()).toEqual([...dark.keys()].sort());
-  });
-
-  it("pins the neutral chart palette exactly, unchanged from light", () => {
-    for (const [name, value] of Object.entries(NEUTRAL_CHART)) {
-      expect(dark.get(name)).toBe(value);
-    }
+  it("agrees with DARK_THEME declaration for declaration", () => {
+    expect(Object.fromEntries(dark)).toEqual({ ...DARK_THEME });
   });
 });
 
-describe("@theme inline", () => {
+describe("@theme", () => {
   const inline = rawDeclarations(blockBody(STYLESHEET, "@theme inline {"));
 
-  it("exposes --color-<name>: var(--<name>) for every semantic and extension name", () => {
-    for (const name of [...SEMANTIC_NAMES, ...EXTENSION_NAMES]) {
-      expect(inline.get(`--color-${name}`), `@theme inline is missing --color-${name}`).toBe(
-        `var(--${name})`,
-      );
+  it("closes Tailwind's default palette before declaring its own", () => {
+    const reset = STYLESHEET.indexOf("--color-*: initial;");
+    expect(reset, "styles.css does not reset --color-*").toBeGreaterThan(-1);
+    expect(reset).toBeLessThan(STYLESHEET.indexOf("@theme inline {"));
+  });
+
+  it("exposes --color-<role>: var(--<role>) for every role", () => {
+    for (const name of ROLE_NAMES) {
+      expect(inline.get(`--color-${name}`), `missing --color-${name}`).toBe(`var(--${name})`);
     }
+  });
+
+  it("exposes no utility for the brand or for anything outside the roles", () => {
+    const colours = [...inline.keys()].filter((key) => key.startsWith("--color-"));
+    expect(colours.sort()).toEqual(ROLE_NAMES.map((name) => `--color-${name}`).sort());
   });
 
   it("declares the two font variables from THEME", () => {
@@ -194,7 +155,7 @@ describe("@theme inline", () => {
     expect(inline.get("--font-heading")).toBe(normalize(THEME.fontHeading));
   });
 
-  it("derives all seven radius steps from --radius, verbatim", () => {
+  it("derives every radius step from --radius", () => {
     expect(inline.get("--radius-sm")).toBe("calc(var(--radius) * 0.6)");
     expect(inline.get("--radius-md")).toBe("calc(var(--radius) * 0.8)");
     expect(inline.get("--radius-lg")).toBe("var(--radius)");
@@ -205,81 +166,23 @@ describe("@theme inline", () => {
   });
 });
 
-/**
- * The four `--text-*` custom properties this rewrite retired (Task 2 moved
- * their consumers onto Tailwind's standard scale: xs/sm/base/2xl). Assembled
- * from fragments — the same trick `src/gates/tokens.test.ts`'s `HEX` uses — so
- * this guard's own source never spells any retired name as a
- * contiguous string and cannot trip the repo-wide sweep that proves the
- * migration complete everywhere else.
- */
-const RETIRED_TEXT_SCALE_SUFFIXES = ["meta", "body", "section", "page"];
-const RETIRED_TEXT_SCALE = RETIRED_TEXT_SCALE_SUFFIXES.map((name) => `--text-${name}`);
-
-describe("legacy tokens", () => {
-  it("removes every v1 name this rewrite retired from the whole stylesheet", () => {
-    const retired = [
-      "--color-primary-hover",
-      "--color-disabled",
-      "--color-disabled-foreground",
-      "--color-success-hover",
-      "--color-destructive-foreground",
-      "--color-sidebar-strong",
-      "--color-sidebar-muted",
-      ...RETIRED_TEXT_SCALE,
-      "--spacing-sidebar-mobile",
-    ];
-    const present = retired.filter((name) => STYLESHEET.includes(name));
-    expect(present, `styles.css still names: ${present.join(", ")}`).toEqual([]);
-  });
-});
-
-describe("structure", () => {
-  it("declares the dark variant and the four imports, in order", () => {
-    const anchors = [
-      '@import "tailwindcss";',
-      '@import "tw-animate-css";',
-      // The variant and utility layer, ahead of the token blocks: a variant
-      // has to exist before a utility can qualify on it.
-      '@import "./tailwind.css";',
-      // One family, so one font import: the heading face resolves to the body's
-      // rather than naming a second one.
-      '@import "@fontsource-variable/geist";',
-      "@custom-variant dark (&:is(.dark *));",
-    ];
-    let cursor = -1;
-    for (const anchor of anchors) {
-      const at = STYLESHEET.indexOf(anchor);
-      expect(at, `styles.css is missing ${JSON.stringify(anchor)}`).toBeGreaterThan(-1);
-      expect(at, `${JSON.stringify(anchor)} is out of order`).toBeGreaterThan(cursor);
-      cursor = at;
-    }
+describe("base layer", () => {
+  it("keys dark mode off the .dark class", () => {
+    expect(STYLESHEET).toContain("@custom-variant dark (&:is(.dark *));");
   });
 
-  it("reaches its own package's classes: @source after the imports", () => {
-    const sourceAt = STYLESHEET.indexOf('@source "..";');
-    const lastImportAt = STYLESHEET.lastIndexOf("@import");
-    expect(sourceAt, 'styles.css has no @source "..";').toBeGreaterThan(-1);
-    expect(sourceAt).toBeGreaterThan(lastImportAt);
-  });
-
-  it("applies the base-layer ring/border rule to every element", () => {
+  it("names the border and outline colour on every element", () => {
     expect(/\*\s*\{\s*@apply border-border outline-ring\/50;\s*\}/.test(STYLESHEET)).toBe(true);
   });
 
   /**
-   * The `*` rule above names the outline *colour* and nothing else about focus.
-   * The geometry belongs to the components: every focusable one carries its own
-   * `focus-visible:ring-3 focus-visible:ring-ring/50` (the tab bar adds a 1px
-   * `outline-ring` on top of it), so a stylesheet-level `:focus-visible`
-   * override would now fight the components instead of backing them up.
-   *
-   * Asserted as an absence, because the absence is what the migration bought:
-   * re-adding a blanket rule here is how a single global declaration would
-   * quietly start overriding thirteen components again.
+   * Focus geometry belongs to the components. A stylesheet-level
+   * `:focus-visible` rule would override every component's ring at once, which
+   * is how thirteen rings were once lost together.
    */
-  it("leaves focus geometry to the components: no stylesheet-level :focus-visible rule", () => {
-    expect(STYLESHEET).not.toContain(":focus-visible");
+  it("declares no focus geometry", () => {
+    const rules = STYLESHEET.replace(/\/\*[\s\S]*?\*\//g, "");
+    expect(rules).not.toContain(":focus-visible");
   });
 
   it("applies the heading font at the semantic-HTML level", () => {

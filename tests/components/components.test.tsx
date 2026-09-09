@@ -146,8 +146,11 @@ describe("Alert and Badge", () => {
       render(<Badge variant={variant}>x</Badge>);
       const el = screen.getByText("x");
       expect(el.getAttribute("data-variant")).toBe(variant);
+      // A status chip is a soft surface and readable ink on a semantic role —
+      // never a coloured stroke, never a physical palette family.
       expect(el.className).toContain("border-transparent");
-      expect(el.className).not.toMatch(/border-(emerald|amber|sky)/);
+      expect(el.className).toMatch(/\bbg-(success|warning|info)\/10\b|\bbg-muted\b/);
+      expect(el.className).not.toMatch(/emerald|amber|sky|border-(success|warning|info)/);
     },
   );
 });

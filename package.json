@@ -15,11 +15,7 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./styles.css": "./src/theme/styles.css",
-    "./gates": {
-      "types": "./dist/gates/index.d.ts",
-      "import": "./dist/gates/index.js"
-    }
+    "./styles.css": "./src/theme/styles.css"
   },
   "files": [
     "dist",

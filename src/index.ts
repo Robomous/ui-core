@@ -1,8 +1,8 @@
 /**
  * `@robomous/ui-core` — the Robomous design system.
  *
- * Twenty-one React components this package owns outright, the design tokens
- * they resolve through, and the status-tone vocabulary. A consumer imports
+ * Twenty-one React components this package owns outright, over Radix and Base
+ * UI behaviour, and the one stylesheet they resolve through. A consumer imports
  * exactly:
  *
  * ```ts
@@ -11,19 +11,14 @@
  * ```
  *
  * The public surface is listed explicitly rather than `export *`, so what this
- * package promises stays auditable. The scanners behind this repository's own
- * design rules are published too, for a consumer to run over its own sources:
- * `import { ... } from "@robomous/ui-core/gates"`. DESIGN.md names each rule
- * and the gate that holds it.
+ * package promises can be read off this one file. Status colour is a semantic
+ * utility (`bg-success`, `text-warning`, `border-info`), not an export.
  */
 
-// The design tokens, and their prose contract in DESIGN.md.
+// The runtime mirror of the stylesheet's tokens, for a caller that cannot read CSS.
 export { cssVar, DARK_THEME, LIGHT_THEME, THEME } from "./theme/tokens.js";
 
 export { cn } from "cn";
-
-// The one home for status colour outside the Badge.
-export { STATUS_INK, TONE_BORDER, TONE_FILL, type StatusTone } from "./theme/statusTone.js";
 
 // The components — Radix and Base UI behaviour, iconed with lucide.
 export { Button, buttonVariants } from "./components/button.js";
