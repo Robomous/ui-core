@@ -8,15 +8,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      # The pnpm version comes from package.json#packageManager, the same one
+      # that wrote the lockfile.
       - uses: pnpm/action-setup@v6
-        with:
-          version: 11
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # The same sequence `pnpm verify` runs locally, one step each so a failure
+      # names its stage: format → lint + typecheck → behaviour tests → build →
+      # catalog → pack + consumer smoke.
       - run: pnpm format:check
       - run: pnpm lint
-      - run: pnpm build
       - run: pnpm test
+      - run: pnpm build
+      - run: pnpm catalog:check
+      - run: pnpm test:package

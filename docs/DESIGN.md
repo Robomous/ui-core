@@ -1,0 +1,257 @@
+# Robomous design foundations
+
+## Purpose and ownership
+
+`@robomous/ui-core` is twenty-one React components this repository owns outright, over behaviour
+from Radix UI and Base UI, and the one stylesheet they resolve through. A component here is
+**written, not generated**: ordinary source, edited with a reason, a test and a review like any
+other file. Radix and Base UI supply focus management, keyboard interaction, dismissal, `aria-*`
+relationships and the `data-*` state attributes; Robomous owns the API, the styling, the semantic
+variants, the geometry and the public contract.
+
+The package is product-agnostic. Shells, navigation, domain cards, model selectors, user menus,
+billing screens and the like stay in the product that needs them until the *same composition* is
+shared by at least two products. A pattern that earns that gets its own package; nothing here is
+reserved for it in advance.
+
+This document states the rules the package holds itself to and how each one is held. A component's
+anatomy and variants are read from `src/components/`, where they live; `docs/components/` indexes
+them.
+
+## The shape of the package
+
+```text
+src/components/*.tsx   the components, one file each, exported by name from src/index.ts
+src/theme/styles.css   the one visual contract: tokens, the closed colour namespace, base layer
+src/theme/tokens.ts    a runtime mirror of the token values, for callers that cannot read CSS
+tests/                 behaviour tests (jsdom), the token contract, the packed-consumer test
+examples/catalog/      manual inspection, importing the real package
+```
+
+A consumer imports two things and nothing else:
+
+```ts
+import "@robomous/ui-core/styles.css"; // once, in the app's entry
+import { Button, Card } from "@robomous/ui-core";
+```
+
+There is no policy engine. The invariants below are held by CSS, by TypeScript, by ESLint, by the
+component API, or by a test that observes behaviour — never by a scanner of our own.
+
+## Tokens
+
+**The tokens have one home: [`src/theme/styles.css`](../src/theme/styles.css).** Tailwind v4 is
+CSS-first, so the stylesheet is not a mirror of a config; it *is* the config. There is no
+`tailwind.config.js` in this repository and there must not be one.
+
+Both themes are declared in full — a value in `:root`, a counterpart in `.dark` — and exposed to
+Tailwind through `@theme inline` as `--color-<role>: var(--<role>)`. Every rule below is written
+against a **role**, never a light-mode value: "the page" resolves per theme and is never asserted
+to be white.
+
+**The colour namespace is closed.** `@theme { --color-*: initial }` removes Tailwind's default
+palette before the roles are declared, so `bg-red-500`, `text-emerald-700` and `bg-white` are not
+words in this system: they compile to nothing, in this package and in every consumer. The
+vocabulary is exactly:
+
+| Family | Roles |
+| --- | --- |
+| Surfaces | `background`, `card`, `popover`, `muted`, each with a `-foreground` |
+| Emphasis | `primary`, `secondary`, `accent`, each with a `-foreground` |
+| Status | `success`, `warning`, `info`, `destructive` |
+| Structure | `border`, `input`, `ring`, `overlay` |
+| Shell | `sidebar` and its seven companions, kept because two product shells paint with them |
+
+`primary` is the one high-emphasis colour; `accent` is the interactive hover/focus surface a row
+or a menu item lights up with, never what a button fills with. `overlay` is the scrim behind a
+Dialog or a Sheet: a purpose, not a pigment.
+
+**Never a colour inside a class string.** With the palette closed, the one road left for a literal
+is an arbitrary value — `bg-[#eb5a47]`, `ring-[var(--x)]`. ESLint refuses it
+(`no-restricted-syntax` in [`eslint.config.js`](../eslint.config.js)); a consumer copies the two
+selectors. The Button's hover step, a `color-mix` of two roles, names no colour of its own and
+stays legal.
+
+[`src/theme/tokens.ts`](../src/theme/tokens.ts) mirrors the values as TypeScript for a `<canvas>`,
+an `<svg>` or a styleguide that has to print a value. It is a compatibility mirror: CSS is
+authoritative, `var(--foreground)` or `getComputedStyle` is preferred where the DOM is available,
+and `tests/theme/tokens.test.ts` holds the two in agreement declaration for declaration.
+
+### Where the brand is
+
+Robomous orange — `oklch(0.663 0.205 39.9)`, `#F5580B` — is identity: a wordmark, a styleguide
+swatch. It is declared as `--brand` in both themes and **exposed as no utility**. There is no
+`bg-brand`; identity UI reads `var(--brand)` directly. At 3.34:1 on `background` it clears 3:1 for
+large marks and misses 4.5:1 for body copy, which is one more reason it paints no control.
+
+### Radius
+
+`--radius: 0.625rem` lives in the stylesheet and every step derives from it in `@theme inline`
+(`radius-sm` at × 0.6 through `radius-4xl` at × 2.6). Components take their radius from that scale.
+The arbitrary values that remain in `src/components/` are geometry, not radius or type: a
+`max-w-[calc(100%-2rem)]`, a `translate-y-[calc(-50%_-_2px)]`, a `p-[3px]` on a tab list. Each is
+a one-off measurement with no scale to belong to.
+
+## Status vocabulary
+
+Four roles — `success`, `warning`, `info`, `destructive` — and one way to use each: a semantic
+utility.
+
+| Need | Write |
+| --- | --- |
+| A chip | `<Badge variant="success">` |
+| A solid mark — a dot, a timeline cell | `bg-success` |
+| An icon or a run of inline text | `text-success` |
+| A stroke, where the stroke is the whole mark | `border-success` |
+
+The role's value flips between themes on its own, so no `dark:` restatement is needed at a call
+site. After this migration application code does not know that success happens to be green; it
+knows the word.
+
+**Colour is never the only signal.** Every status carries a redundant channel — a word, an icon, a
+shape — and status is never a stroke on a container: a status `Badge` keeps `border-transparent`,
+and an `Alert` recolours its ink, not its border.
+
+### The Badge's status variants
+
+`success`, `warning`, `info` and `quiet` share one recipe: a `/10` surface of the role, ink in the
+role, a focus ring at matching opacity, a hover step for the anchor case. `quiet` is `muted` — a
+state that exists without asking for attention. Geometry is untouched by every variant.
+
+## Action hierarchy
+
+Six Button variants, one intent each: `default` (the one dominant action in a view), `outline`,
+`secondary`, `ghost`, `destructive` (the action that ends something), `link`. Sizes are `default`,
+`xs`, `sm`, `lg`, `icon`, `icon-xs`, `icon-sm`, `icon-lg` and `inline` — the last one `h-auto p-0`
+for a link button inside a sentence.
+
+**A Button does not submit a form unless asked.** A native `<button>` renders `type="button"` by
+default; `<Button type="submit">` is the explicit opt-in. With `asChild` the child keeps its own
+semantics and no `type` is forced onto it. `tests/components/button.test.tsx` holds all three.
+
+**A status is not a step in the action hierarchy.** There is no `success` Button; a saved form
+reports itself with a toast or a Badge while its button stays `default`.
+
+## Status and feedback
+
+- **Badge** — a state belonging to a row, a card or a heading, that stays on screen.
+- **Alert** — a condition about the surface the reader is looking at, in place. `default` and
+  `destructive`; no informational or settled Alert.
+- **Toaster** and `toast` — the outcome of something the reader just did.
+- **Progress** — how much of a known quantity is done. No polarity, no variant; it forwards its
+  `value` to the Radix root so `aria-valuenow` is announced with nothing asked of the caller.
+
+## Surfaces, borders and focus
+
+`background` is the page; `card` holds content that sits in place; `popover` holds anything that
+floats and closes; `muted` recesses. Elevation is a ring plus a resting shadow, never a coloured
+border. A menu, select or combobox paints on `popover` and follows the page from light to dark;
+the tooltip is `bg-foreground text-background`, which flips by construction.
+
+The base layer applies `border-border` and `outline-ring/50` to every element — the outline's
+**colour only**. Focus geometry belongs to the component: each focusable one carries its own
+`focus-visible:ring-3 focus-visible:ring-ring/50`, and the stylesheet declares no `:focus-visible`
+rule, because one blanket declaration is how thirteen components' rings were once overridden at
+once. `tests/theme/tokens.test.ts` asserts that absence.
+
+## Typography
+
+One family, Geist, through `--font-sans`, bundled offline through `@fontsource-variable/geist`.
+`font-heading` resolves to the same face and survives as a hook on `h1`–`h4`. `font-mono` marks
+machine-shaped content — identifiers, hashes, measurements — and prose never wears it. Sizes come
+from Tailwind's scale; there is no custom type-scale token.
+
+## State attributes
+
+Components style their states through the attributes their behaviour library actually emits, in
+that library's spelling. Radix sets `data-state="open|closed|active|…"` and
+`data-orientation="horizontal|vertical"`, so Radix components write `data-[state=open]:` and
+`data-[orientation=horizontal]:`. Base UI sets bare `data-open`, `data-closed`, `data-highlighted`,
+`data-empty`, so the Combobox writes `data-open:` and Tailwind's built-in variant matches. Both
+libraries set a bare `data-disabled`. There is no custom variant layer translating one dialect into
+the other: the two libraries are different, and hiding that cost more than it saved.
+
+## Motion
+
+An **enter** animation is free to play: the surface it introduces did not exist a frame ago. An
+**exit** animation is not, and the difference is not taste. While an exit animation runs, Radix
+keeps the closed surface mounted and its dismissable layer with it, so a press meant to open the
+next menu is read as an interaction outside the closing one and swallowed.
+
+**A menu leaves on the frame it is dismissed — `DropdownMenuContent` and `DropdownMenuSubContent`
+alike.** Neither carries an exit animation. `tests/components/dropdown-menu.test.tsx` gives any
+exit-animation utility a real `animation-name` and a live `getComputedStyle`, so a surface that
+lingers fails the way it does in a browser: the next press does not land. A surface whose trigger
+cannot be pressed again straight away — a dialog's, a sheet's, a tooltip's — keeps its exit
+animation. `TooltipProvider` defaults `delayDuration` to `0`.
+
+`prefers-reduced-motion` sits above all of this: the base layer collapses every animation and
+transition to a single frame under that query, so no component opts in.
+
+## Accessibility
+
+- **Semantic HTML.** Real `<button>`/`<a>`, native controls, one `<h1>` and a hierarchy under it.
+- **Keyboard parity.** Everything a pointer can do, the keyboard can do; arrow keys move inside
+  composite widgets. Radix and Base UI guarantee it; the tests exercise it.
+- **Focus is always visible**, per *Surfaces, borders and focus*.
+- **No colour-only communication.**
+- **A component announces its own state.** `Progress` forwards `value`; Dialog and Sheet are
+  labelled by their title and described by their description through Radix's own ids.
+- **Field is anatomy, not wiring.** `Field`, `FieldLabel`, `FieldDescription`, `FieldError` and
+  the rest give a control its structure and layout. The relationships are the call site's, written
+  explicitly:
+
+  ```tsx
+  <Field data-invalid>
+    <FieldLabel htmlFor="name">Name</FieldLabel>
+    <Input id="name" aria-describedby="name-hint name-error" aria-invalid />
+    <FieldDescription id="name-hint">Shown on your profile.</FieldDescription>
+    <FieldError id="name-error">Required</FieldError>
+  </Field>
+  ```
+
+  `FieldError` renders `role="alert"`; `Field` renders `role="group"` and styles
+  `data-invalid`. Nothing generates `aria-describedby` or `aria-invalid` for you. A form library
+  integration that does is a higher-level pattern for a product to write, and to promote here only
+  when two products share it.
+
+## Adding a component
+
+1. **Take behaviour from Radix or Base UI**, and wrap it. Hand-rolling a floating surface from a
+   `<div>` will be wrong in ways that only show up on a keyboard or a screen reader.
+2. **Spell colour only through the roles.** The palette is closed, so a physical colour produces
+   nothing; a literal in a class fails lint.
+3. **Put the geometry in the component**, on the radius scale and Tailwind's spacing scale.
+4. **Draw from `lucide-react`**, sized by the component that contains the icon.
+5. **Give it `data-slot`**, and a `className` that merges last through `cn`.
+6. **Export it by name from [`src/index.ts`](../src/index.ts).** The surface is one file, read top
+   to bottom; `export *` is not used.
+7. **Test the behaviour a screen would silently lose**, in `tests/components/`: roles, focus,
+   `aria-*`, the form or pointer outcome. Not the class string.
+8. **Show it in `examples/catalog/`**, in every state it has.
+
+If a caller wants something the component does not offer, the answer is a prop or a variant *in
+the component*, never a class string spread onto it from the call site.
+
+## Per-consumer extensions
+
+A consumer that needs its own role declares it in its own stylesheet after
+`@import "@robomous/ui-core/styles.css";` — a value in `:root`, a counterpart in `.dark`, exposure
+through `@theme inline` — and never shadows a name declared here. A consumer may not reach past
+its own layer to restyle a component here, and a component here may not encode a product's
+decision. An extension that turns out to be universal is a PR against this repository with the
+justification written into this file.
+
+## Verification
+
+| What | Where |
+| --- | --- |
+| No literal colour in a class | `eslint.config.js`, `pnpm lint` |
+| Roles agree between the stylesheet and its mirror; the palette is closed; no `:focus-visible` rule | `tests/theme/tokens.test.ts` |
+| Button type, Dialog/Sheet focus and dismissal, Field's explicit contract, menu dismissal, Tabs, Select, Progress, Combobox, Toaster theme | `tests/components/*.test.tsx` |
+| The packed tarball installs, its stylesheet compiles under a real Tailwind with the components' utilities and no physical palette, its entry imports and renders, a Button-only bundle stays small | `tests/package/consumer.test.ts` |
+| The harness itself | `tests/harness.test.tsx` |
+
+`pnpm verify` runs format, lint, typecheck, the behaviour tests, the build, the catalog, and the
+packed-consumer test, in that order; the release workflow refuses to publish anything that has not
+passed it.

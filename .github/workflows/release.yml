@@ -11,15 +11,16 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
-        with:
-          version: 11
       # No registry-url: setup-node would write an .npmrc auth-token
       # placeholder that preempts npm's OIDC trusted-publishing exchange.
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
       - run: pnpm install --frozen-lockfile
-      - run: pnpm build
+      # Nothing publishes that has only been compiled: format, lint, typecheck,
+      # behaviour tests, build, catalog, and the packed-consumer smoke test all
+      # have to pass first.
+      - run: pnpm verify
       - name: tag matches package.json
         run: |
           test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
