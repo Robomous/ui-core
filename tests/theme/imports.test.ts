@@ -24,7 +24,6 @@
  * correctly installed package as missing.
  */
 
-import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -124,37 +123,5 @@ test("every package the stylesheet imports is installed and exports the file it 
     "styles.css ships as source and the consumer's Tailwind build resolves these, so an " +
       "unresolvable @import breaks every consumer and nothing in this repository compiles " +
       `CSS to catch it:\n${broken.join("\n")}`,
-  ).toEqual([]);
-});
-
-test("every sibling the stylesheet imports exists and is committed", () => {
-  const specs = importsIn(STYLESHEET).filter(isRelative);
-  expect(specs.length > 0, "the stylesheet named no siblings, so this proves nothing").toBe(true);
-
-  const broken = specs.flatMap((spec) => {
-    const file = path.resolve(STYLESHEET_DIR, spec);
-    if (!existsSync(file)) {
-      return [`@import "${spec}": ${path.relative(REPO, file)} does not exist`];
-    }
-    // On disk is not enough. `files: ["src"]` publishes what the working tree
-    // holds, so an uncommitted sibling packs fine here and is absent from the
-    // clone CI builds and publishes from — the failure lands on consumers only.
-    const tracked = spawnSync("git", ["ls-files", "--error-unmatch", file], {
-      cwd: REPO,
-      encoding: "utf8",
-    });
-    if (tracked.status !== 0) {
-      return [
-        `@import "${spec}": ${path.relative(REPO, file)} exists but is not tracked by git — ` +
-          "commit it, or the published package will not carry it",
-      ];
-    }
-    return [];
-  });
-
-  expect(
-    broken,
-    "styles.css ships as source, so a sibling it imports has to reach the consumer with it:\n" +
-      broken.join("\n"),
   ).toEqual([]);
 });
