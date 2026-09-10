@@ -15,7 +15,11 @@
     // TypeScript 6 pulls in only the @types packages that are named. `node` is
     // for the tests that read files and spawn processes.
     "types": ["node"],
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": ["./src/*"],
+      "react": ["./node_modules/@types/react"],
+    },
   },
-  "include": ["src", "tests"]
+  "include": ["src", "tests"],
 }
