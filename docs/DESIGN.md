@@ -2,12 +2,15 @@
 
 ## Purpose and ownership
 
-`@robomous/ui-core` is twenty-one React components this repository owns outright, over behaviour
-from Radix UI and Base UI, and the one stylesheet they resolve through. A component here is
-**written, not generated**: ordinary source, edited with a reason, a test and a review like any
-other file. Radix and Base UI supply focus management, keyboard interaction, dismissal, `aria-*`
-relationships and the `data-*` state attributes; Robomous owns the API, the styling, the semantic
-variants, the geometry and the public contract.
+`@robomous/ui-core` is twenty-two React components this repository owns outright, over behaviour
+from Radix UI and Base UI, and the one stylesheet they resolve through. The package is **built on
+top of shadcn/ui**: a component starts as an item of the shadcn registry, installed through
+`components.json`, and from that moment it is ordinary source here — edited with a reason, a test
+and a review like any other file, never regenerated and never compared back to upstream. It is not
+an extension of shadcn. shadcn supplies the starting point and the utility and variant layer the
+stylesheet vendors; Radix and Base UI supply focus management, keyboard interaction, dismissal,
+`aria-*` relationships and the `data-*` state attributes; Robomous owns the API, the styling, the
+semantic variants, the geometry and the public contract.
 
 The package is product-agnostic. Shells, navigation, domain cards, model selectors, user menus,
 billing screens and the like stay in the product that needs them until the *same composition* is
@@ -22,11 +25,19 @@ them.
 
 ```text
 src/components/*.tsx   the components, one file each, exported by name from src/index.ts
+src/hooks/*.tsx        the hooks the components are built on (useIsMobile)
 src/theme/styles.css   the one visual contract: tokens, the closed colour namespace, base layer
+src/theme/shadcn.css   shadcn's utility and variant layer, vendored byte for byte, never edited
 src/theme/tokens.ts    a runtime mirror of the token values, for callers that cannot read CSS
-tests/                 behaviour tests (jsdom), the token contract, the packed-consumer test
+components.json        the shadcn CLI's configuration: style, stylesheet, aliases
+tests/                 behaviour tests (jsdom), token and shadcn-layer contracts, consumer test
 examples/catalog/      manual inspection, importing the real package
 ```
+
+Internal imports are written against the `@/` alias `components.json` declares (`@/components/…`,
+`@/hooks/…`), which is what the CLI writes. `tsconfig.json` resolves it, `tsc-alias` rewrites it
+to relative paths with extensions in `dist/`, and `vitest.config.ts` resolves it for the tests. The
+older components import relatively; both forms are fine, and neither is rewritten to the other.
 
 A consumer imports two things and nothing else:
 
@@ -163,13 +174,25 @@ from Tailwind's scale; there is no custom type-scale token.
 
 ## State attributes
 
-Components style their states through the attributes their behaviour library actually emits, in
-that library's spelling. Radix sets `data-state="open|closed|active|…"` and
-`data-orientation="horizontal|vertical"`, so Radix components write `data-[state=open]:` and
-`data-[orientation=horizontal]:`. Base UI sets bare `data-open`, `data-closed`, `data-highlighted`,
-`data-empty`, so the Combobox writes `data-open:` and Tailwind's built-in variant matches. Both
-libraries set a bare `data-disabled`. There is no custom variant layer translating one dialect into
-the other: the two libraries are different, and hiding that cost more than it saved.
+Radix sets `data-state="open|closed|active|…"` and `data-orientation="horizontal|vertical"`. Base
+UI sets bare `data-open`, `data-closed`, `data-highlighted`, `data-empty`. Both set a bare
+`data-disabled`. A component written before the shadcn layer returned spells the attribute its
+library emits — `data-[state=open]:` for Radix, `data-open:` for Base UI — and those components are
+not rewritten.
+
+**shadcn's variant layer sits under all of it**, vendored in `src/theme/shadcn.css`. It declares
+`data-open`, `data-closed`, `data-checked`, `data-unchecked`, `data-selected`, `data-disabled`,
+`data-active`, `data-horizontal` and `data-vertical` so that each matches *both* spellings —
+`[data-state="open"]` and a bare `[data-open]` — and excludes an explicit `"false"`. That last
+clause is why the layer is load-bearing rather than convenient: `SidebarMenuButton` renders
+`data-active="false"` for an inactive item, Tailwind's built-in `data-active:` variant matches on
+presence alone, and without the layer every item would be styled active. A component installed
+from the registry uses shadcn's spelling as written; an older component's explicit spelling keeps
+working under the layer unchanged. Both are correct here.
+
+`shadcn.css` is never edited. Anything of ours — `cn-rtl-flip`, which the registry's components
+name and shadcn defines nowhere — is declared in `styles.css` after the import.
+`tests/theme/shadcn.test.ts` holds the copy identical to the installed package.
 
 ## Motion
 
@@ -217,18 +240,38 @@ transition to a single frame under that query, so no component opts in.
 
 ## Adding a component
 
-1. **Take behaviour from Radix or Base UI**, and wrap it. Hand-rolling a floating surface from a
+**From the registry**, which is the usual road:
+
+```
+pnpm dlx shadcn@latest add <name>
+```
+
+The CLI reads `components.json`, writes `src/components/<name>.tsx` with `@/` imports, brings any
+hook the item depends on into `src/hooks/`, and may write into `src/theme/styles.css` if the item
+carries `cssVars`. Read the whole diff before anything else: the stylesheet is the token contract,
+and a variable the CLI adds there is a role to be declared properly in `:root`, `.dark` and
+`@theme inline` — or removed. An existing component is **never reinstalled**; the CLI's overwrite
+prompt is answered no.
+
+Then the component is adapted, whichever road it came by:
+
+1. **Behaviour comes from Radix or Base UI**, wrapped. Hand-rolling a floating surface from a
    `<div>` will be wrong in ways that only show up on a keyboard or a screen reader.
 2. **Spell colour only through the roles.** The palette is closed, so a physical colour produces
-   nothing; a literal in a class fails lint.
+   nothing; a literal in a class fails lint. A registry item that names a Tailwind palette colour
+   is rewritten to a role.
 3. **Put the geometry in the component**, on the radius scale and Tailwind's spacing scale.
 4. **Draw from `lucide-react`**, sized by the component that contains the icon.
 5. **Give it `data-slot`**, and a `className` that merges last through `cn`.
-6. **Export it by name from [`src/index.ts`](../src/index.ts).** The surface is one file, read top
+6. **Hold it to the rules above**: a button renders `type="button"` unless asked (*Action
+   hierarchy*), a menu surface carries no exit animation (*Motion*), status is never a stroke on a
+   container (*Status vocabulary*).
+7. **Export it by name from [`src/index.ts`](../src/index.ts).** The surface is one file, read top
    to bottom; `export *` is not used.
-7. **Test the behaviour a screen would silently lose**, in `tests/components/`: roles, focus,
+8. **Test the behaviour a screen would silently lose**, in `tests/components/`: roles, focus,
    `aria-*`, the form or pointer outcome. Not the class string.
-8. **Show it in `examples/catalog/`**, in every state it has.
+9. **Show it in `examples/catalog/`**, in every state it has, and give it a row in
+   `docs/components/README.md`.
 
 If a caller wants something the component does not offer, the answer is a prop or a variant *in
 the component*, never a class string spread onto it from the call site.
@@ -248,8 +291,9 @@ justification written into this file.
 | --- | --- |
 | No literal colour in a class | `eslint.config.js`, `pnpm lint` |
 | Roles agree between the stylesheet and its mirror; the palette is closed; no `:focus-visible` rule | `tests/theme/tokens.test.ts` |
-| Button type, Dialog/Sheet focus and dismissal, Field's explicit contract, menu dismissal, Tabs, Select, Progress, Combobox, Toaster theme | `tests/components/*.test.tsx` |
-| The packed tarball installs, its stylesheet compiles under a real Tailwind with the components' utilities and no physical palette, its entry imports and renders, a Button-only bundle stays small | `tests/package/consumer.test.ts` |
+| The vendored shadcn layer is identical to the installed package, committed, imported, and a dev dependency only | `tests/theme/shadcn.test.ts` |
+| Button type, Dialog/Sheet focus and dismissal, Field's explicit contract, menu dismissal, Tabs, Select, Progress, Combobox, Toaster theme, Sidebar toggling and its mobile Sheet | `tests/components/*.test.tsx` |
+| The packed tarball installs, its stylesheet compiles under a real Tailwind with the components' utilities, shadcn's layer and no physical palette, its entry imports and renders (Sidebar included, through the rewritten alias), `dist/` carries no `@/` import, `shadcn` is not a runtime dependency, a Button-only bundle stays small | `tests/package/consumer.test.ts` |
 | The harness itself | `tests/harness.test.tsx` |
 
 `pnpm verify` runs format, lint, typecheck, the behaviour tests, the build, the catalog, and the

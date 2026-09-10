@@ -19,19 +19,43 @@ member that depends on it as `workspace:*`.
 | `pnpm test:package` | Builds, packs, installs the tarball into a temporary consumer, compiles it with a real Tailwind, imports it under Node and bundles it. Slow; touches the registry. |
 | `pnpm lint` | ESLint (including the colour-literal rule) and `tsc --noEmit` over `src` and `tests`. |
 | `pnpm format` / `pnpm format:check` | Prettier. Markdown is hand-formatted at 100 columns and excluded. |
-| `pnpm build` | Cleans `dist/` and compiles `src/` with declarations. |
+| `pnpm build` | Cleans `dist/`, compiles `src/` with declarations, and rewrites the `@/` alias to relative paths (`tsc-alias`). |
 | `pnpm catalog` | Builds the package and serves the catalog with Vite. |
 | `pnpm catalog:check` | Typechecks and builds the catalog, as CI does. |
 | `pnpm verify` | Everything above in CI order: format, lint, test, build, catalog, package test. |
 
 ## Adding or changing a component
 
-The checklist is in [DESIGN.md](DESIGN.md), *Adding a component*. In short: wrap Radix or Base UI
-behaviour, spell colour only through the roles, keep geometry in the component, export by name
-from `src/index.ts`, test the behaviour in `tests/components/`, and add it to the catalog.
+A new component usually comes from the shadcn registry:
 
-State styles use the attributes the behaviour library emits: `data-[state=open]:` for Radix, bare
-`data-open:` for Base UI. There is no custom variant layer.
+```
+pnpm dlx shadcn@latest add <name>
+```
+
+`components.json` tells the CLI to write into `src/components/` and `src/hooks/` with `@/`
+imports, which the build resolves. Read the diff, then adapt: the checklist is in
+[DESIGN.md](DESIGN.md), *Adding a component*. In short: colour only through the roles, geometry in
+the component, `type="button"`, no exit animation on a menu, export by name from `src/index.ts`,
+a behaviour test in `tests/components/`, a specimen in the catalog, a row in
+`docs/components/README.md`. Never reinstall an existing component.
+
+State styles may use either the attribute the behaviour library emits (`data-[state=open]:`,
+`data-open:`) or shadcn's variants, which the vendored layer defines; see DESIGN.md, *State
+attributes*.
+
+## Updating the shadcn layer
+
+`src/theme/shadcn.css` is a byte-for-byte copy of `shadcn/dist/tailwind.css`, and
+`tests/theme/shadcn.test.ts` fails when the two differ. To take a new version:
+
+```
+pnpm up shadcn
+cp node_modules/shadcn/dist/tailwind.css src/theme/shadcn.css
+git diff src/theme/shadcn.css
+```
+
+Read that diff as a change to every consumer's CSS, because it is one. Nothing of ours goes in
+that file; a utility we need lives in `styles.css` after the import.
 
 ## Adding a token
 

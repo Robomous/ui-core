@@ -1,7 +1,7 @@
 /**
- * `@robomous/ui-core` — the Robomous design system.
+ * `@robomous/ui-core` — the Robomous design system, built on top of shadcn/ui.
  *
- * Twenty-one React components this package owns outright, over Radix and Base
+ * Twenty-two React components this package owns outright, over Radix and Base
  * UI behaviour, and the one stylesheet they resolve through. A consumer imports
  * exactly:
  *
@@ -142,3 +142,32 @@ export {
   TableHeader,
   TableRow,
 } from "./components/table.js";
+export {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupAction,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInput,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuAction,
+  SidebarMenuBadge,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSkeleton,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarSeparator,
+  SidebarTrigger,
+  useSidebar,
+} from "./components/sidebar.js";
+
+// The hooks the components are built on, for a shell that needs the same answer.
+export { useIsMobile } from "./hooks/use-mobile.js";

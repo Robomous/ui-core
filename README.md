@@ -4,9 +4,10 @@
 
 # @robomous/ui-core
 
-The Robomous design system: twenty-one React components this package owns outright, over Radix UI
-and Base UI behaviour, and the one stylesheet they resolve through. Extracted from
-[Robomous/VisionSet](https://github.com/Robomous/VisionSet), where it grew up.
+The Robomous design system, built on top of [shadcn/ui](https://ui.shadcn.com): twenty-two React
+components this package owns outright, over Radix UI and Base UI behaviour, and the one stylesheet
+they resolve through. Extracted from [Robomous/VisionSet](https://github.com/Robomous/VisionSet),
+where it grew up.
 
 ## Install
 
@@ -30,13 +31,35 @@ namespace is closed: every colour is a role (`primary`, `muted`, `success`, `war
 `@source` for its own sources after the import, and declares any extension of its own in its own
 stylesheet.
 
+## Built on shadcn/ui
+
+A component enters this package from the shadcn registry and is owned here from then on. It is
+not an extension of shadcn: the registry is where a component starts, `components.json` is how it
+arrives, and the rules in `docs/DESIGN.md` are what it is adapted to before it is exported.
+
+```
+pnpm dlx shadcn@latest add <name>
+```
+
+writes `src/components/<name>.tsx` (and a hook under `src/hooks/` if the item brings one) with
+`@/` imports that the build resolves. The adaptation checklist follows in DESIGN.md, *Adding a
+component*. An existing component is never reinstalled.
+
+shadcn's utility and variant layer — `data-open:`, `data-active:` and the rest, `no-scrollbar`,
+`scroll-fade-*`, `shimmer-*` — ships inside the stylesheet as `src/theme/shadcn.css`, a
+byte-for-byte copy of `shadcn/tailwind.css` held to the installed package by a test. It is a copy
+because the stylesheet ships as source: a package named in it would become a runtime dependency of
+every consumer, and `shadcn` is the CLI.
+
 ## Repository
 
 ```text
 src/components/   the components, one file each
-src/theme/        styles.css, the single visual contract; tokens.ts, its runtime mirror
+src/hooks/        the hooks the components are built on
+src/theme/        styles.css, the single visual contract; shadcn.css, shadcn's layer; tokens.ts
 src/index.ts      the public surface, exported by name
-tests/            behaviour tests, the token contract, the packed-consumer test
+components.json   how the shadcn CLI installs a new component here
+tests/            behaviour tests, the token and shadcn-layer contracts, the packed-consumer test
 examples/catalog  manual inspection of every component and state, light and dark
 docs/             DESIGN.md, CONTRIBUTING.md, components/, MIGRATION-*.md
 ```

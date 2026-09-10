@@ -133,9 +133,13 @@ beforeAll(() => {
     [
       'import { createElement } from "react";',
       'import { renderToStaticMarkup } from "react-dom/server";',
-      `import { Badge, Button } from "${manifest.name}";`,
+      `import { Badge, Button, Sidebar, SidebarProvider } from "${manifest.name}";`,
       'console.log(renderToStaticMarkup(createElement(Button, null, "Go")));',
       'console.log(renderToStaticMarkup(createElement(Badge, { variant: "success" }, "ok")));',
+      // The Sidebar is written with `@/` imports; if the build left one in dist
+      // this import chain breaks under Node.
+      "console.log(renderToStaticMarkup(createElement(SidebarProvider, null,",
+      '  createElement(Sidebar, { collapsible: "none" }, "nav"))));',
       "",
     ].join("\n"),
   );
@@ -182,6 +186,8 @@ describe("the published files", () => {
     expect(files).toContain("dist/index.js");
     expect(files).toContain("dist/index.d.ts");
     expect(files).toContain("src/theme/styles.css");
+    // The vendored shadcn layer travels with the stylesheet that imports it.
+    expect(files).toContain("src/theme/shadcn.css");
     expect(files).toContain("src/components/button.tsx");
     const stray = files.filter((file) =>
       /\.test\.|^tests\/|\/gates\/|^docs\/|^examples\//.test(file),
@@ -193,6 +199,19 @@ describe("the published files", () => {
     const shipped = JSON.parse(readFileSync(path.join(installed, "package.json"), "utf8"));
     expect(shipped.sideEffects).toEqual(["**/*.css"]);
     expect(shipped.exports["./styles.css"]).toBe("./src/theme/styles.css");
+  });
+
+  it("carry no shadcn at runtime: the layer is vendored, the CLI stays a dev tool", () => {
+    const shipped = JSON.parse(readFileSync(path.join(installed, "package.json"), "utf8"));
+    expect(Object.keys(shipped.dependencies ?? {})).not.toContain("shadcn");
+  });
+
+  it("resolve every internal import in dist without the @/ alias", () => {
+    const dist = path.join(installed, "dist");
+    const aliased = filesUnder(dist).filter((file) =>
+      /from\s+"@\//.test(readFileSync(path.join(dist, file), "utf8")),
+    );
+    expect(aliased, "tsc-alias left an @/ import a consumer cannot resolve").toEqual([]);
   });
 });
 
@@ -211,6 +230,16 @@ describe("a real Tailwind compile of the consumer's stylesheet", () => {
     expect(css).toMatch(/\.data-open\\:animate-in/);
     // And the consumer's own class still compiles.
     expect(css).toContain(".p-4");
+  });
+
+  it("carries shadcn's utility and variant layer, and our utility on top of it", () => {
+    // `no-scrollbar` is shadcn's; the Sidebar's content names it.
+    expect(css).toContain(".no-scrollbar");
+    // shadcn's `data-active` variant is the reason the layer is load-bearing: it
+    // excludes `"false"`, which Tailwind's own presence check would match.
+    expect(css).toContain('[data-active]:not([data-active="false"])');
+    // Ours, declared in styles.css after the layer.
+    expect(css).toContain(".cn-rtl-flip");
   });
 
   it("carries the semantic roles, in light and dark, and resolves utilities through them", () => {

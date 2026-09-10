@@ -1,6 +1,9 @@
 # Components
 
-Twenty-one components, one file each in `src/components/`, exported by name from `src/index.ts`.
+Twenty-two components, one file each in `src/components/`, exported by name from `src/index.ts`.
+The package is built on top of shadcn/ui: a component enters from the shadcn registry through
+`components.json` (`pnpm dlx shadcn@latest add <name>`), is adapted to the rules in
+[DESIGN.md](../DESIGN.md), and is owned here from then on.
 The file is the reference for anatomy, variants and class strings; this table says what each one
 is for and where its behaviour comes from. Every one of them is shown in every state it has in
 `examples/catalog/` (`pnpm catalog`).
@@ -22,6 +25,7 @@ is for and where its behaviour comes from. Every one of them is shown in every s
 | Select | `Select`, `SelectTrigger`, `SelectValue`, `SelectContent`, `SelectGroup`, `SelectLabel`, `SelectItem`, `SelectSeparator`, `SelectScrollUpButton`, `SelectScrollDownButton` | Radix Select | `SelectTrigger` `size` (`sm`, `default`) and `multiline`. |
 | Separator | `Separator` | Radix Separator | `orientation`, `decorative`. |
 | Sheet | `Sheet`, `SheetTrigger`, `SheetClose`, `SheetContent`, `SheetHeader`, `SheetFooter`, `SheetTitle`, `SheetDescription` | Radix Dialog | `side`: `top`, `right`, `bottom`, `left`. |
+| Sidebar | `SidebarProvider`, `Sidebar`, `SidebarTrigger`, `SidebarRail`, `SidebarInset`, `SidebarInput`, `SidebarHeader`, `SidebarFooter`, `SidebarSeparator`, `SidebarContent`, `SidebarGroup`, `SidebarGroupLabel`, `SidebarGroupAction`, `SidebarGroupContent`, `SidebarMenu`, `SidebarMenuItem`, `SidebarMenuButton`, `SidebarMenuAction`, `SidebarMenuBadge`, `SidebarMenuSkeleton`, `SidebarMenuSub`, `SidebarMenuSubItem`, `SidebarMenuSubButton`, `useSidebar` | Radix Slot (`asChild`); a Sheet (Radix Dialog) under 768px; Tooltip on a collapsed `SidebarMenuButton` | `side`, `variant` (`sidebar`, `floating`, `inset`), `collapsible` (`offcanvas`, `icon`, `none`). `⌘/Ctrl+B` toggles; state persists in the `sidebar_state` cookie. `isActive` renders `data-active`, styled through shadcn's variant layer. |
 | Skeleton | `Skeleton` | none | |
 | Sonner | `Toaster`, `toast` | sonner | `Toaster` follows the `dark` class on `<html>`; icons from lucide. |
 | Table | `Table`, `TableHeader`, `TableBody`, `TableFooter`, `TableRow`, `TableHead`, `TableCell`, `TableCaption` | native | `Table` wraps itself in an `overflow-x-auto` container. |
@@ -29,4 +33,5 @@ is for and where its behaviour comes from. Every one of them is shown in every s
 | Textarea | `Textarea` | native | `field-sizing-content`. |
 | Tooltip | `TooltipProvider`, `Tooltip`, `TooltipTrigger`, `TooltipContent` | Radix Tooltip | `delayDuration` defaults to `0`. Painted `bg-foreground text-background`. |
 
-Also exported: `cn`, and the token mirror `LIGHT_THEME`, `DARK_THEME`, `THEME`, `cssVar`.
+Also exported: `cn`, the `useIsMobile` hook the Sidebar decides its mode with, and the token mirror
+`LIGHT_THEME`, `DARK_THEME`, `THEME`, `cssVar`.

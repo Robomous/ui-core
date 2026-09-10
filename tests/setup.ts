@@ -46,3 +46,25 @@ if (typeof Element !== "undefined") {
   Element.prototype.releasePointerCapture ??= () => undefined;
   Element.prototype.scrollIntoView ??= () => undefined;
 }
+
+/**
+ * `window.matchMedia`, which jsdom does not implement and `useIsMobile` calls
+ * from an effect while the Sidebar mounts. `matches` answers a `max-width`
+ * query from `window.innerWidth`, so `tests/components/sidebar.test.tsx` puts
+ * the viewport under the breakpoint by assigning `innerWidth` before it renders.
+ */
+if (typeof window !== "undefined") {
+  window.matchMedia ??= (query: string): MediaQueryList => {
+    const maxWidth = Number(/max-width:\s*(\d+)px/.exec(query)?.[1] ?? Infinity);
+    return {
+      media: query,
+      matches: window.innerWidth <= maxWidth,
+      onchange: null,
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+      addListener: () => undefined,
+      removeListener: () => undefined,
+      dispatchEvent: () => false,
+    };
+  };
+}

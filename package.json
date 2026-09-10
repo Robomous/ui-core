@@ -1,7 +1,7 @@
 {
   "name": "@robomous/ui-core",
-  "version": "0.3.0",
-  "description": "Robomous design system: owned React components over Radix and Base UI, and the one stylesheet they resolve through.",
+  "version": "0.4.0",
+  "description": "Robomous design system, built on top of shadcn/ui: owned React components over Radix and Base UI, and the one stylesheet they resolve through.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

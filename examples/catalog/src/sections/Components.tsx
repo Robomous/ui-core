@@ -49,6 +49,26 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupAction,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInput,
+  SidebarMenu,
+  SidebarMenuAction,
+  SidebarMenuBadge,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSkeleton,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarProvider,
+  SidebarSeparator,
   Skeleton,
   Table,
   TableBody,
@@ -67,6 +87,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@robomous/ui-core";
+import {
+  FolderIcon,
+  InboxIcon,
+  MoreHorizontalIcon,
+  PlusIcon,
+  SettingsIcon,
+  UserIcon,
+} from "lucide-react";
 
 import { Section, Specimen } from "../App";
 
@@ -375,6 +403,90 @@ export function Components() {
             </div>
           </div>
         </div>
+      </Specimen>
+      <Specimen
+        title="Sidebar"
+        note='Shown as collapsible="none": the offcanvas and icon modes position themselves fixed to the viewport.'
+      >
+        <SidebarProvider className="min-h-0 w-auto">
+          <Sidebar collapsible="none" className="h-[26rem] rounded-lg ring-1 ring-sidebar-border">
+            <SidebarHeader>
+              <SidebarInput placeholder="Search" aria-label="Search" />
+            </SidebarHeader>
+            <SidebarContent>
+              <SidebarGroup>
+                <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+                <SidebarGroupAction title="Add">
+                  <PlusIcon />
+                  <span className="sr-only">Add</span>
+                </SidebarGroupAction>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton isActive>
+                        <InboxIcon />
+                        <span>Inbox</span>
+                      </SidebarMenuButton>
+                      <SidebarMenuBadge>12</SidebarMenuBadge>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton>
+                        <FolderIcon />
+                        <span>Datasets</span>
+                      </SidebarMenuButton>
+                      <SidebarMenuAction showOnHover title="More">
+                        <MoreHorizontalIcon />
+                        <span className="sr-only">More</span>
+                      </SidebarMenuAction>
+                      <SidebarMenuSub>
+                        <SidebarMenuSubItem>
+                          <SidebarMenuSubButton href="#components" isActive>
+                            <span>Training</span>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                        <SidebarMenuSubItem>
+                          <SidebarMenuSubButton href="#components">
+                            <span>Validation</span>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      </SidebarMenuSub>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton>
+                        <SettingsIcon />
+                        <span>Settings</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+              <SidebarSeparator />
+              <SidebarGroup>
+                <SidebarGroupLabel>Loading</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    <SidebarMenuItem>
+                      <SidebarMenuSkeleton showIcon />
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuSkeleton showIcon />
+                    </SidebarMenuItem>
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            </SidebarContent>
+            <SidebarFooter>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton size="lg">
+                    <UserIcon />
+                    <span>Signed in</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarFooter>
+          </Sidebar>
+        </SidebarProvider>
       </Specimen>
     </Section>
   );
