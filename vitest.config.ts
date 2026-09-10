@@ -10,6 +10,7 @@
  */
 
 import { availableParallelism } from "node:os";
+import path from "node:path";
 
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
@@ -32,6 +33,9 @@ export default defineConfig({
     projects: [
       {
         plugins: [react()],
+        // The alias `components.json` declares and the shadcn CLI writes; tsc-alias
+        // rewrites it for dist, and vitest needs to resolve it against src.
+        resolve: { alias: { "@": path.resolve(import.meta.dirname, "src") } },
         test: {
           name: "unit",
           environment: "jsdom",

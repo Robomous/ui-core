@@ -20,3 +20,10 @@ pnpm-lock.yaml
 # Process records, kept as written at the time.
 docs/superpowers/
 .superpowers/
+
+# Vendored byte for byte from shadcn/dist/tailwind.css; tests/theme/shadcn.test.ts
+# compares the two, so a reformat here would read as drift.
+src/theme/shadcn.css
+
+# Local tool state, not part of the repository.
+.claude/

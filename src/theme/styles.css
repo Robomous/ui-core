@@ -5,6 +5,17 @@
  * the config. Every utility in this package and in every consuming app resolves
  * through the names declared here.
  *
+ * The package is built on top of shadcn/ui. `./shadcn.css` is shadcn's own
+ * utility and variant layer — the `data-open`, `data-active`, `data-checked`…
+ * variants that match both `[data-state="x"]` and the bare attribute while
+ * excluding `"false"`, plus `no-scrollbar`, `scroll-fade-*` and `shimmer-*` —
+ * copied byte for byte from `shadcn/dist/tailwind.css` and held to that copy by
+ * `tests/theme/shadcn.test.ts`. Vendored rather than imported from the package,
+ * because this stylesheet ships as source and a package named in it becomes a
+ * runtime dependency of every consumer; `shadcn` is the CLI, and nobody's app
+ * should install a CLI to get a stylesheet. That file is never edited: anything
+ * of ours goes below, `cn-rtl-flip` being the example.
+ *
  * The colour vocabulary is closed. `@theme { --color-*: initial }` removes
  * Tailwind's default palette, so `bg-red-500` or `text-emerald-700` is not a
  * word in this system — it produces no CSS. What exists is the set of roles
@@ -30,6 +41,7 @@
 
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./shadcn.css";
 @import "@fontsource-variable/geist";
 
 /*
@@ -175,6 +187,18 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/*
+ * Our own utilities, after shadcn's layer. An icon that points somewhere —
+ * the sidebar trigger's panel icon — flips with the writing direction. The
+ * registry's components name this class and shadcn defines it nowhere, so it
+ * lives here.
+ */
+@utility cn-rtl-flip {
+  &:where([dir="rtl"], [dir="rtl"] *) {
+    transform: scaleX(-1);
+  }
 }
 
 @layer base {
