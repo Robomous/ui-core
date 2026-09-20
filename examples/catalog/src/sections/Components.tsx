@@ -1,9 +1,33 @@
+import { useState } from "react";
 import {
   Alert,
   AlertDescription,
   AlertTitle,
+  Attachment,
+  AttachmentAction,
+  AttachmentActions,
+  AttachmentContent,
+  AttachmentDescription,
+  AttachmentGroup,
+  AttachmentMedia,
+  AttachmentTitle,
+  Avatar,
+  AvatarBadge,
+  AvatarFallback,
+  AvatarGroup,
+  AvatarGroupCount,
   Badge,
+  Breadcrumb,
+  BreadcrumbEllipsis,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
   Button,
+  ButtonGroup,
+  ButtonGroupSeparator,
+  ButtonGroupText,
   Card,
   CardContent,
   CardDescription,
@@ -15,6 +39,29 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+  CommandShortcut,
+  ContextMenu,
+  ContextMenuCheckboxItem,
+  ContextMenuContent,
+  ContextMenuGroup,
+  ContextMenuItem,
+  ContextMenuLabel,
+  ContextMenuRadioGroup,
+  ContextMenuRadioItem,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuTrigger,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -22,6 +69,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -31,12 +86,48 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
   Field,
   FieldDescription,
   FieldError,
   FieldLabel,
+  FieldLegend,
+  FieldSet,
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
   Input,
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+  Kbd,
+  KbdGroup,
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
   Progress,
+  RadioGroup,
+  RadioGroupItem,
+  ScrollArea,
   Select,
   SelectContent,
   SelectItem,
@@ -70,6 +161,7 @@ import {
   SidebarProvider,
   SidebarSeparator,
   Skeleton,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -82,18 +174,33 @@ import {
   TabsTrigger,
   Textarea,
   toast,
+  Toggle,
+  ToggleGroup,
+  ToggleGroupItem,
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@robomous/ui-core";
 import {
+  AlignCenterIcon,
+  AlignLeftIcon,
+  AlignRightIcon,
+  BoldIcon,
+  ChevronDownIcon,
+  CopyIcon,
+  FileIcon,
   FolderIcon,
+  ImageIcon,
   InboxIcon,
+  ItalicIcon,
   MoreHorizontalIcon,
   PlusIcon,
   SettingsIcon,
+  TrashIcon,
+  UnderlineIcon,
   UserIcon,
+  XIcon,
 } from "lucide-react";
 
 import { Section, Specimen } from "../App";
@@ -117,7 +224,7 @@ export function Components() {
     <Section
       id="components"
       title="Components"
-      lede="Twenty-one owned components over Radix and Base UI behaviour. Anatomy is composed at the call site; geometry and colour are the component's."
+      lede="Forty owned components over Radix, Base UI, cmdk and vaul behaviour. Anatomy is composed at the call site; geometry and colour are the component's."
     >
       <Specimen
         title="Button"
@@ -488,6 +595,491 @@ export function Components() {
           </Sidebar>
         </SidebarProvider>
       </Specimen>
+
+      <Specimen
+        title="Avatar"
+        note="Three sizes carried as data, so a stack sizes its overflow count to match. A fallback is not optional."
+      >
+        <Avatar size="sm">
+          <AvatarFallback>YA</AvatarFallback>
+        </Avatar>
+        <Avatar>
+          <AvatarFallback>YA</AvatarFallback>
+        </Avatar>
+        <Avatar size="lg">
+          <AvatarFallback>YA</AvatarFallback>
+          <AvatarBadge />
+        </Avatar>
+        <AvatarGroup>
+          <Avatar>
+            <AvatarFallback>A</AvatarFallback>
+          </Avatar>
+          <Avatar>
+            <AvatarFallback>B</AvatarFallback>
+          </Avatar>
+          <Avatar>
+            <AvatarFallback>C</AvatarFallback>
+          </Avatar>
+          <AvatarGroupCount>+3</AvatarGroupCount>
+        </AvatarGroup>
+      </Specimen>
+
+      <Specimen
+        title="Kbd and Spinner"
+        note="A shortcut is a real <kbd>. A Button has no loading prop: compose a Spinner and disable it."
+      >
+        <KbdGroup>
+          <Kbd>⌘</Kbd>
+          <Kbd>K</Kbd>
+        </KbdGroup>
+        <Kbd>Esc</Kbd>
+        <Spinner />
+        <Button disabled>
+          <Spinner data-icon="inline-start" />
+          Uploading
+        </Button>
+        <Button variant="outline" size="sm" disabled>
+          <Spinner data-icon="inline-start" />
+          Saving
+        </Button>
+      </Specimen>
+
+      <Specimen
+        title="Toggle and ToggleGroup"
+        note="aria-pressed is the state. spacing={0} welds a group into one control."
+      >
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <Toggle aria-label="Bold">
+              <BoldIcon />
+            </Toggle>
+            <Toggle defaultPressed aria-label="Italic">
+              <ItalicIcon />
+            </Toggle>
+            <Toggle variant="outline" aria-label="Underline">
+              <UnderlineIcon />
+            </Toggle>
+            <Toggle disabled aria-label="Disabled">
+              <BoldIcon />
+            </Toggle>
+          </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <ToggleGroup type="single" defaultValue="left" aria-label="Alignment">
+              <ToggleGroupItem value="left" aria-label="Left">
+                <AlignLeftIcon />
+              </ToggleGroupItem>
+              <ToggleGroupItem value="center" aria-label="Centre">
+                <AlignCenterIcon />
+              </ToggleGroupItem>
+              <ToggleGroupItem value="right" aria-label="Right">
+                <AlignRightIcon />
+              </ToggleGroupItem>
+            </ToggleGroup>
+            <ToggleGroup
+              type="multiple"
+              variant="outline"
+              spacing={0}
+              defaultValue={["bold"]}
+              aria-label="Marks"
+            >
+              <ToggleGroupItem value="bold" aria-label="Bold">
+                <BoldIcon />
+              </ToggleGroupItem>
+              <ToggleGroupItem value="italic" aria-label="Italic">
+                <ItalicIcon />
+              </ToggleGroupItem>
+              <ToggleGroupItem value="underline" aria-label="Underline">
+                <UnderlineIcon />
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+        </div>
+      </Specimen>
+
+      <Specimen
+        title="RadioGroup"
+        note="One tab stop; the arrows move the selection, not just the focus."
+      >
+        <FieldSet>
+          <FieldLegend>Visibility</FieldLegend>
+          <RadioGroup defaultValue="internal">
+            <Field orientation="horizontal">
+              <RadioGroupItem id="c-vis-draft" value="draft" />
+              <FieldLabel htmlFor="c-vis-draft">Draft</FieldLabel>
+            </Field>
+            <Field orientation="horizontal">
+              <RadioGroupItem id="c-vis-internal" value="internal" />
+              <FieldLabel htmlFor="c-vis-internal">Internal</FieldLabel>
+            </Field>
+            <Field orientation="horizontal" data-disabled>
+              <RadioGroupItem id="c-vis-public" value="public" disabled />
+              <FieldLabel htmlFor="c-vis-public">Public</FieldLabel>
+            </Field>
+          </RadioGroup>
+        </FieldSet>
+      </Specimen>
+
+      <Specimen
+        title="ButtonGroup"
+        note="Segments weld into one control. Every segment carries the data-slot the rounding reads."
+      >
+        <div className="flex flex-col gap-3">
+          <ButtonGroup>
+            <ButtonGroupText>https://</ButtonGroupText>
+            <Input placeholder="robomous.ai" aria-label="Domain" />
+            <Button variant="outline">Check</Button>
+          </ButtonGroup>
+          <ButtonGroup>
+            <Button variant="outline">Publish</Button>
+            <ButtonGroupSeparator />
+            <Button variant="outline" size="icon" aria-label="More publish options">
+              <ChevronDownIcon />
+            </Button>
+          </ButtonGroup>
+          <ButtonGroup orientation="vertical" className="w-32">
+            <Button variant="outline">Copy</Button>
+            <Button variant="outline">Move</Button>
+            <Button variant="outline">Archive</Button>
+          </ButtonGroup>
+        </div>
+      </Specimen>
+
+      <Specimen
+        title="Breadcrumb and Pagination"
+        note="Two landmarks. The crumb you are on is not a link; every page step is."
+      >
+        <div className="flex w-full flex-col gap-4">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="#components">Datasets</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink href="#components">Warehouse</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbEllipsis />
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Batch 12</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious href="#components" />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href="#components" isActive={false}>
+                  1
+                </PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href="#components" isActive>
+                  2
+                </PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href="#components" isActive={false}>
+                  9
+                </PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext href="#components" />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      </Specimen>
+
+      <Specimen
+        title="Item and Empty"
+        note="A row with its own title, description and actions — and the panel for when there are none."
+      >
+        <div className="flex w-full flex-col gap-6">
+          <ItemGroup className="max-w-lg">
+            <Item variant="outline">
+              <ItemMedia variant="icon">
+                <FileIcon />
+              </ItemMedia>
+              <ItemContent>
+                <ItemTitle>batch-12.zip</ItemTitle>
+                <ItemDescription>311.9 MB, uploaded today</ItemDescription>
+              </ItemContent>
+              <ItemActions>
+                <Button variant="ghost" size="icon-sm" aria-label="Copy link to batch-12.zip">
+                  <CopyIcon />
+                </Button>
+                <Button variant="ghost" size="icon-sm" aria-label="Delete batch-12.zip">
+                  <TrashIcon />
+                </Button>
+              </ItemActions>
+            </Item>
+            <Item variant="muted" size="sm">
+              <ItemMedia variant="icon">
+                <FolderIcon />
+              </ItemMedia>
+              <ItemContent>
+                <ItemTitle>archive/</ItemTitle>
+                <ItemDescription>48 batches</ItemDescription>
+              </ItemContent>
+            </Item>
+          </ItemGroup>
+          <Empty className="max-w-lg border">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <InboxIcon />
+              </EmptyMedia>
+              <EmptyTitle>No batches yet</EmptyTitle>
+              <EmptyDescription>
+                Upload a batch to start labelling. Nothing is lost while you wait.
+              </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Button>
+                <PlusIcon data-icon="inline-start" />
+                Upload a batch
+              </Button>
+            </EmptyContent>
+          </Empty>
+        </div>
+      </Specimen>
+
+      <Specimen
+        title="Attachment"
+        note="An uploaded file as a card. Its state is the hook every part styles from."
+      >
+        <AttachmentGroup>
+          <Attachment state="done">
+            <AttachmentMedia variant="icon">
+              <FileIcon />
+            </AttachmentMedia>
+            <AttachmentContent>
+              <AttachmentTitle>batch-12.zip</AttachmentTitle>
+              <AttachmentDescription>311.9 MB</AttachmentDescription>
+            </AttachmentContent>
+            <AttachmentActions>
+              <AttachmentAction aria-label="Remove batch-12.zip">
+                <XIcon />
+              </AttachmentAction>
+            </AttachmentActions>
+          </Attachment>
+          <Attachment state="uploading">
+            <AttachmentMedia variant="icon">
+              <Spinner />
+            </AttachmentMedia>
+            <AttachmentContent>
+              <AttachmentTitle>frames-03.tar</AttachmentTitle>
+              <AttachmentDescription>1.2 GB</AttachmentDescription>
+            </AttachmentContent>
+          </Attachment>
+          <Attachment state="error">
+            <AttachmentMedia variant="icon">
+              <FileIcon />
+            </AttachmentMedia>
+            <AttachmentContent>
+              <AttachmentTitle>broken.zip</AttachmentTitle>
+              <AttachmentDescription>Upload failed</AttachmentDescription>
+            </AttachmentContent>
+          </Attachment>
+          <Attachment state="idle" size="sm">
+            <AttachmentMedia variant="icon">
+              <ImageIcon />
+            </AttachmentMedia>
+            <AttachmentContent>
+              <AttachmentTitle>Drop an image</AttachmentTitle>
+            </AttachmentContent>
+          </Attachment>
+        </AttachmentGroup>
+      </Specimen>
+
+      <Specimen
+        title="Popover and HoverCard"
+        note="A popover leaves on the frame it is dismissed; a hover card, dismissed by the pointer, keeps its exit."
+      >
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline">Rename batch</Button>
+          </PopoverTrigger>
+          <PopoverContent>
+            <PopoverHeader>
+              <PopoverTitle>Rename</PopoverTitle>
+              <PopoverDescription>Shown wherever this batch is listed.</PopoverDescription>
+            </PopoverHeader>
+            <Input defaultValue="batch-12" aria-label="Batch name" />
+            <Button size="sm">Save</Button>
+          </PopoverContent>
+        </Popover>
+        <HoverCard>
+          <HoverCardTrigger asChild>
+            <Button variant="link">@robomous</Button>
+          </HoverCardTrigger>
+          <HoverCardContent>
+            <div className="flex gap-2.5">
+              <Avatar>
+                <AvatarFallback>RO</AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col gap-0.5">
+                <span className="font-medium">Robomous</span>
+                <span className="text-muted-foreground">Vision tooling. Joined 2026.</span>
+              </div>
+            </div>
+          </HoverCardContent>
+        </HoverCard>
+      </Specimen>
+
+      <Specimen
+        title="ContextMenu"
+        note="Right-click the panel. Neither the menu nor its submenu animates out, so the next right-click lands."
+      >
+        <ContextMenu>
+          <ContextMenuTrigger className="flex h-24 w-full items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
+            Right-click here
+          </ContextMenuTrigger>
+          <ContextMenuContent>
+            <ContextMenuLabel>batch-12.zip</ContextMenuLabel>
+            <ContextMenuSeparator />
+            <ContextMenuGroup>
+              <ContextMenuItem>
+                <CopyIcon />
+                Copy link
+                <ContextMenuShortcut>⌘C</ContextMenuShortcut>
+              </ContextMenuItem>
+              <ContextMenuCheckboxItem checked>Show hidden frames</ContextMenuCheckboxItem>
+              <ContextMenuSub>
+                <ContextMenuSubTrigger>Move to</ContextMenuSubTrigger>
+                <ContextMenuSubContent>
+                  <ContextMenuRadioGroup value="archive">
+                    <ContextMenuRadioItem value="archive">Archive</ContextMenuRadioItem>
+                    <ContextMenuRadioItem value="review">Review</ContextMenuRadioItem>
+                  </ContextMenuRadioGroup>
+                </ContextMenuSubContent>
+              </ContextMenuSub>
+            </ContextMenuGroup>
+            <ContextMenuSeparator />
+            <ContextMenuItem variant="destructive">
+              <TrashIcon />
+              Delete
+            </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
+      </Specimen>
+
+      <Specimen
+        title="Drawer"
+        note="The one component over vaul. It is a dialog by every other measure, title included."
+      >
+        <Drawer>
+          <DrawerTrigger asChild>
+            <Button variant="outline">Open filters</Button>
+          </DrawerTrigger>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>Filters</DrawerTitle>
+              <DrawerDescription>Narrow the batches shown.</DrawerDescription>
+            </DrawerHeader>
+            <div className="px-4">
+              <Field>
+                <FieldLabel htmlFor="c-drawer-q">Name contains</FieldLabel>
+                <Input id="c-drawer-q" placeholder="warehouse" />
+              </Field>
+            </div>
+            <DrawerFooter>
+              <Button>Apply</Button>
+              <DrawerClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DrawerClose>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
+      </Specimen>
+
+      <Specimen
+        title="Command"
+        note="A listbox driven from a field the reader never leaves, inline or in a dialog."
+      >
+        <Command className="w-72 ring-1 ring-foreground/10">
+          <CommandInput placeholder="Search a command" />
+          <CommandList>
+            <CommandEmpty>Nothing matches.</CommandEmpty>
+            <CommandGroup heading="Ingest">
+              <CommandItem value="upload">
+                <PlusIcon />
+                Upload a batch
+                <CommandShortcut>⌘U</CommandShortcut>
+              </CommandItem>
+              <CommandItem value="import">
+                <FileIcon />
+                Import from URL
+              </CommandItem>
+            </CommandGroup>
+            <CommandSeparator />
+            <CommandGroup heading="Schema">
+              <CommandItem value="classes">
+                <SettingsIcon />
+                Edit classes
+              </CommandItem>
+            </CommandGroup>
+          </CommandList>
+        </Command>
+        <CommandPaletteDemo />
+      </Specimen>
+
+      <Specimen title="ScrollArea" note="The viewport is what scrolls, not the root.">
+        <ScrollArea className="h-40 w-64 rounded-lg ring-1 ring-foreground/10">
+          <div className="flex flex-col p-2">
+            {Array.from({ length: 24 }, (_, index) => (
+              <div key={index} className="rounded-md px-2 py-1.5 font-mono text-xs">
+                frame_{String(index).padStart(4, "0")}.png
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </Specimen>
     </Section>
+  );
+}
+
+/**
+ * The palette in its dialog. Open state is the only reason this is a component
+ * of its own rather than more JSX in the specimen above.
+ */
+function CommandPaletteDemo() {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button variant="outline" onClick={() => setOpen(true)}>
+        Open the palette
+        <KbdGroup data-icon="inline-end">
+          <Kbd>⌘</Kbd>
+          <Kbd>K</Kbd>
+        </KbdGroup>
+      </Button>
+      <CommandDialog open={open} onOpenChange={setOpen} title="Command palette">
+        <Command>
+          <CommandInput placeholder="Search a command" />
+          <CommandList>
+            <CommandEmpty>Nothing matches.</CommandEmpty>
+            <CommandGroup heading="Ingest">
+              <CommandItem value="upload" onSelect={() => setOpen(false)}>
+                <PlusIcon />
+                Upload a batch
+              </CommandItem>
+              <CommandItem value="import" onSelect={() => setOpen(false)}>
+                <FileIcon />
+                Import from URL
+              </CommandItem>
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </CommandDialog>
+    </>
   );
 }

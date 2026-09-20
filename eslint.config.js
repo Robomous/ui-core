@@ -1,3 +1,6 @@
+import path from "node:path";
+
+import { includeIgnoreFile } from "@eslint/compat";
 import js from "@eslint/js";
 import reactHooks from "eslint-plugin-react-hooks";
 import tseslint from "typescript-eslint";
@@ -16,7 +19,10 @@ const COLOUR_MESSAGE =
   "utility (bg-primary, text-warning), never a literal inside a class.";
 
 export default tseslint.config(
-  { ignores: ["dist/", "examples/catalog/dist/"] },
+  // Whatever the repository already ignores, the linter ignores: build output and
+  // local tooling are not ours to hold to these rules, and naming them twice is how
+  // the two lists drift. `.gitignore` is the one list.
+  includeIgnoreFile(path.resolve(import.meta.dirname, ".gitignore")),
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

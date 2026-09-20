@@ -2,3 +2,9 @@ node_modules/
 dist/
 examples/catalog/dist/
 *.tmp.md
+
+# The Claude Design sync: its inputs, its staged converter and the bundle it
+# produces. Local tooling, not part of the package.
+.design-sync/
+.ds-sync/
+ds-bundle/

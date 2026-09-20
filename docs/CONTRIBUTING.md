@@ -35,13 +35,27 @@ pnpm dlx shadcn@latest add <name>
 `components.json` tells the CLI to write into `src/components/` and `src/hooks/` with `@/`
 imports, which the build resolves. Read the diff, then adapt: the checklist is in
 [DESIGN.md](DESIGN.md), *Adding a component*. In short: colour only through the roles, geometry in
-the component, `type="button"`, no exit animation on a menu, export by name from `src/index.ts`,
-a behaviour test in `tests/components/`, a specimen in the catalog, a row in
-`docs/components/README.md`. Never reinstall an existing component.
+the component, `type="button"`, no exit animation on a surface whose trigger can be pressed again on
+the next frame, export by name from `src/index.ts`, a behaviour test in `tests/components/`, a
+specimen in the catalog, a row in `docs/components/README.md`. Never reinstall an existing
+component.
 
-State styles may use either the attribute the behaviour library emits (`data-[state=open]:`,
-`data-open:`) or shadcn's variants, which the vendored layer defines; see DESIGN.md, *State
-attributes*.
+The CLI pulls in an item's registry dependencies, which for most of the newer components include
+`button`, `input`, `dialog` and `input-group` — all of them already here and edited. It asks about
+each one, and the prompt is interactive: under `CI=1` or a non-terminal stdin it hangs and the
+batch stops half-written. Answer it from stdin and the run finishes:
+
+```
+yes n | pnpm dlx shadcn@latest add <names> --yes
+```
+
+Then check that the files it offered to overwrite are unchanged before reading the diff.
+
+State styles are written in shadcn's variants — `data-open:`, `data-closed:`, `data-active:`,
+`data-disabled:`, `data-horizontal:`, `data-vertical:` — never in the attribute a behaviour library
+happens to emit (`data-[state=open]:`, `data-[orientation=vertical]:`). A `data-[…]` bracket is for
+the values the layer declares no variant for, and for attributes that are not states; see
+DESIGN.md, *State attributes*.
 
 ## Updating the shadcn layer
 
