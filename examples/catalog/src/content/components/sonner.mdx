@@ -1,0 +1,77 @@
+---
+title: Sonner
+description: A toast for the outcome of something the reader just did. `Toaster` follows the `dark` class on `<html>`, and its icons come from lucide.
+builtOn:
+  - name: sonner
+    docsUrl: https://sonner.emilkowal.ski/
+    apiUrl: https://sonner.emilkowal.ski/toaster
+---
+
+import Intents from "@/demos/sonner/intents";
+import WithDescription from "@/demos/sonner/with-description";
+import WithAction from "@/demos/sonner/with-action";
+import ExportPromise from "@/demos/sonner/promise";
+
+<Preview demo="sonner/intents">
+  <Intents client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { Toaster, toast } from "@robomous/ui-core";
+```
+
+```tsx
+// once, near the app root
+<Toaster />;
+
+// anywhere below it
+toast("Saved");
+```
+
+This catalog already mounts a single `Toaster` in its layout; an app does the same, once. Every
+call to `toast` from anywhere in the tree reaches that one mount point.
+
+## Composition
+
+```text
+Toaster
+toast()
+```
+
+## Intents
+
+Four intents beyond a plain `toast()`: `success`, `warning`, `info`, `error`. Each supplies its own
+icon, and there is no `variant` prop to reach for instead — the function called is the state.
+
+<Preview demo="sonner/intents">
+  <Intents client:load />
+</Preview>
+
+## With a description
+
+`description` adds a second line under the title, for detail that does not belong in the title
+itself.
+
+<Preview demo="sonner/with-description">
+  <WithDescription client:load />
+</Preview>
+
+## With an action
+
+A button on the toast itself, reserved for the one thing worth doing right after — usually undoing
+what just happened.
+
+<Preview demo="sonner/with-action">
+  <WithAction client:load />
+</Preview>
+
+## Promise
+
+`toast.promise` swaps a loading toast for a success or error one, decided by the promise it wraps,
+so the reader is never left checking whether anything happened.
+
+<Preview demo="sonner/promise">
+  <ExportPromise client:load />
+</Preview>

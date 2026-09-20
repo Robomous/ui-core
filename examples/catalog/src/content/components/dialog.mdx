@@ -1,0 +1,103 @@
+---
+title: Dialog
+description: A modal surface that blocks the page behind it, labelled by its title and described by its description through Radix's own ids. It keeps its exit animation, because its trigger cannot be pressed again until it leaves.
+builtOn:
+  - name: Radix Dialog
+    docsUrl: https://www.radix-ui.com/primitives/docs/components/dialog
+    apiUrl: https://www.radix-ui.com/primitives/docs/components/dialog#api-reference
+---
+
+import Confirm from "@/demos/dialog/confirm";
+import Default from "@/demos/dialog/default";
+import Form from "@/demos/dialog/form";
+import NoCloseButton from "@/demos/dialog/no-close-button";
+
+<Preview demo="dialog/default">
+  <Default client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@robomous/ui-core";
+```
+
+```tsx
+<Dialog>
+  <DialogTrigger asChild>
+    <Button variant="outline">New dataset</Button>
+  </DialogTrigger>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>New dataset</DialogTitle>
+      <DialogDescription>Frames are grouped into batches as they arrive.</DialogDescription>
+    </DialogHeader>
+    <DialogFooter>
+      <Button variant="outline">Cancel</Button>
+      <Button>Create</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+```
+
+`DialogContent` portals itself and paints `DialogOverlay` behind it; `DialogHeader` and
+`DialogFooter` are layout, not required wiring — the title and description are what Radix reads.
+
+## Composition
+
+```text
+Dialog
+├─ DialogTrigger
+└─ DialogContent
+   ├─ DialogHeader
+   │  ├─ DialogTitle
+   │  └─ DialogDescription
+   ├─ DialogClose
+   └─ DialogFooter
+```
+
+## Header and footer
+
+`DialogFooter` is a `-mx-4 -mb-4` band that breaks out of the content padding and rounds the
+bottom corners. Below `sm:` it stacks full-width and reverses order, so the primary action sits
+first in the DOM and on top visually; at `sm:` and above it becomes a right-aligned row.
+
+<Preview demo="dialog/default">
+  <Default client:load />
+</Preview>
+
+## Form
+
+A dialog that collects something composes `Field` anatomy directly inside `DialogContent`, the
+same as anywhere else it appears.
+
+<Preview demo="dialog/form">
+  <Form client:load />
+</Preview>
+
+## Destructive confirmation
+
+`showCloseButton` on `DialogFooter` adds a plain Close action ahead of the call site's own
+buttons — here, beside a `destructive` one that ends something.
+
+<Preview demo="dialog/confirm">
+  <Confirm client:load />
+</Preview>
+
+## No close button
+
+`showCloseButton={false}` on `DialogContent` removes the corner close affordance entirely, for
+when the call site owns dismissal elsewhere, such as its own footer actions.
+
+<Preview demo="dialog/no-close-button">
+  <NoCloseButton client:load />
+</Preview>

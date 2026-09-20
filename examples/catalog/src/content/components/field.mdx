@@ -1,0 +1,98 @@
+---
+title: Field
+description: Gives a control its structure — label, description, error and layout — while the accessible wiring stays with the call site that knows the ids.
+builtOn:
+  - name: native HTML
+    docsUrl: https://developer.mozilla.org/docs/Web/HTML/Element/div
+---
+
+import Default from "@/demos/field/default";
+import Invalid from "@/demos/field/invalid";
+import Horizontal from "@/demos/field/horizontal";
+import Responsive from "@/demos/field/responsive";
+import FieldSetComposition from "@/demos/field/field-set";
+
+<Preview demo="field/default">
+  <Default client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { Field, FieldLabel, FieldDescription, FieldError, Input } from "@robomous/ui-core";
+```
+
+```tsx
+<Field data-invalid={hasError}>
+  <FieldLabel htmlFor="name">Name</FieldLabel>
+  <Input id="name" aria-describedby="name-hint name-error" aria-invalid={hasError} />
+  <FieldDescription id="name-hint">Shown on your profile.</FieldDescription>
+  {hasError && <FieldError id="name-error">Required</FieldError>}
+</Field>
+```
+
+`Field` is anatomy, not wiring: nothing generates `aria-describedby` or `aria-invalid` for you, so
+the call site that owns the ids writes them explicitly (see DESIGN.md's *Accessibility* section).
+`FieldError` renders `role="alert"`; `Field` renders `role="group"` and styles `data-invalid`.
+
+## Composition
+
+```text
+FieldSet
+├─ FieldLegend
+└─ FieldGroup
+   └─ Field
+      ├─ FieldLabel
+      ├─ FieldContent
+      ├─ FieldTitle
+      ├─ FieldDescription
+      ├─ FieldError
+      └─ FieldSeparator
+```
+
+## A complete field
+
+Label, control and description, with `htmlFor`/`id`/`aria-describedby` written out at the call
+site — `Field` supplies only the layout and the grouping role.
+
+<Preview demo="field/default">
+  <Default client:load />
+</Preview>
+
+## Invalid
+
+`data-invalid` on `Field`, `aria-invalid` on the control, and `FieldError` in place of the
+description: three attributes the call site sets together, none of them inferred from the others.
+
+<Preview demo="field/invalid">
+  <Invalid client:load />
+</Preview>
+
+## Horizontal
+
+`orientation="horizontal"` places the label beside the control instead of above it, from
+`fieldVariants` in `field.tsx`.
+
+<Preview demo="field/horizontal">
+  <Horizontal client:load />
+</Preview>
+
+## Responsive
+
+`orientation="responsive"` stacks the label above the control while its `FieldGroup` is narrow,
+then sets it beside the control once the group crosses a container breakpoint — a container query
+against the group's own width, not the viewport's.
+
+<Preview demo="field/responsive">
+  <Responsive client:load />
+</Preview>
+
+## FieldSet, FieldLegend and FieldGroup
+
+`FieldSet` and `FieldLegend` give a group of fields a real `<fieldset>`/`<legend>` pair; `FieldGroup`
+only spaces the fields inside it and provides the container the responsive orientation measures
+against.
+
+<Preview demo="field/field-set">
+  <FieldSetComposition client:load />
+</Preview>

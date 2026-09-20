@@ -16,9 +16,31 @@ const COLOUR_MESSAGE =
   "utility (bg-primary, text-warning), never a literal inside a class.";
 
 export default tseslint.config(
-  { ignores: ["dist/", "examples/catalog/dist/"] },
+  // Build output, never hand-written: the package's `dist`, the docs site's (`dist`, `.astro`, the generated API JSON), and the
+  // three the Claude Design sync produces — the converted bundle, the staged converter,
+  // and the sync's machine state. What IS ours under `.design-sync/` — the authored
+  // previews and the two generators — is linted like any other source.
+  {
+    ignores: [
+      "dist/",
+      "examples/catalog/dist/",
+      "examples/catalog/.astro/",
+      "examples/catalog/src/generated/",
+      "ds-bundle/",
+      ".ds-sync/",
+      ".design-sync/.cache/",
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
+  {
+    // The sync's own generators are Node scripts, not browser code. Named here rather
+    // than pulled in with the `globals` package: three names is not worth a dependency.
+    files: [".design-sync/**/*.mjs"],
+    languageOptions: {
+      globals: { Buffer: "readonly", console: "readonly", process: "readonly" },
+    },
+  },
   {
     // Everywhere a component can be written: the package, its tests, the catalog.
     files: ["src/**/*.{ts,tsx}", "tests/**/*.{ts,tsx}", "examples/**/*.{ts,tsx}"],

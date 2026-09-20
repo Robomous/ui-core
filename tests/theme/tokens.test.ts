@@ -1,11 +1,10 @@
 /**
  * @vitest-environment node
  *
- * The token contract. `styles.css` is authoritative and `tokens.ts` is its
- * runtime mirror; this suite parses the stylesheet structurally and asserts
- * the two agree declaration for declaration, that the colour namespace is
- * closed, and that the few stylesheet-level rules the components depend on are
- * still there.
+ * The token contract. `styles.css` is the one home of the tokens, so this
+ * suite parses it structurally and asserts that both themes declare every role
+ * and nothing else, that the colour namespace is closed, and that the few
+ * stylesheet-level rules the components depend on are still there.
  *
  * Parsed rather than imported: nothing here evaluates `@theme`, and the
  * packed-consumer test is where a real Tailwind compiles this file.
@@ -15,8 +14,6 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
-
-import { cssVar, DARK_THEME, LIGHT_THEME, THEME } from "../../src/theme/tokens";
 
 const STYLESHEET = readFileSync(
   fileURLToPath(new URL("../../src/theme/styles.css", import.meta.url)),
@@ -52,7 +49,7 @@ function rawDeclarations(block: string): Map<string, string> {
   return map;
 }
 
-/** The same, keyed WITHOUT the leading `--` — the shape `LIGHT_THEME` uses. */
+/** The same, keyed WITHOUT the leading `--`, which is how a role is named. */
 function declarations(block: string): Map<string, string> {
   const map = new Map<string, string>();
   for (const [name, value] of rawDeclarations(block)) {
@@ -61,8 +58,8 @@ function declarations(block: string): Map<string, string> {
   return map;
 }
 
-// The vocabulary, written out rather than derived from `tokens.ts`, so a
-// mistake in the mirror cannot also erase the thing it was supposed to mirror.
+// The vocabulary, written out rather than parsed out of the stylesheet, so a
+// role deleted there fails here instead of quietly shrinking the expectation.
 const ROLE_NAMES = [
   "background",
   "foreground",
@@ -106,15 +103,11 @@ describe(":root", () => {
     expect([...root.keys()].sort()).toEqual([...ROLE_NAMES, ...VARIABLE_ONLY, "radius"].sort());
   });
 
-  it("agrees with LIGHT_THEME declaration for declaration", () => {
-    const light = new Map(Object.entries(LIGHT_THEME));
-    root.delete("radius");
-    expect(Object.fromEntries(root)).toEqual(Object.fromEntries(light));
-  });
-
-  it("pins --radius in both the CSS and THEME", () => {
-    expect(declarations(blockBody(STYLESHEET, ":root {")).get("radius")).toBe("0.625rem");
-    expect(THEME.radius).toBe("0.625rem");
+  it("gives every role a value, and pins --radius", () => {
+    for (const [name, value] of root) {
+      expect(value, `--${name} is declared empty`).not.toBe("");
+    }
+    expect(root.get("radius")).toBe("0.625rem");
   });
 });
 
@@ -125,8 +118,15 @@ describe(".dark", () => {
     expect([...dark.keys()].sort()).toEqual([...ROLE_NAMES, ...VARIABLE_ONLY].sort());
   });
 
-  it("agrees with DARK_THEME declaration for declaration", () => {
-    expect(Object.fromEntries(dark)).toEqual({ ...DARK_THEME });
+  /**
+   * A role that repeats its light value is the bug this catches: the dark
+   * theme is a counterpart, not a copy. `background` and `foreground` swap
+   * ends of the scale, so those two are the cheapest thing to pin.
+   */
+  it("repoints the roles rather than restating them", () => {
+    const light = declarations(blockBody(STYLESHEET, ":root {"));
+    expect(dark.get("background")).not.toBe(light.get("background"));
+    expect(dark.get("foreground")).not.toBe(light.get("foreground"));
   });
 });
 
@@ -150,9 +150,9 @@ describe("@theme", () => {
     expect(colours.sort()).toEqual(ROLE_NAMES.map((name) => `--color-${name}`).sort());
   });
 
-  it("declares the two font variables from THEME", () => {
-    expect(inline.get("--font-sans")).toBe(normalize(THEME.fontSans));
-    expect(inline.get("--font-heading")).toBe(normalize(THEME.fontHeading));
+  it("declares the two font variables", () => {
+    expect(inline.get("--font-sans")).toBe("'Geist Variable', sans-serif");
+    expect(inline.get("--font-heading")).toBe("var(--font-sans)");
   });
 
   it("derives every radius step from --radius", () => {
@@ -187,12 +187,5 @@ describe("base layer", () => {
 
   it("applies the heading font at the semantic-HTML level", () => {
     expect(/h1,\s*h2,\s*h3,\s*h4\s*\{\s*@apply font-heading;\s*\}/.test(STYLESHEET)).toBe(true);
-  });
-});
-
-describe("cssVar", () => {
-  it("wraps a bare token name as a CSS var() reference", () => {
-    expect(cssVar("popover")).toBe("var(--popover)");
-    expect(cssVar("brand")).toBe("var(--brand)");
   });
 });

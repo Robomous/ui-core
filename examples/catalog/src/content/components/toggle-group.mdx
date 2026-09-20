@@ -1,0 +1,70 @@
+---
+title: ToggleGroup
+description: A row of Toggles that share one selection model. `type="single"` behaves like radios, `type="multiple"` like independent pressed buttons.
+builtOn:
+  - name: Radix ToggleGroup
+    docsUrl: https://www.radix-ui.com/primitives/docs/components/toggle-group
+    apiUrl: https://www.radix-ui.com/primitives/docs/components/toggle-group#api-reference
+---
+
+import Multiple from "@/demos/toggle-group/multiple";
+import Single from "@/demos/toggle-group/single";
+import Vertical from "@/demos/toggle-group/vertical";
+import Welded from "@/demos/toggle-group/welded";
+
+<Preview demo="toggle-group/single">
+  <Single client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { ToggleGroup, ToggleGroupItem } from "@robomous/ui-core";
+```
+
+```tsx
+<ToggleGroup type="single" defaultValue="left" aria-label="Alignment">
+  <ToggleGroupItem value="left" aria-label="Left">
+    <AlignLeftIcon />
+  </ToggleGroupItem>
+  <ToggleGroupItem value="center" aria-label="Centre">
+    <AlignCenterIcon />
+  </ToggleGroupItem>
+</ToggleGroup>
+```
+
+Items inherit the group's `variant` and `size` — set them once on `ToggleGroup`, not on each
+`ToggleGroupItem`.
+
+## Composition
+
+```text
+ToggleGroup
+└─ ToggleGroupItem
+```
+
+## Multiple selection
+
+`type="multiple"` behaves like independent pressed buttons: any number of segments can stay on
+at once.
+
+<Preview demo="toggle-group/multiple">
+  <Multiple client:load />
+</Preview>
+
+## Welded segments
+
+`spacing={0}` welds the segments into one control, sharing borders instead of gaps — the first
+and last items pick up the group's own corner radius.
+
+<Preview demo="toggle-group/welded">
+  <Welded client:load />
+</Preview>
+
+## Vertical
+
+`orientation="vertical"` stacks the segments and stretches them to one width instead of a row.
+
+<Preview demo="toggle-group/vertical">
+  <Vertical client:load />
+</Preview>

@@ -1,0 +1,59 @@
+---
+title: HoverCard
+description: A preview that appears when the pointer rests on its trigger. It is pointer-only, so it must never be the sole route to whatever it shows, and it keeps its exit animation because nothing is waiting on the frame after it leaves.
+builtOn:
+  - name: Radix HoverCard
+    docsUrl: https://www.radix-ui.com/primitives/docs/components/hover-card
+    apiUrl: https://www.radix-ui.com/primitives/docs/components/hover-card#api-reference
+---
+
+import Profile from "@/demos/hover-card/profile";
+import Status from "@/demos/hover-card/status";
+
+<Preview demo="hover-card/profile">
+  <Profile client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { Button, HoverCard, HoverCardContent, HoverCardTrigger } from "@robomous/ui-core";
+```
+
+```tsx
+<HoverCard>
+  <HoverCardTrigger asChild>
+    <Button variant="link">@robomous</Button>
+  </HoverCardTrigger>
+  <HoverCardContent>Vision tooling. Joined 2026.</HoverCardContent>
+</HoverCard>
+```
+
+The trigger must stay reachable and useful on its own — a link that still navigates, a button
+that still does something — because touch and keyboard users may never see the card.
+
+## Composition
+
+```text
+HoverCard
+├─ HoverCardTrigger
+└─ HoverCardContent
+```
+
+## Profile
+
+A pointer-only preview, additive to a trigger that already does something on its own — here, a
+real, focusable `Button`.
+
+<Preview demo="hover-card/profile">
+  <Profile client:load />
+</Preview>
+
+## Status preview
+
+Any focusable control can open a hover card. Content is free-form: this one previews a camera's
+live status rather than a profile.
+
+<Preview demo="hover-card/status">
+  <Status client:load />
+</Preview>

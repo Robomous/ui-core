@@ -1,8 +1,9 @@
 # Migrating to @robomous/ui-core 0.3
 
 0.3 makes the design system's invariants structural and removes the machinery that used to
-enforce them. Four things a consumer may have depended on are gone: the `./gates` export, the
-`statusTone` exports, the `chart-*` tokens, and the `bg-brand` family of utilities. One thing is
+enforce them. Five things a consumer may have depended on are gone: the `./gates` export, the
+`statusTone` exports, the `chart-*` tokens, the `bg-brand` family of utilities, and the token
+mirror `LIGHT_THEME` / `DARK_THEME` / `THEME` / `cssVar`. One thing is
 new and may break a screen that leaned on Tailwind's default palette: the colour namespace is
 closed. Each change is listed with the sites found in the two consumers at the time of writing —
 `Robomous/VisionSet` and `Robomous/robomous-cloud` — and the exact edit.
@@ -49,7 +50,7 @@ Removed. The rules those scanners held are now held elsewhere or no longer need 
 | `statusPaletteIn`, `competingStatusPaletteIn` | Nothing to hold: with the palette closed, `bg-emerald-500` or `text-red-700` produces no CSS. Delete the tests. |
 | `brandUsagesIn` | Nothing to hold: `bg-brand` produces no CSS. Delete the tests and the `BRAND_SITES` lists. |
 | `colouredClassesIn` | ESLint. Copy the `no-restricted-syntax` entry from this repository's `eslint.config.js` (two selectors, one regex) into the consumer's flat config. |
-| `foundationTokenNames`, `blockBody`, `declarations`, `rawDeclarations` | Keep locally if the extension-mirror test is still wanted; the parsers are thirty lines and live in `tests/theme/tokens.test.ts` here. The foundation names are the keys of `LIGHT_THEME`. |
+| `foundationTokenNames`, `blockBody`, `declarations`, `rawDeclarations` | Keep locally if the extension-mirror test is still wanted; the parsers are thirty lines and live in `tests/theme/tokens.test.ts` here. The foundation names are the `ROLE_NAMES` list in that file. |
 
 Sites: VisionSet `tests/scripts/design_tokens.test.mjs`, `tests/scripts/design_system.test.mjs`,
 `frontend/ui-core/src/tokens.test.ts`; robomous-cloud `web/tests/gates.test.ts`,
@@ -92,12 +93,27 @@ need nothing.
 Removed from the stylesheet and from `LIGHT_THEME`/`DARK_THEME`. No consumer painted with them. A
 product that charts declares its own series colours as an extension.
 
+## 6. `LIGHT_THEME`, `DARK_THEME`, `THEME`, `cssVar`
+
+Removed, along with `src/theme/tokens.ts`. They were a TypeScript copy of the values in
+`styles.css`, kept for a caller that could not read CSS, and held in step by a test. No consumer
+imported them, and a second copy of the palette is a second thing that can go stale.
+
+The stylesheet is now the only copy. Where a value is genuinely needed as a string, read it from
+the document, which has the further advantage of answering for the theme the reader is in:
+
+```ts
+const ink = getComputedStyle(document.documentElement).getPropertyValue("--foreground");
+```
+
+Everywhere else write `var(--foreground)`. `cssVar("popover")` returned `"var(--popover)"` and was
+three lines; inline the template string if a call site really wants it.
+
+Sites: none found in either consumer.
+
 ## Unchanged
 
 - Every component and subcomponent export. The `sidebar-*` roles.
-- `LIGHT_THEME`, `DARK_THEME`, `THEME`, `cssVar`: kept as a runtime mirror (with `success`,
-  `warning`, `info` and `overlay` added and the `chart-*` keys removed). Prefer `var(--role)` or
-  `getComputedStyle` where the DOM is available.
 - `toast` and `Toaster`; `cn`.
 - `import "@robomous/ui-core/styles.css"` and a consumer `@source` for its own sources.
 

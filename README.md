@@ -4,10 +4,10 @@
 
 # @robomous/ui-core
 
-The Robomous design system, built on top of [shadcn/ui](https://ui.shadcn.com): twenty-two React
-components this package owns outright, over Radix UI and Base UI behaviour, and the one stylesheet
-they resolve through. Extracted from [Robomous/VisionSet](https://github.com/Robomous/VisionSet),
-where it grew up.
+The Robomous design system, built on top of [shadcn/ui](https://ui.shadcn.com): forty React
+components this package owns outright, over Radix UI and Base UI behaviour — plus cmdk under
+`Command` and vaul under `Drawer` — and the one stylesheet they resolve through. Extracted from
+[Robomous/VisionSet](https://github.com/Robomous/VisionSet), where it grew up.
 
 ## Install
 
@@ -56,11 +56,11 @@ every consumer, and `shadcn` is the CLI.
 ```text
 src/components/   the components, one file each
 src/hooks/        the hooks the components are built on
-src/theme/        styles.css, the single visual contract; shadcn.css, shadcn's layer; tokens.ts
+src/theme/        styles.css, the single visual contract; shadcn.css, shadcn's layer
 src/index.ts      the public surface, exported by name
 components.json   how the shadcn CLI installs a new component here
 tests/            behaviour tests, the token and shadcn-layer contracts, the packed-consumer test
-examples/catalog  manual inspection of every component and state, light and dark
+examples/catalog  the documentation site (Astro): a page, live demos and API tables per component
 docs/             DESIGN.md, CONTRIBUTING.md, components/, MIGRATION-*.md
 ```
 
@@ -71,7 +71,7 @@ docs/             DESIGN.md, CONTRIBUTING.md, components/, MIGRATION-*.md
 
 ## Verification
 
-`pnpm verify` runs format, lint and typecheck, the behaviour tests, the build, the catalog, and a
+`pnpm verify` runs format, lint and typecheck, the behaviour tests, the build, the docs site, and a
 packed-consumer test that installs the tarball into a throwaway project and compiles it with a real
 Tailwind. The release workflow runs the same before it publishes.
 

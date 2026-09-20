@@ -225,9 +225,14 @@ describe("a real Tailwind compile of the consumer's stylesheet", () => {
     expect(css).toContain(".field-sizing-content");
     expect(css).toContain(".h-8");
     expect(css).toContain("line-clamp-1");
-    // The Radix and Base UI state variants, each in its library's own spelling.
-    expect(css).toMatch(/\.data-\\\[state\\=open\\\]\\:animate-in/);
+    // One state spelling for both libraries: Dialog is Radix and Combobox is
+    // Base UI, they carry the same class, and shadcn's variant compiles it to a
+    // rule that matches either attribute.
     expect(css).toMatch(/\.data-open\\:animate-in/);
+    expect(css).toContain('.data-open\\:animate-in:where([data-state="open"])');
+    expect(css, "a state is spelled through the layer, never as a data-[…] bracket").not.toMatch(
+      /\.data-\\\[state\\=(open|closed|active)\\\]/,
+    );
     // And the consumer's own class still compiles.
     expect(css).toContain(".p-4");
   });
@@ -235,6 +240,8 @@ describe("a real Tailwind compile of the consumer's stylesheet", () => {
   it("carries shadcn's utility and variant layer, and our utility on top of it", () => {
     // `no-scrollbar` is shadcn's; the Sidebar's content names it.
     expect(css).toContain(".no-scrollbar");
+    // And its companion, which the Combobox list wears over the bar it hides.
+    expect(css).toContain(".scroll-fade-y");
     // shadcn's `data-active` variant is the reason the layer is load-bearing: it
     // excludes `"false"`, which Tailwind's own presence check would match.
     expect(css).toContain('[data-active]:not([data-active="false"])');

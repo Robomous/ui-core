@@ -1,0 +1,52 @@
+---
+title: Input
+description: A native text input. `aria-invalid` reads as the invalid state, never a class of its own.
+builtOn:
+  - name: native HTML
+    docsUrl: https://developer.mozilla.org/docs/Web/HTML/Element/input
+---
+
+import Default from "@/demos/input/default";
+import Disabled from "@/demos/input/disabled";
+import Invalid from "@/demos/input/invalid";
+
+<Preview demo="input/default">
+  <Default client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { Input } from "@robomous/ui-core";
+```
+
+```tsx
+<Input placeholder="warehouse-cameras" aria-label="Project name" />
+```
+
+A bare `Input` needs its own `aria-label`; pair it with `Field`/`FieldLabel` instead when there is
+a visible label and, often, a description to attach through `aria-describedby`.
+
+## Composition
+
+```text
+Input
+```
+
+## Disabled
+
+Disabled keeps the arrow cursor and drops the opacity: nothing will respond to focus or a
+keystroke.
+
+<Preview demo="input/disabled">
+  <Disabled client:load />
+</Preview>
+
+## Invalid
+
+`aria-invalid` styles the invalid state directly, so a screen reader and the stylesheet agree on
+the same attribute.
+
+<Preview demo="input/invalid">
+  <Invalid client:load />
+</Preview>

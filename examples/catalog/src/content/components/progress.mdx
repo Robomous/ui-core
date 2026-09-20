@@ -1,0 +1,52 @@
+---
+title: Progress
+description: A determinate progress bar that forwards `value` straight to `aria-valuenow`; completion is an amount, not a polarity, so there is no variant.
+builtOn:
+  - name: Radix Progress
+    docsUrl: https://www.radix-ui.com/primitives/docs/components/progress
+    apiUrl: https://www.radix-ui.com/primitives/docs/components/progress#api-reference
+---
+
+import Value from "@/demos/progress/value";
+import Stages from "@/demos/progress/stages";
+
+<Preview demo="progress/value">
+  <Value client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { Progress } from "@robomous/ui-core";
+```
+
+```tsx
+<Progress value={42} aria-label="Ingest" />
+```
+
+`aria-label` (or `aria-labelledby`) is the caller's own responsibility: `Progress` has no visible
+label and announces only the number.
+
+## Composition
+
+```text
+Progress
+```
+
+## Value
+
+The indicator's width and `aria-valuenow` both come straight from `value`. There is no variant,
+because completion is an amount, never a status.
+
+<Preview demo="progress/value">
+  <Value client:load />
+</Preview>
+
+## Stages
+
+Several bars stacked report the steps of one pipeline independently, each with its own `value` and
+label.
+
+<Preview demo="progress/stages">
+  <Stages client:load />
+</Preview>

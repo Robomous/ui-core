@@ -1,0 +1,82 @@
+---
+title: Avatar
+description: A user's picture reduced to a circle, in three sizes carried as `data-size` so a group's overflow count can match. `AvatarFallback` is not optional — it stands in for a missing or still-loading image.
+builtOn:
+  - name: Radix Avatar
+    docsUrl: https://www.radix-ui.com/primitives/docs/components/avatar
+    apiUrl: https://www.radix-ui.com/primitives/docs/components/avatar#api-reference
+---
+
+import Sizes from "@/demos/avatar/sizes";
+import Badge from "@/demos/avatar/badge";
+import Group from "@/demos/avatar/group";
+import Fallback from "@/demos/avatar/fallback";
+
+<Preview demo="avatar/sizes">
+  <Sizes client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { Avatar, AvatarFallback, AvatarImage } from "@robomous/ui-core";
+```
+
+```tsx
+<Avatar>
+  <AvatarImage src="/users/yael.png" alt="" />
+  <AvatarFallback>YA</AvatarFallback>
+</Avatar>
+```
+
+`AvatarFallback` is not optional: render it every time, so something shows while the image loads
+and if it never does.
+
+## Composition
+
+```text
+Avatar
+├─ AvatarImage
+├─ AvatarFallback
+└─ AvatarBadge
+
+AvatarGroup
+└─ AvatarGroupCount
+```
+
+## Sizes
+
+Three sizes, carried as `data-size` on the root so anything reading it — an `AvatarGroupCount`
+sitting next to it — can match.
+
+<Preview demo="avatar/sizes">
+  <Sizes client:load />
+</Preview>
+
+## Badge
+
+`AvatarBadge` sits over the corner and scales itself down with the avatar's `data-size`, for a
+presence or status dot.
+
+<Preview demo="avatar/badge">
+  <Badge client:load />
+</Preview>
+
+## Group
+
+`AvatarGroup` overlaps its children and rings each one in the page's background.
+`AvatarGroupCount` picks up the same `data-size`, so the overflow count reads as one more avatar,
+not a label stuck on the end.
+
+<Preview demo="avatar/group">
+  <Group client:load />
+</Preview>
+
+## Fallback
+
+`AvatarFallback` is not optional: a broken `AvatarImage` unmounts straight to it, so there is never
+an empty circle.
+
+<Preview demo="avatar/fallback">
+  <Fallback client:load />
+</Preview>

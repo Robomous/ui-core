@@ -1,0 +1,82 @@
+---
+title: Command
+description: A listbox driven from a search field the reader never leaves, inline or inside a dialog. `CommandDialog`'s title and description are `sr-only` inside the dialog — that names it, without a visible heading.
+builtOn:
+  - name: cmdk
+    docsUrl: https://github.com/pacocoursey/cmdk
+  - name: Radix Dialog
+    docsUrl: https://www.radix-ui.com/primitives/docs/components/dialog
+    apiUrl: https://www.radix-ui.com/primitives/docs/components/dialog#api-reference
+---
+
+import Dialog from "@/demos/command/dialog";
+import Inline from "@/demos/command/inline";
+
+<Preview demo="command/inline">
+  <Inline client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@robomous/ui-core";
+```
+
+```tsx
+<Command>
+  <CommandInput placeholder="Search a command" />
+  <CommandList>
+    <CommandEmpty>Nothing matches.</CommandEmpty>
+    <CommandGroup heading="Ingest">
+      <CommandItem value="upload">Upload a batch</CommandItem>
+    </CommandGroup>
+  </CommandList>
+</Command>
+```
+
+`CommandItem`'s `value` drives the filter match; give it the words a reader might type, not
+necessarily the label shown.
+
+## Composition
+
+```text
+Command
+├─ CommandInput
+└─ CommandList
+   ├─ CommandEmpty
+   ├─ CommandGroup
+   │  ├─ CommandItem
+   │  │  └─ CommandShortcut
+   │  └─ CommandItem
+   └─ CommandSeparator
+
+CommandDialog
+└─ Command
+   └─ … (as above)
+```
+
+## Inline
+
+The everyday shape: a field at the top, a scrolling list beneath it, nothing hidden behind a
+trigger.
+
+<Preview demo="command/inline">
+  <Inline client:load />
+</Preview>
+
+## Command palette
+
+Opened from a button or from Cmd/Ctrl+K. `CommandDialog`'s `title` and `description` are `sr-only`
+inside the dialog — the reader never sees them, but they're what names the dialog for anyone using
+a screen reader, in place of a visible heading.
+
+<Preview demo="command/dialog">
+  <Dialog client:load />
+</Preview>
