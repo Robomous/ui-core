@@ -6,6 +6,8 @@ on:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    env:
+      ASTRO_TELEMETRY_DISABLED: "1"
     steps:
       - uses: actions/checkout@v7
       # The pnpm version comes from package.json#packageManager, the same one
@@ -18,10 +20,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
       # The same sequence `pnpm verify` runs locally, one step each so a failure
       # names its stage: format → lint + typecheck → behaviour tests → build →
-      # catalog → pack + consumer smoke.
+      # docs site → pack + consumer smoke.
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm test
       - run: pnpm build
-      - run: pnpm catalog:check
+      - run: pnpm docs:check
       - run: pnpm test:package

@@ -5,8 +5,8 @@ The package is built on top of shadcn/ui: a component enters from the shadcn reg
 `components.json` (`pnpm dlx shadcn@latest add <name>`), is adapted to the rules in
 [DESIGN.md](../DESIGN.md), and is owned here from then on.
 The file is the reference for anatomy, variants and class strings; this table says what each one
-is for and where its behaviour comes from. Every one of them is shown in every state it has in
-`examples/catalog/` (`pnpm catalog`).
+is for and where its behaviour comes from. Every one of them has a page, with live demos and a
+generated API table, in the docs site under `examples/catalog/` (`pnpm docs:dev`).
 
 | Component | Anatomy exported | Behaviour | Notes |
 | --- | --- | --- | --- |

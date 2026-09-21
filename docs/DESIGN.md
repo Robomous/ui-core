@@ -32,7 +32,7 @@ src/theme/shadcn.css   shadcn's utility and variant layer, vendored byte for byt
 src/theme/tokens.ts    a runtime mirror of the token values, for callers that cannot read CSS
 components.json        the shadcn CLI's configuration: style, stylesheet, aliases
 tests/                 behaviour tests (jsdom), token and shadcn-layer contracts, consumer test
-examples/catalog/      manual inspection, importing the real package
+examples/catalog/      the documentation site (Astro), importing the real package
 ```
 
 Internal imports are written against the `@/` alias `components.json` declares (`@/components/…`,
@@ -287,8 +287,10 @@ Then the component is adapted, whichever road it came by:
    to bottom; `export *` is not used.
 8. **Test the behaviour a screen would silently lose**, in `tests/components/`: roles, focus,
    `aria-*`, the form or pointer outcome. Not the class string.
-9. **Show it in `examples/catalog/`**, in every state it has, and give it a row in
-   `docs/components/README.md`.
+9. **Give it a page in the docs site**: `examples/catalog/src/content/components/<name>.mdx` with
+   a demo per state under `examples/catalog/src/demos/<name>/`, and a row in
+   `docs/components/README.md`. The API table is generated from the source; the extractor test
+   fails until the page exists.
 
 If a caller wants something the component does not offer, the answer is a prop or a variant *in
 the component*, never a class string spread onto it from the call site.
@@ -313,6 +315,6 @@ justification written into this file.
 | The packed tarball installs, its stylesheet compiles under a real Tailwind with the components' utilities, shadcn's layer and no physical palette, its entry imports and renders (Sidebar included, through the rewritten alias), `dist/` carries no `@/` import, `shadcn` is not a runtime dependency, a Button-only bundle stays small | `tests/package/consumer.test.ts` |
 | The harness itself | `tests/harness.test.tsx` |
 
-`pnpm verify` runs format, lint, typecheck, the behaviour tests, the build, the catalog, and the
+`pnpm verify` runs format, lint, typecheck, the behaviour tests, the build, the docs site, and the
 packed-consumer test, in that order; the release workflow refuses to publish anything that has not
 passed it.

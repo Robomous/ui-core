@@ -1,0 +1,60 @@
+---
+title: Textarea
+description: A native multi-line text control that grows with what is typed through `field-sizing-content`, instead of scrolling inside a fixed height.
+builtOn:
+  - name: native HTML
+    docsUrl: https://developer.mozilla.org/docs/Web/HTML/Element/textarea
+---
+
+import Default from "@/demos/textarea/default";
+import GrowsWithContent from "@/demos/textarea/grows-with-content";
+import Disabled from "@/demos/textarea/disabled";
+import Invalid from "@/demos/textarea/invalid";
+
+<Preview demo="textarea/default">
+  <Default client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { Textarea } from "@robomous/ui-core";
+```
+
+```tsx
+<Textarea placeholder="What is this dataset for?" aria-label="Notes" />
+```
+
+`field-sizing-content` sets the height from the content, down to a `min-h-16` floor, so a `rows`
+prop is rarely needed.
+
+## Composition
+
+```text
+Textarea
+```
+
+## Grows with content
+
+The box grows as lines are added instead of scrolling inside a fixed height — there is no resize
+handle to drag.
+
+<Preview demo="textarea/grows-with-content">
+  <GrowsWithContent client:load />
+</Preview>
+
+## Disabled
+
+Disabled keeps the arrow cursor: nothing will respond to focus or a keystroke.
+
+<Preview demo="textarea/disabled">
+  <Disabled client:load />
+</Preview>
+
+## Invalid
+
+`aria-invalid` styles the invalid state directly, the same attribute a screen reader reads.
+
+<Preview demo="textarea/invalid">
+  <Invalid client:load />
+</Preview>

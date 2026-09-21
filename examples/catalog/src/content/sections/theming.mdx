@@ -1,0 +1,101 @@
+---
+title: Theming
+description: Every colour is a role. The vocabulary is closed, both themes are declared in full, and a consumer extends it without ever shadowing a name.
+order: 3
+---
+
+import Swatches from "@/components/Swatches.astro";
+
+## Tokens
+
+The tokens have one home: [`src/theme/styles.css`](https://github.com/Robomous/ui-core/blob/main/src/theme/styles.css).
+Tailwind v4 is CSS-first, so the stylesheet is not a mirror of a config — it *is* the config. There
+is no `tailwind.config.js` anywhere in the package, and there must not be one, or the tokens
+acquire a second home.
+
+Both themes are declared in full: a value in `:root`, a counterpart in `.dark`, exposed to
+Tailwind through `@theme inline` as `--color-<role>: var(--<role>)`. Every rule in this system is
+written against a role, never a light-mode value — "the page" resolves per theme and is never
+asserted to be white.
+
+**The colour namespace is closed.** `@theme { --color-*: initial }` removes Tailwind's default
+palette before the roles are declared, so `bg-red-500` and `text-emerald-700` are not words in
+this system: they compile to nothing, in this package and in every consumer. The vocabulary is
+exactly: surfaces (`background`, `card`, `popover`, `muted`, each with a `-foreground`), emphasis
+(`primary`, `secondary`, `accent`, each with a `-foreground`), status (`success`, `warning`,
+`info`, `destructive`), and structure (`border`, `input`, `ring`, `overlay`).
+
+<Swatches />
+
+## Status is never the only signal
+
+Four status roles, one way to use each: `bg-success` for a solid mark, `bg-success/10 text-success`
+for a soft surface with matching ink, `text-success` for an icon or a run of inline text. Colour is
+never the only signal — every status carries a redundant channel, a word, an icon, a shape — and
+status is never a stroke on a container: a status `Badge` keeps `border-transparent`, and an
+`Alert` recolours its ink, not its border.
+
+## Surfaces, borders and focus
+
+`background` is the page; `card` holds content that sits in place; `popover` holds anything that
+floats and closes; `muted` recesses. Elevation is a ring plus a resting shadow, never a coloured
+border — a menu, a select or a combobox paints on `popover` and follows the page from light to
+dark. The base layer applies `border-border` and `outline-ring/50` to every element, the outline's
+colour only; focus geometry belongs to each component, not to a blanket rule.
+
+## Radius
+
+`--radius: 0.625rem` lives in the stylesheet, and every step derives from it in `@theme inline`:
+`radius-sm` at ×0.6 through `radius-4xl` at ×2.6. Components take their radius from that scale. An
+arbitrary value that remains in a component is geometry, not radius or type — a one-off
+measurement with no scale to belong to.
+
+## Typography
+
+One family, Geist, through `--font-sans`, bundled offline. `font-heading` resolves to the same
+face and survives as a hook on `h1`–`h4`. `font-mono` marks machine-shaped content — identifiers,
+hashes, measurements — and prose never wears it. Sizes come from Tailwind's scale; there is no
+custom type-scale token.
+
+## Per-consumer extensions
+
+A consumer that needs its own role declares it in its own stylesheet, after
+`@import "@robomous/ui-core/styles.css";` — a value in `:root`, a counterpart in `.dark`, exposure
+through `@theme inline` — and never shadows a name declared here.
+
+```css
+@import "@robomous/ui-core/styles.css";
+
+:root {
+  --brand-2: oklch(0.7 0.15 200);
+}
+.dark {
+  --brand-2: oklch(0.72 0.15 200);
+}
+@theme inline {
+  --color-brand-2: var(--brand-2);
+}
+```
+
+A consumer may not reach past its own layer to restyle a component from this package, and a
+component here may not encode a product's decision. An extension that turns out to be universal is
+a change to this package, with the reason written down.
+
+## The runtime mirror
+
+[`src/theme/tokens.ts`](https://github.com/Robomous/ui-core/blob/main/src/theme/tokens.ts) mirrors
+the values as TypeScript, for a caller that cannot read CSS — a `<canvas>`, an `<svg>`, or a
+styleguide printing a value beside a swatch. `LIGHT_THEME` and `DARK_THEME` are the two token maps,
+`THEME` carries the two provenance facts a colour string alone cannot (`radius`, `fontSans`), and
+`cssVar(name)` turns a role into `var(--<role>)`.
+
+```tsx
+import { cssVar, LIGHT_THEME } from "@robomous/ui-core";
+
+LIGHT_THEME.success; // "oklch(0.508 0.118 165.612)"
+cssVar("popover"); // "var(--popover)"
+```
+
+It is a compatibility mirror, not a source: CSS is authoritative, `var(--foreground)` or
+`getComputedStyle` is preferred wherever the DOM is available, and a test holds the two in
+agreement declaration for declaration.

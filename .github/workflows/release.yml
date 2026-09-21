@@ -18,7 +18,7 @@ jobs:
           node-version-file: .nvmrc
       - run: pnpm install --frozen-lockfile
       # Nothing publishes that has only been compiled: format, lint, typecheck,
-      # behaviour tests, build, catalog, and the packed-consumer smoke test all
+      # behaviour tests, build, the docs site, and the packed-consumer smoke test all
       # have to pass first.
       - run: pnpm verify
       - name: tag matches package.json

@@ -1,0 +1,64 @@
+/* The design system, then this site's own sources — exactly what a product does. */
+@import "@robomous/ui-core/styles.css";
+@source "../";
+
+/*
+ * Highlighting. `defaultColor: false` makes Shiki write both themes as custom
+ * properties and no `color` of its own, so every token needs the variable
+ * applied — on the spans, not only on the `pre`, because each span carries its
+ * own pair. The two rules mirror each other; a rule that covers spans in one
+ * theme and not the other leaves that theme unpainted.
+ */
+.astro-code,
+.astro-code span {
+  color: var(--shiki-light);
+}
+
+.dark .astro-code,
+.dark .astro-code span {
+  color: var(--shiki-dark);
+}
+
+/* The panel behind a sample is ours, in both themes: Shiki's own background is
+   a third surface colour this system has no role for. */
+.astro-code {
+  background-color: transparent !important;
+}
+
+/* MDX bodies: the few element styles a docs page needs, all on tokens. */
+.docs-prose > h2 {
+  @apply mt-12 mb-4 scroll-mt-20 text-xl font-medium tracking-tight;
+}
+.docs-prose > h3 {
+  @apply mt-8 mb-3 scroll-mt-20 text-base font-medium;
+}
+.docs-prose p:not([data-demo] *) {
+  @apply my-4 leading-7;
+}
+.docs-prose a:not([data-demo] *) {
+  @apply underline underline-offset-4 hover:text-foreground/80;
+}
+.docs-prose ul:not([data-demo] *) {
+  @apply my-4 list-disc pl-6;
+}
+.docs-prose ol:not([data-demo] *) {
+  @apply my-4 list-decimal pl-6;
+}
+.docs-prose li:not([data-demo] *) {
+  @apply my-1 leading-7;
+}
+.docs-prose :not(pre) > code:not([data-demo] *) {
+  @apply rounded-md bg-muted px-1.5 py-0.5 font-mono text-[0.85em];
+}
+.docs-prose pre.astro-code:not([data-demo] *) {
+  @apply my-4 overflow-x-auto rounded-xl bg-card p-4 text-sm leading-6 ring-1 ring-foreground/10;
+}
+.docs-prose table:not([data-demo] *) {
+  @apply my-4 w-full text-sm;
+}
+.docs-prose th:not([data-demo] *) {
+  @apply border-b py-2 pr-4 text-left font-medium;
+}
+.docs-prose td:not([data-demo] *) {
+  @apply border-b py-2 pr-4 align-top;
+}

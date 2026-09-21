@@ -1,0 +1,90 @@
+---
+title: ContextMenu
+description: A menu that opens on right-click instead of a press, over the same item anatomy as DropdownMenu. Neither surface plays an exit animation, for the same reason — the reader can right-click again before the closing menu has left.
+builtOn:
+  - name: Radix ContextMenu
+    docsUrl: https://www.radix-ui.com/primitives/docs/components/context-menu
+    apiUrl: https://www.radix-ui.com/primitives/docs/components/context-menu#api-reference
+---
+
+import Basic from "@/demos/context-menu/basic";
+import CheckboxItems from "@/demos/context-menu/checkbox-items";
+import Submenu from "@/demos/context-menu/submenu";
+
+<Preview demo="context-menu/basic">
+  <Basic client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@robomous/ui-core";
+```
+
+```tsx
+<ContextMenu>
+  <ContextMenuTrigger className="rounded-lg border border-dashed p-6">
+    Right-click here
+  </ContextMenuTrigger>
+  <ContextMenuContent>
+    <ContextMenuItem>Copy link</ContextMenuItem>
+    <ContextMenuItem variant="destructive">Delete</ContextMenuItem>
+  </ContextMenuContent>
+</ContextMenu>
+```
+
+`ContextMenuTrigger` is the area itself, not a button: it wraps whatever content the reader
+right-clicks and renders `select-none` so the click doesn't also select text.
+
+## Composition
+
+```text
+ContextMenu
+├─ ContextMenuTrigger
+└─ ContextMenuPortal
+   └─ ContextMenuContent
+      ├─ ContextMenuLabel
+      ├─ ContextMenuGroup
+      │  └─ ContextMenuItem
+      │     └─ ContextMenuShortcut
+      ├─ ContextMenuCheckboxItem
+      ├─ ContextMenuRadioGroup
+      │  └─ ContextMenuRadioItem
+      ├─ ContextMenuSeparator
+      └─ ContextMenuSub
+         ├─ ContextMenuSubTrigger
+         └─ ContextMenuSubContent
+            └─ ContextMenuItem
+```
+
+## Basic
+
+A label, a group holding an item with a shortcut, a separator, and a destructive item — the
+anatomy a right-click menu reaches for first.
+
+<Preview demo="context-menu/basic">
+  <Basic client:load />
+</Preview>
+
+## Checkbox items
+
+Checked, unchecked, and indeterminate sit on the same axis as `DropdownMenuCheckboxItem`. The
+indeterminate state wears a dash, not the tick that would claim every one of them.
+
+<Preview demo="context-menu/checkbox-items">
+  <CheckboxItems client:load />
+</Preview>
+
+## Submenu
+
+A submenu can hold its own radio group, so a destination is chosen without leaving the row that
+opened it. It shares its parent's no-exit-animation rule: the next right-click has to land.
+
+<Preview demo="context-menu/submenu">
+  <Submenu client:load />
+</Preview>

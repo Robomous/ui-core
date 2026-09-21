@@ -1,0 +1,94 @@
+---
+title: Table
+description: A native table, header rows separated from the body by a rule, wrapped in its own horizontal scroller so a wide dataset never squeezes the page around it.
+builtOn:
+  - name: native HTML
+    docsUrl: https://developer.mozilla.org/docs/Web/HTML/Element/table
+---
+
+import Caption from "@/demos/table/caption";
+import Dataset from "@/demos/table/dataset";
+import EmptyState from "@/demos/table/empty-state";
+import Footer from "@/demos/table/footer";
+
+<Preview demo="table/dataset">
+  <Dataset client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@robomous/ui-core";
+```
+
+```tsx
+<Table>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Model</TableHead>
+      <TableHead className="text-right">mAP@50</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell className="font-mono">yolo-v9-tiny</TableCell>
+      <TableCell className="text-right tabular-nums">0.912</TableCell>
+    </TableRow>
+  </TableBody>
+</Table>
+```
+
+Right-align a numeric column's `TableHead` with `text-right`, and give its `TableCell`s the same
+class plus `tabular-nums`, so the figures line up under the heading and each other.
+
+## Composition
+
+```text
+Table
+├─ TableCaption
+├─ TableHeader
+│  └─ TableRow
+│     └─ TableHead
+├─ TableBody
+│  └─ TableRow
+│     └─ TableCell
+└─ TableFooter
+   └─ TableRow
+      └─ TableCell
+```
+
+## Wide data
+
+`Table` wraps itself in an `overflow-x-auto` container, so a dataset with more columns than the
+viewport scrolls horizontally instead of crushing every column to fit.
+
+<Preview demo="table/dataset">
+  <Dataset client:load />
+</Preview>
+
+## Footer
+
+`TableFooter` closes the table with a muted, bordered band, for a total that summarises the rows
+above rather than continuing them.
+
+<Preview demo="table/footer">
+  <Footer client:load />
+</Preview>
+
+## Caption
+
+`TableCaption` sits below the table in muted text, for the one line of context that a heading above
+the table would overstate.
+
+<Preview demo="table/caption">
+  <Caption client:load />
+</Preview>
+
+## Empty state
+
+An empty result set stays inside the table rather than replacing it: one row, spanning every
+column, carries the message.
+
+<Preview demo="table/empty-state">
+  <EmptyState client:load />
+</Preview>

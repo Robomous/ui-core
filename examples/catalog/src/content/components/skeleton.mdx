@@ -1,0 +1,51 @@
+---
+title: Skeleton
+description: A loading placeholder — an animate-pulse block shaped by the className you give it, standing in for content that has not arrived yet.
+builtOn:
+  - name: native HTML
+    docsUrl: https://developer.mozilla.org/docs/Web/HTML/Element/div
+---
+
+import Card from "@/demos/skeleton/card";
+import Text from "@/demos/skeleton/text";
+
+<Preview demo="skeleton/card">
+  <Card client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { Skeleton } from "@robomous/ui-core";
+```
+
+```tsx
+<Skeleton className="h-32 w-full rounded-lg" />
+<Skeleton className="h-4 w-3/4" />
+```
+
+`Skeleton` carries no shape of its own: every size and radius comes from the `className` you pass,
+matched to the content it stands in for.
+
+## Composition
+
+```text
+Skeleton
+```
+
+## Card
+
+A frame preview above two caption lines, sized to match the card it will become once its content
+arrives.
+
+<Preview demo="skeleton/card">
+  <Card client:load />
+</Preview>
+
+## Text
+
+A thumbnail beside two lines, standing in for a row of text and its avatar.
+
+<Preview demo="skeleton/text">
+  <Text client:load />
+</Preview>
