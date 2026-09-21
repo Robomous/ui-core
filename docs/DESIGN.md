@@ -2,15 +2,16 @@
 
 ## Purpose and ownership
 
-`@robomous/ui-core` is twenty-two React components this repository owns outright, over behaviour
-from Radix UI and Base UI, and the one stylesheet they resolve through. The package is **built on
-top of shadcn/ui**: a component starts as an item of the shadcn registry, installed through
-`components.json`, and from that moment it is ordinary source here — edited with a reason, a test
-and a review like any other file, never regenerated and never compared back to upstream. It is not
-an extension of shadcn. shadcn supplies the starting point and the utility and variant layer the
-stylesheet vendors; Radix and Base UI supply focus management, keyboard interaction, dismissal,
-`aria-*` relationships and the `data-*` state attributes; Robomous owns the API, the styling, the
-semantic variants, the geometry and the public contract.
+`@robomous/ui-core` is forty React components this repository owns outright, over behaviour from
+Radix UI and Base UI — plus cmdk under `Command` and vaul under `Drawer` — and the one stylesheet
+they resolve through. The package is **built on top of shadcn/ui**: a component starts as an item
+of the shadcn registry, installed through `components.json`, and from that moment it is ordinary
+source here — edited with a reason, a test and a review like any other file, never regenerated and
+never compared back to upstream. It is not an extension of shadcn. shadcn supplies the starting
+point and the utility and variant layer the stylesheet vendors; Radix, Base UI, cmdk and vaul
+supply focus management, keyboard interaction, dismissal, `aria-*` relationships and the `data-*`
+state attributes; Robomous owns the API, the styling, the semantic variants, the geometry and the
+public contract.
 
 The package is product-agnostic. Shells, navigation, domain cards, model selectors, user menus,
 billing screens and the like stay in the product that needs them until the *same composition* is
@@ -176,9 +177,7 @@ from Tailwind's scale; there is no custom type-scale token.
 
 Radix sets `data-state="open|closed|active|…"` and `data-orientation="horizontal|vertical"`. Base
 UI sets bare `data-open`, `data-closed`, `data-highlighted`, `data-empty`. Both set a bare
-`data-disabled`. A component written before the shadcn layer returned spells the attribute its
-library emits — `data-[state=open]:` for Radix, `data-open:` for Base UI — and those components are
-not rewritten.
+`data-disabled`. Two libraries, two spellings for one state — and a component here writes neither.
 
 **shadcn's variant layer sits under all of it**, vendored in `src/theme/shadcn.css`. It declares
 `data-open`, `data-closed`, `data-checked`, `data-unchecked`, `data-selected`, `data-disabled`,
@@ -186,14 +185,27 @@ not rewritten.
 `[data-state="open"]` and a bare `[data-open]` — and excludes an explicit `"false"`. That last
 clause is why the layer is load-bearing rather than convenient: `SidebarMenuButton` renders
 `data-active="false"` for an inactive item, Tailwind's built-in `data-active:` variant matches on
-presence alone, and without the layer every item would be styled active. A component installed
-from the registry uses shadcn's spelling as written; an older component's explicit spelling keeps
-working under the layer unchanged. Both are correct here.
+presence alone, and without the layer every item would be styled active.
+
+**Those variants are the spelling.** `data-open:`, never `data-[state=open]:`; `data-horizontal:`,
+never `data-[orientation=horizontal]:`; `group-data-disabled/field:`, never
+`group-data-[disabled=true]/field:`. One name covers the Radix surface and the Base UI one, so
+Dialog and Combobox read alike and a component that changes libraries changes no class. A bracket
+survives in exactly two places: a state the layer declares no variant for — Tooltip's
+`data-[state=delayed-open]:`, Table's `data-[state=selected]:`, Sidebar's `data-[state=collapsed]:`
+— and an attribute that is not a state at all, `data-[slot=…]`, `data-[variant=…]`, `data-[size=…]`,
+`data-[side=…]`, `data-[collapsible=…]`.
+
+The breadth is bought with specificity. `:where()` carries none, so `data-open:bg-accent` weighs a
+single class where `data-[state=open]:bg-accent` weighed a class and an attribute. It still wins
+over an unqualified utility, which Tailwind emits earlier in the layer, and it still loses to a
+`group-`/`peer-` qualified rule. What changes is that `hover:`, `focus-visible:` and `disabled:`
+now win on a property they share with it — which is the order a control wants: the pointer and the
+focus ring are about the here and now, and the state is the background they play against.
 
 `shadcn.css` is never edited. Anything of ours — `cn-rtl-flip`, which the registry's components
 name and shadcn defines nowhere — is declared in `styles.css` after the import.
 `tests/theme/shadcn.test.ts` holds the copy identical to the installed package.
-
 ## Motion
 
 An **enter** animation is free to play: the surface it introduces did not exist a frame ago. An
@@ -201,12 +213,17 @@ An **enter** animation is free to play: the surface it introduces did not exist 
 keeps the closed surface mounted and its dismissable layer with it, so a press meant to open the
 next menu is read as an interaction outside the closing one and swallowed.
 
-**A menu leaves on the frame it is dismissed — `DropdownMenuContent` and `DropdownMenuSubContent`
-alike.** Neither carries an exit animation. `tests/components/dropdown-menu.test.tsx` gives any
-exit-animation utility a real `animation-name` and a live `getComputedStyle`, so a surface that
-lingers fails the way it does in a browser: the next press does not land. A surface whose trigger
-cannot be pressed again straight away — a dialog's, a sheet's, a tooltip's — keeps its exit
-animation. `TooltipProvider` defaults `delayDuration` to `0`.
+**A surface whose trigger can be pressed again on the next frame leaves on the frame it is
+dismissed.** That is `DropdownMenuContent` and `DropdownMenuSubContent`, `ContextMenuContent` and
+`ContextMenuSubContent`, and `PopoverContent`: none of them carries an exit animation. The test for
+each one gives any exit-animation utility a real `animation-name` and a live `getComputedStyle`, so
+a surface that lingers fails the way it does in a browser — the next press does not land — and each
+file first proves the fixture bites on that component before reading its absence as a pass.
+
+A surface whose trigger *cannot* be pressed again straight away keeps its exit animation: a
+dialog's, a sheet's, a drawer's, a tooltip's, a hover card's. The reader has to move a pointer or
+find the trigger again, and the frames the animation costs are frames nobody was waiting on.
+`TooltipProvider` defaults `delayDuration` to `0`.
 
 `prefers-reduced-motion` sits above all of this: the base layer collapses every animation and
 transition to a single frame under that query, so no component opts in.
@@ -292,7 +309,7 @@ justification written into this file.
 | No literal colour in a class | `eslint.config.js`, `pnpm lint` |
 | Roles agree between the stylesheet and its mirror; the palette is closed; no `:focus-visible` rule | `tests/theme/tokens.test.ts` |
 | The vendored shadcn layer is identical to the installed package, committed, imported, and a dev dependency only | `tests/theme/shadcn.test.ts` |
-| Button type, Dialog/Sheet focus and dismissal, Field's explicit contract, menu dismissal, Tabs, Select, Progress, Combobox, Toaster theme, Sidebar toggling and its mobile Sheet | `tests/components/*.test.tsx` |
+| Button type, Dialog/Sheet/Drawer focus and dismissal, Field's explicit contract, menu and popover dismissal, Tabs, Select, Progress, Combobox, Command, RadioGroup and ToggleGroup selection, Breadcrumb and Pagination landmarks, Toaster theme, Sidebar toggling and its mobile Sheet | `tests/components/*.test.tsx` |
 | The packed tarball installs, its stylesheet compiles under a real Tailwind with the components' utilities, shadcn's layer and no physical palette, its entry imports and renders (Sidebar included, through the rewritten alias), `dist/` carries no `@/` import, `shadcn` is not a runtime dependency, a Button-only bundle stays small | `tests/package/consumer.test.ts` |
 | The harness itself | `tests/harness.test.tsx` |
 
