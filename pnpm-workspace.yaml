@@ -1,10 +1,5 @@
-# The package is the repository root. The docs site under examples/catalog is a
-# second workspace member that depends on it as `workspace:*`, so it imports
-# the real package through the real exports map rather than an alias into src/.
+# The package is the repository root. The catalog is a second workspace member
+# that depends on it as `workspace:*`, so it imports the real package through
+# the real exports map rather than an alias into src/.
 packages:
   - examples/catalog
-
-# pnpm runs no install scripts unless allowed here. esbuild writes its platform
-# binary shim on install; it arrives with Astro's toolchain.
-allowBuilds:
-  esbuild: true

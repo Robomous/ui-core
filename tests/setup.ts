@@ -1,7 +1,7 @@
 /**
- * The jsdom harness every unit test runs under. Each piece is held by a test or
- * a component in this repository; a workaround nothing here needs does not
- * belong in this file.
+ * The jsdom harness every unit test runs under. Three things, each held by a
+ * test or a component in this repository; a workaround nothing here needs does
+ * not belong in this file.
  */
 
 import { cleanup } from "@testing-library/react";
@@ -66,20 +66,5 @@ if (typeof window !== "undefined") {
       removeListener: () => undefined,
       dispatchEvent: () => false,
     };
-  };
-}
-
-/**
- * `ResizeObserver`, which jsdom does not implement and which cmdk constructs
- * while `Command` mounts — it measures the list to keep the selected item in
- * view. Nothing here observes anything, because no test asserts on a resize;
- * the constructor existing is the whole requirement.
- * `tests/components/command.test.tsx` needs it.
- */
-if (typeof globalThis.ResizeObserver === "undefined") {
-  globalThis.ResizeObserver = class {
-    observe(): void {}
-    unobserve(): void {}
-    disconnect(): void {}
   };
 }

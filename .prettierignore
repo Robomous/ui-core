@@ -1,7 +1,5 @@
 # Build output and generated files.
 dist/
-examples/catalog/.astro/
-examples/catalog/src/generated/
 pnpm-lock.yaml
 
 # Markdown is formatted by hand here, and Prettier's markdown printer fights
@@ -18,9 +16,6 @@ pnpm-lock.yaml
 # other two that make the docs worse. They stay hand-formatted, held to the
 # 100-column guide in `.editorconfig`.
 *.md
-
-# MDX pages are prose too, hand-formatted for the same two reasons.
-*.mdx
 
 # Process records, kept as written at the time.
 docs/superpowers/

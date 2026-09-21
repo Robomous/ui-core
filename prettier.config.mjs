@@ -24,7 +24,4 @@
 export default {
   printWidth: 100,
   semi: true,
-  // `.astro` files are parsed by the plugin; nothing else about them departs from the defaults.
-  plugins: ["prettier-plugin-astro"],
-  overrides: [{ files: "*.astro", options: { parser: "astro" } }],
 };

@@ -1,0 +1,3 @@
+/* The design system, then this app's own sources — exactly what a product does. */
+@import "@robomous/ui-core/styles.css";
+@source "./";

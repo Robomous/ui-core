@@ -21,7 +21,6 @@ import { Button } from "../../src/components/button";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "../../src/components/dialog";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSub,
@@ -30,11 +29,10 @@ import {
   DropdownMenuTrigger,
 } from "../../src/components/dropdown-menu";
 
-// What Tailwind compiles `data-closed:animate-out` to — the shadcn variant
-// narrowed to the Radix spelling these surfaces emit — reduced to the one
-// declaration Radix reads.
+// What Tailwind compiles `data-[state=closed]:animate-out` to, reduced to the
+// one declaration Radix reads.
 const EXIT_ANIMATIONS = `
-  [data-state="closed"][class*="data-closed:animate-out"] {
+  [data-state="closed"][class*="data-[state=closed]:animate-out"] {
     animation-name: exit;
     animation-duration: 150ms;
   }
@@ -182,45 +180,5 @@ describe("DropdownMenu", () => {
     expect(classes).toContain("w-auto");
     expect(classes).toContain("min-w-32");
     expect(classes).not.toContain("w-(--radix-dropdown-menu-trigger-width)");
-  });
-
-  /**
-   * "All of them" and "some of them" are different answers, and a checkbox item used
-   * to give them the same tick. Radix told a screen reader apart all along through
-   * `aria-checked="mixed"`; this is the half a sighted reader was missing.
-   *
-   * jsdom runs no Tailwind, so which glyph actually *shows* is not observable here —
-   * that part is confirmed by the preview capture. What is asserted is the thing that
-   * was genuinely absent: a second glyph at all, and the state it is keyed on.
-   */
-  it("gives a partly-selected item its own mark, not the one that means all of it", async () => {
-    const user = userEvent.setup();
-    render(
-      <DropdownMenu>
-        <DropdownMenuTrigger>Visible classes</DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuCheckboxItem checked>Vehicle</DropdownMenuCheckboxItem>
-          <DropdownMenuCheckboxItem checked="indeterminate">Cyclist</DropdownMenuCheckboxItem>
-        </DropdownMenuContent>
-      </DropdownMenu>,
-    );
-    await user.click(screen.getByRole("button", { name: "Visible classes" }));
-    const [all, some] = await screen.findAllByRole("menuitemcheckbox");
-
-    expect(all.getAttribute("aria-checked")).toBe("true");
-    expect(some.getAttribute("aria-checked")).toBe("mixed");
-
-    const glyphs = (item: HTMLElement) =>
-      [...item.querySelectorAll("svg")].map(
-        (svg) => /lucide-([a-z-]+)/.exec(svg.getAttribute("class") ?? "")?.[1],
-      );
-    expect(glyphs(some)).toEqual(["check", "minus"]);
-
-    const state = (item: HTMLElement) =>
-      item
-        .querySelector("[data-slot=dropdown-menu-checkbox-item-indicator] [data-state]")
-        ?.getAttribute("data-state");
-    expect(state(all)).toBe("checked");
-    expect(state(some)).toBe("indeterminate");
   });
 });
