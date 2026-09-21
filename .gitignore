@@ -1,6 +1,8 @@
 node_modules/
 dist/
 examples/catalog/dist/
+examples/catalog/.astro/
+examples/catalog/src/generated/
 *.tmp.md
 
 # The Claude Design sync: its inputs, its staged converter and the bundle it

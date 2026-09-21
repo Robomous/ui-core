@@ -1,0 +1,63 @@
+---
+title: RadioGroup
+description: One tab stop for the whole group. The arrow keys move the selection, not just focus, and `aria-invalid` styles the invalid state.
+builtOn:
+  - name: Radix RadioGroup
+    docsUrl: https://www.radix-ui.com/primitives/docs/components/radio-group
+    apiUrl: https://www.radix-ui.com/primitives/docs/components/radio-group#api-reference
+---
+
+import Default from "@/demos/radio-group/default";
+import Disabled from "@/demos/radio-group/disabled";
+import Invalid from "@/demos/radio-group/invalid";
+
+<Preview demo="radio-group/default">
+  <Default client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { Label, RadioGroup, RadioGroupItem } from "@robomous/ui-core";
+```
+
+```tsx
+<RadioGroup defaultValue="internal" aria-label="Visibility">
+  <div className="flex items-center gap-2">
+    <RadioGroupItem value="draft" id="visibility-draft" />
+    <Label htmlFor="visibility-draft">Draft</Label>
+  </div>
+  <div className="flex items-center gap-2">
+    <RadioGroupItem value="internal" id="visibility-internal" />
+    <Label htmlFor="visibility-internal">Internal</Label>
+  </div>
+</RadioGroup>
+```
+
+`RadioGroupItem` renders the input; it carries no text of its own, so pair each one with a `Label`
+through `htmlFor` rather than relying on adjacency.
+
+## Composition
+
+```text
+RadioGroup
+└─ RadioGroupItem
+```
+
+## Disabled
+
+A single disabled option inside an otherwise enabled group. Its `Label` dims with it, because the
+item's own class carries `peer` for exactly that pairing.
+
+<Preview demo="radio-group/disabled">
+  <Disabled client:load />
+</Preview>
+
+## Invalid
+
+`aria-invalid` on an item styles its ring as destructive without hiding which option is currently
+selected — the checked state still reads through.
+
+<Preview demo="radio-group/invalid">
+  <Invalid client:load />
+</Preview>

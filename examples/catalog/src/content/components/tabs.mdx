@@ -1,0 +1,72 @@
+---
+title: Tabs
+description: Switches between panels that share one region, one visible at a time. Two `TabsList` looks and either orientation.
+builtOn:
+  - name: Radix Tabs
+    docsUrl: https://www.radix-ui.com/primitives/docs/components/tabs
+    apiUrl: https://www.radix-ui.com/primitives/docs/components/tabs#api-reference
+---
+
+import Disabled from "@/demos/tabs/disabled";
+import Variants from "@/demos/tabs/variants";
+import Vertical from "@/demos/tabs/vertical";
+
+<Preview demo="tabs/variants">
+  <Variants client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@robomous/ui-core";
+```
+
+```tsx
+<Tabs defaultValue="schema">
+  <TabsList aria-label="Dataset sections">
+    <TabsTrigger value="schema">Schema</TabsTrigger>
+    <TabsTrigger value="batches">Batches</TabsTrigger>
+  </TabsList>
+  <TabsContent value="schema">Six classes: person, forklift, pallet, box, cone, vehicle.</TabsContent>
+  <TabsContent value="batches">148 batches, 1.2M frames total.</TabsContent>
+</Tabs>
+```
+
+`TabsList` carries no visible label of its own, so give it an `aria-label` describing what it switches between.
+
+## Composition
+
+```text
+Tabs
+├─ TabsList
+│  └─ TabsTrigger
+└─ TabsContent
+```
+
+## Variants
+
+`variant="default"` raises the active trigger on a `bg-muted` track, with a shadow doing the lifting.
+`variant="line"` clears the track and marks the active trigger with an underline instead, for a
+quieter row.
+
+<Preview demo="tabs/variants">
+  <Variants client:load />
+</Preview>
+
+## Vertical
+
+`orientation="vertical"` moves `TabsList` beside its panels instead of above them. Triggers stretch
+to the list's width and left-align their label, and the active mark (in the `line` variant) moves to
+the trailing edge.
+
+<Preview demo="tabs/vertical">
+  <Vertical client:load />
+</Preview>
+
+## Disabled
+
+A `disabled` trigger stays in the row, dimmed, so the set of sections doesn't shift under the reader.
+
+<Preview demo="tabs/disabled">
+  <Disabled client:load />
+</Preview>

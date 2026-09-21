@@ -60,7 +60,7 @@ src/theme/        styles.css, the single visual contract; shadcn.css, shadcn's l
 src/index.ts      the public surface, exported by name
 components.json   how the shadcn CLI installs a new component here
 tests/            behaviour tests, the token and shadcn-layer contracts, the packed-consumer test
-examples/catalog  manual inspection of every component and state, light and dark
+examples/catalog  the documentation site (Astro): a page, live demos and API tables per component
 docs/             DESIGN.md, CONTRIBUTING.md, components/, MIGRATION-*.md
 ```
 
@@ -71,7 +71,7 @@ docs/             DESIGN.md, CONTRIBUTING.md, components/, MIGRATION-*.md
 
 ## Verification
 
-`pnpm verify` runs format, lint and typecheck, the behaviour tests, the build, the catalog, and a
+`pnpm verify` runs format, lint and typecheck, the behaviour tests, the build, the docs site, and a
 packed-consumer test that installs the tarball into a throwaway project and compiles it with a real
 Tailwind. The release workflow runs the same before it publishes.
 

@@ -1,0 +1,63 @@
+---
+title: States
+description: Hover and focus are live in the browser; disabled, invalid and status are read from an attribute, not a class.
+order: 4
+---
+
+import Default from "@/demos/states/default";
+import Destructive from "@/demos/states/destructive";
+import Invalid from "@/demos/states/invalid";
+import Status from "@/demos/states/status";
+
+## Default and disabled
+
+Hover and focus are live: move the pointer over a control below, then tab through it. Disabled
+keeps the arrow cursor, not the default one, because a hand held over something that will not
+respond to a press is a lie — the cursor rule is scoped to what is actually pressable, not to
+every disabled element.
+
+<Preview demo="states/default">
+  <Default client:load />
+</Preview>
+
+## Focus geometry
+
+Focus geometry belongs to the component, not to a blanket rule. Each focusable component carries
+its own `focus-visible:ring-3 focus-visible:ring-ring/50`; the stylesheet declares no
+`:focus-visible` rule of its own, because one blanket declaration is how thirteen components' rings
+were once overridden at once. The base layer contributes only the outline's *colour*
+(`outline-ring/50`) to every element — the geometry is each component's to own. Tab through the
+button and the input in the preview above to see it.
+
+## Invalid
+
+Invalid reads through `aria-invalid`, never through a class: `Input` and `Textarea` style the
+attribute directly, so the state survives whatever sets it — a form library, a server response, a
+hand-written check — without a class to keep in sync.
+
+<Preview demo="states/invalid">
+  <Invalid client:load />
+</Preview>
+
+## Status
+
+The same four roles — `success`, `warning`, `info`, `destructive` — read the same way wherever
+they appear: a `Badge` for a chip, a solid dot for a mark, `text-<role>` for a run of inline text.
+Colour is never the only signal carrying the state: each of these pairs a word with the colour, and
+none of them is a stroke on a container.
+
+<Preview demo="states/status">
+  <Status client:load />
+</Preview>
+
+## Destructive action
+
+`destructive` is the one `Button` variant that wears a status colour, because it ends something —
+there is no `success` button; a saved form reports itself with a toast or a `Badge` instead. An
+`Alert` in the same role recolours its ink, not its border, for the same reason a status `Badge`
+keeps `border-transparent`: a stroke is too easy to miss, and too easy to mistake for structure
+rather than state.
+
+<Preview demo="states/destructive">
+  <Destructive client:load />
+</Preview>

@@ -1,0 +1,53 @@
+---
+title: Separator
+description: A rule between two blocks of content or two inline items, decorative by default so a screen reader skips straight over it.
+builtOn:
+  - name: Radix Separator
+    docsUrl: https://www.radix-ui.com/primitives/docs/components/separator
+    apiUrl: https://www.radix-ui.com/primitives/docs/components/separator#api-reference
+---
+
+import Horizontal from "@/demos/separator/horizontal";
+import Vertical from "@/demos/separator/vertical";
+
+<Preview demo="separator/horizontal">
+  <Horizontal client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { Separator } from "@robomous/ui-core";
+```
+
+```tsx
+<div>batch-0041</div>
+<Separator />
+<div>batch-0042</div>
+```
+
+`decorative` defaults to `true`, because most separators repeat a grouping the layout already
+shows; set it to `false` only when the rule is the only thing marking a real boundary for assistive
+tech.
+
+## Composition
+
+```text
+Separator
+```
+
+## Horizontal
+
+A horizontal separator dividing two stacked blocks of content.
+
+<Preview demo="separator/horizontal">
+  <Horizontal client:load />
+</Preview>
+
+## Vertical
+
+`orientation="vertical"` divides inline items instead, such as the entries in a toolbar.
+
+<Preview demo="separator/vertical">
+  <Vertical client:load />
+</Preview>

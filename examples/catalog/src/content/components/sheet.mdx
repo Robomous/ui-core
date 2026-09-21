@@ -1,0 +1,87 @@
+---
+title: Sheet
+description: A panel that slides in from an edge of the viewport, sharing Dialog's overlay, focus trap and exit animation. `side` picks the edge it opens from — right by default — and `showCloseButton` toggles its corner close affordance.
+builtOn:
+  - name: Radix Dialog
+    docsUrl: https://www.radix-ui.com/primitives/docs/components/dialog
+    apiUrl: https://www.radix-ui.com/primitives/docs/components/dialog#api-reference
+---
+
+import Filters from "@/demos/sheet/filters";
+import NoCloseButton from "@/demos/sheet/no-close-button";
+import Sides from "@/demos/sheet/sides";
+
+<Preview demo="sheet/sides">
+  <Sides client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import {
+  Button,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@robomous/ui-core";
+```
+
+```tsx
+<Sheet>
+  <SheetTrigger asChild>
+    <Button variant="outline">Filters</Button>
+  </SheetTrigger>
+  <SheetContent side="left">
+    <SheetHeader>
+      <SheetTitle>Filters</SheetTitle>
+      <SheetDescription>Narrow the list to what you are looking for.</SheetDescription>
+    </SheetHeader>
+  </SheetContent>
+</Sheet>
+```
+
+`side` defaults to `right`; pass `top`, `bottom` or `left` to anchor the panel to another edge.
+
+## Composition
+
+```text
+Sheet
+├─ SheetTrigger
+└─ SheetContent
+   ├─ SheetHeader
+   │  ├─ SheetTitle
+   │  └─ SheetDescription
+   ├─ SheetClose
+   └─ SheetFooter
+```
+
+## Sides
+
+`side` picks which edge the panel slides from. `top` and `bottom` span the full width; `left`
+and `right` run the full height at `w-3/4` up to `sm:max-w-sm`, each with a border on its inner
+edge.
+
+<Preview demo="sheet/sides">
+  <Sides client:load />
+</Preview>
+
+## Filters
+
+`SheetHeader` and `SheetFooter` frame the panel; the body between them, like this filter field,
+is free-form.
+
+<Preview demo="sheet/filters">
+  <Filters client:load />
+</Preview>
+
+## No close button
+
+`showCloseButton={false}` removes the corner close affordance, for when the call site owns
+dismissal through its own footer actions instead.
+
+<Preview demo="sheet/no-close-button">
+  <NoCloseButton client:load />
+</Preview>

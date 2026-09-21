@@ -1,0 +1,79 @@
+---
+title: Drawer
+description: A panel that slides in and can be dragged shut, built on vaul rather than Radix. `direction` picks the edge it opens from, and only the bottom drawer gets a drag handle, because only it can be pulled by gesture.
+builtOn:
+  - name: vaul
+    docsUrl: https://vaul.emilkowal.ski/
+    apiUrl: https://vaul.emilkowal.ski/api
+---
+
+import Bottom from "@/demos/drawer/bottom";
+import Directions from "@/demos/drawer/directions";
+
+<Preview demo="drawer/bottom">
+  <Bottom client:only="react" />
+</Preview>
+
+## Usage
+
+```tsx
+import {
+  Button,
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@robomous/ui-core";
+```
+
+```tsx
+<Drawer>
+  <DrawerTrigger asChild>
+    <Button variant="outline">Open filters</Button>
+  </DrawerTrigger>
+  <DrawerContent>
+    <DrawerHeader>
+      <DrawerTitle>Filters</DrawerTitle>
+      <DrawerDescription>Narrow the batches shown.</DrawerDescription>
+    </DrawerHeader>
+  </DrawerContent>
+</Drawer>
+```
+
+`direction` defaults to `bottom`, the only direction that renders a drag handle; the others open
+like a Sheet that can also be swiped shut. Every Drawer demo on this page hydrates with
+`client:only="react"`, because vaul reads the viewport to position itself and has nothing
+meaningful to render on the server.
+
+## Composition
+
+```text
+Drawer
+├─ DrawerTrigger
+└─ DrawerContent
+   ├─ DrawerHeader
+   │  ├─ DrawerTitle
+   │  └─ DrawerDescription
+   └─ DrawerFooter
+      └─ DrawerClose
+```
+
+## Bottom
+
+The default direction. A drag handle sits above the content so the panel can be pulled shut by
+gesture, the one behaviour neither Radix nor Base UI gives the rest of the package.
+
+<Preview demo="drawer/bottom">
+  <Bottom client:only="react" />
+</Preview>
+
+## Directions
+
+`direction` opens the drawer from any edge. Only `bottom` shows the drag handle; the others are a
+Dialog-like panel that keeps its exit animation, as a Sheet does.
+
+<Preview demo="drawer/directions">
+  <Directions client:only="react" />
+</Preview>

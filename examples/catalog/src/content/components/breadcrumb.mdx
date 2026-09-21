@@ -1,0 +1,84 @@
+---
+title: Breadcrumb
+description: A trail of links ending in the page you're on. The last crumb is a `BreadcrumbPage`, not a link, and the separators between them are decorative.
+builtOn:
+  - name: Radix Slot
+    docsUrl: https://www.radix-ui.com/primitives/docs/utilities/slot
+    apiUrl: https://www.radix-ui.com/primitives/docs/utilities/slot#api-reference
+---
+
+import Trail from "@/demos/breadcrumb/trail";
+import Ellipsis from "@/demos/breadcrumb/ellipsis";
+import CustomSeparator from "@/demos/breadcrumb/custom-separator";
+
+<Preview demo="breadcrumb/trail">
+  <Trail client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@robomous/ui-core";
+```
+
+```tsx
+<Breadcrumb>
+  <BreadcrumbList>
+    <BreadcrumbItem>
+      <BreadcrumbLink href="/datasets">Datasets</BreadcrumbLink>
+    </BreadcrumbItem>
+    <BreadcrumbSeparator />
+    <BreadcrumbItem>
+      <BreadcrumbPage>Batch 12</BreadcrumbPage>
+    </BreadcrumbItem>
+  </BreadcrumbList>
+</Breadcrumb>
+```
+
+The crumb you're standing on is a `BreadcrumbPage`, never a `BreadcrumbLink`: there is nothing to
+navigate to, so `aria-current="page"` is all it needs to say.
+
+## Composition
+
+```text
+Breadcrumb
+└─ BreadcrumbList
+   ├─ BreadcrumbItem
+   │  ├─ BreadcrumbLink
+   │  ├─ BreadcrumbPage
+   │  └─ BreadcrumbEllipsis
+   └─ BreadcrumbSeparator
+```
+
+## Trail
+
+The crumb you're standing on is a `BreadcrumbPage`, not a link: `aria-current="page"` tells
+assistive tech, and there is nothing left to press.
+
+<Preview demo="breadcrumb/trail">
+  <Trail client:load />
+</Preview>
+
+## Ellipsis
+
+`BreadcrumbEllipsis` stands in for the crumbs a long trail has no room to show.
+
+<Preview demo="breadcrumb/ellipsis">
+  <Ellipsis client:load />
+</Preview>
+
+## Custom separator
+
+`BreadcrumbSeparator` accepts children: swap the chevron for anything else and it stays
+`aria-hidden` either way.
+
+<Preview demo="breadcrumb/custom-separator">
+  <CustomSeparator client:load />
+</Preview>

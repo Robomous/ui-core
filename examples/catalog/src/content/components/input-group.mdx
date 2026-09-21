@@ -1,0 +1,83 @@
+---
+title: InputGroup
+description: Wraps a control with addons on any of its four edges — icons, text, or buttons — and refocuses the control when an addon that isn't a button is clicked.
+builtOn:
+  - name: native HTML
+    docsUrl: https://developer.mozilla.org/docs/Web/HTML/Element/div
+---
+
+import WithAddons from "@/demos/input-group/with-addons";
+import UnitsText from "@/demos/input-group/units-text";
+import ButtonSizes from "@/demos/input-group/button-sizes";
+import WithTextarea from "@/demos/input-group/with-textarea";
+
+<Preview demo="input-group/with-addons">
+  <WithAddons client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupButton } from "@robomous/ui-core";
+```
+
+```tsx
+<InputGroup>
+  <InputGroupAddon>
+    <SearchIcon />
+  </InputGroupAddon>
+  <InputGroupInput placeholder="Search frames" aria-label="Search frames" />
+  <InputGroupAddon align="inline-end">
+    <InputGroupButton>Go</InputGroupButton>
+  </InputGroupAddon>
+</InputGroup>
+```
+
+Clicking an addon that isn't a button refocuses `InputGroupInput`/`InputGroupTextarea`, so an icon
+addon behaves like part of the field rather than a dead label.
+
+## Composition
+
+```text
+InputGroup
+├─ InputGroupAddon
+│  ├─ InputGroupButton
+│  └─ InputGroupText
+├─ InputGroupInput
+└─ InputGroupTextarea
+```
+
+## Addons
+
+An icon addon at `inline-start`, the control, and a button addon at `inline-end`.
+
+<Preview demo="input-group/with-addons">
+  <WithAddons client:load />
+</Preview>
+
+## Units as text
+
+`InputGroupText` renders plain, non-interactive copy inside an addon, such as a units suffix that
+should never look pressable.
+
+<Preview demo="input-group/units-text">
+  <UnitsText client:load />
+</Preview>
+
+## Button sizes
+
+`InputGroupButton` defaults to `xs`, the only size that fits inside the group's own height without
+enlarging it; `sm`, `icon-xs` and `icon-sm` cover the rest.
+
+<Preview demo="input-group/button-sizes">
+  <ButtonSizes client:load />
+</Preview>
+
+## With a textarea
+
+`block-start` and `block-end` addons sit above and below an `InputGroupTextarea`, which grows the
+group instead of the group growing around a fixed input height.
+
+<Preview demo="input-group/with-textarea">
+  <WithTextarea client:load />
+</Preview>

@@ -1,26 +1,32 @@
 {
-  "name": "@robomous/ui-core-catalog",
+  "name": "@robomous/ui-core-docs",
   "private": true,
-  "description": "Manual inspection of @robomous/ui-core: foundations, components and states, in light and dark. Imports the real package; owns examples only.",
+  "description": "The documentation site for @robomous/ui-core: one page per component with live demos, usage, composition and generated API tables. Imports the real package; owns docs and demos only.",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "dev": "astro dev",
+    "predev": "node scripts/extract-api.ts",
+    "build": "astro build",
+    "check": "astro sync && astro check",
+    "preview": "astro preview",
+    "fresh": "astro dev stop && node -e \"fs.rmSync('node_modules/.vite',{recursive:true,force:true})\"",
+    "api": "node scripts/extract-api.ts"
   },
   "dependencies": {
     "@robomous/ui-core": "workspace:*",
+    "lucide-react": "^1.37.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@astrojs/mdx": "^8.0.1",
+    "@astrojs/react": "^6.0.6",
     "@tailwindcss/vite": "^4.3.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
-    "@vitejs/plugin-react": "^6.1.0",
-    "lucide-react": "^1.37.0",
+    "astro": "^7.3.3",
     "tailwindcss": "^4.3.3",
-    "typescript": "^6.0.3",
-    "vite": "^8.0.0"
+    "typescript": "^6.0.3"
   }
 }
