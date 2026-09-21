@@ -29,7 +29,6 @@ src/components/*.tsx   the components, one file each, exported by name from src/
 src/hooks/*.tsx        the hooks the components are built on (useIsMobile)
 src/theme/styles.css   the one visual contract: tokens, the closed colour namespace, base layer
 src/theme/shadcn.css   shadcn's utility and variant layer, vendored byte for byte, never edited
-src/theme/tokens.ts    a runtime mirror of the token values, for callers that cannot read CSS
 components.json        the shadcn CLI's configuration: style, stylesheet, aliases
 tests/                 behaviour tests (jsdom), token and shadcn-layer contracts, consumer test
 examples/catalog/      the documentation site (Astro), importing the real package
@@ -84,10 +83,10 @@ is an arbitrary value — `bg-[#eb5a47]`, `ring-[var(--x)]`. ESLint refuses it
 selectors. The Button's hover step, a `color-mix` of two roles, names no colour of its own and
 stays legal.
 
-[`src/theme/tokens.ts`](../src/theme/tokens.ts) mirrors the values as TypeScript for a `<canvas>`,
-an `<svg>` or a styleguide that has to print a value. It is a compatibility mirror: CSS is
-authoritative, `var(--foreground)` or `getComputedStyle` is preferred where the DOM is available,
-and `tests/theme/tokens.test.ts` holds the two in agreement declaration for declaration.
+There is no TypeScript copy of these values. A caller that needs one as a string reads it from the
+document with `getComputedStyle(element).getPropertyValue("--foreground")`, or writes
+`var(--foreground)` and lets CSS resolve it. A second copy in TypeScript is a second thing to keep
+true, and the stylesheet is the only one that paints.
 
 ### Where the brand is
 

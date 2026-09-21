@@ -51,5 +51,5 @@ generated API table, in the docs site under `examples/catalog/` (`pnpm docs:dev`
 | ToggleGroup | `ToggleGroup`, `ToggleGroupItem` | Radix ToggleGroup | `type`: `single` (radios) or `multiple` (pressed buttons). `spacing={0}` welds the segments into one control; `orientation`. Items inherit the group's `variant` and `size`. |
 | Tooltip | `TooltipProvider`, `Tooltip`, `TooltipTrigger`, `TooltipContent` | Radix Tooltip | `delayDuration` defaults to `0`. Painted `bg-foreground text-background`. |
 
-Also exported: `cn`, the `useIsMobile` hook the Sidebar decides its mode with, and the token mirror
-`LIGHT_THEME`, `DARK_THEME`, `THEME`, `cssVar`.
+Also exported: `cn`, and the `useIsMobile` hook the Sidebar decides its mode with. The tokens
+themselves are not exported: they live in `src/theme/styles.css` and are reached as `var(--role)`.
