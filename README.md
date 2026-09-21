@@ -56,7 +56,7 @@ every consumer, and `shadcn` is the CLI.
 ```text
 src/components/   the components, one file each
 src/hooks/        the hooks the components are built on
-src/theme/        styles.css, the single visual contract; shadcn.css, shadcn's layer; tokens.ts
+src/theme/        styles.css, the single visual contract; shadcn.css, shadcn's layer
 src/index.ts      the public surface, exported by name
 components.json   how the shadcn CLI installs a new component here
 tests/            behaviour tests, the token and shadcn-layer contracts, the packed-consumer test

@@ -81,21 +81,15 @@ A consumer may not reach past its own layer to restyle a component from this pac
 component here may not encode a product's decision. An extension that turns out to be universal is
 a change to this package, with the reason written down.
 
-## The runtime mirror
+## Reading a value at runtime
 
-[`src/theme/tokens.ts`](https://github.com/Robomous/ui-core/blob/main/src/theme/tokens.ts) mirrors
-the values as TypeScript, for a caller that cannot read CSS — a `<canvas>`, an `<svg>`, or a
-styleguide printing a value beside a swatch. `LIGHT_THEME` and `DARK_THEME` are the two token maps,
-`THEME` carries the two provenance facts a colour string alone cannot (`radius`, `fontSans`), and
-`cssVar(name)` turns a role into `var(--<role>)`.
+There is no TypeScript copy of the tokens to import. A `<canvas>`, an `<svg>` or anything else that
+needs a role as a string reads it from the document, which also means it follows the theme the
+reader is actually in:
 
 ```tsx
-import { cssVar, LIGHT_THEME } from "@robomous/ui-core";
-
-LIGHT_THEME.success; // "oklch(0.508 0.118 165.612)"
-cssVar("popover"); // "var(--popover)"
+const ink = getComputedStyle(document.documentElement).getPropertyValue("--foreground");
 ```
 
-It is a compatibility mirror, not a source: CSS is authoritative, `var(--foreground)` or
-`getComputedStyle` is preferred wherever the DOM is available, and a test holds the two in
-agreement declaration for declaration.
+Everywhere else, write `var(--foreground)` and let CSS resolve it. The stylesheet is the only copy
+of these values, so there is nothing that can fall out of step with it.

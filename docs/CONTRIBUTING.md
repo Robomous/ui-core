@@ -86,7 +86,7 @@ that file; a utility we need lives in `styles.css` after the import.
 
 A token is a role. Declare it in `:root` and `.dark` in `src/theme/styles.css`, expose it in
 `@theme inline` as `--color-<role>: var(--<role>)`, add it to `ROLE_NAMES` in
-`tests/theme/tokens.test.ts` and to both maps in `src/theme/tokens.ts`, and give it a swatch in
+`tests/theme/tokens.test.ts`, and give it a swatch in
 `examples/catalog/src/components/Swatches.astro`. If it is not a role — if the name describes a
 pigment rather than a purpose — it does not belong here.
 

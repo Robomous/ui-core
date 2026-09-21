@@ -15,9 +15,6 @@
  * utility (`bg-success`, `text-warning`, `border-info`), not an export.
  */
 
-// The runtime mirror of the stylesheet's tokens, for a caller that cannot read CSS.
-export { cssVar, DARK_THEME, LIGHT_THEME, THEME } from "./theme/tokens.js";
-
 export { cn } from "cn";
 
 // The components — Radix, Base UI, cmdk and vaul behaviour, iconed with lucide.
