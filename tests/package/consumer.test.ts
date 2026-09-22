@@ -108,14 +108,15 @@ beforeAll(() => {
   );
   // Its one screen. The wrapper names three utilities the design system does
   // not have — a physical palette colour twice and the brand — and the
-  // compiled CSS must contain none of them.
+  // compiled CSS must contain none of them. It also names one the system does
+  // have, `font-mono`, which has to compile to the bundled Geist Mono.
   writeFileSync(
     path.join(consumer, "src", "App.tsx"),
     [
       `import { Badge, Button } from "${manifest.name}";`,
       "export function App() {",
       "  return (",
-      '    <div className="bg-red-500 text-emerald-700 bg-brand p-4">',
+      '    <div className="bg-red-500 text-emerald-700 bg-brand p-4 font-mono">',
       "      <Button>Go</Button>",
       '      <Badge variant="success">ok</Badge>',
       "    </div>",
@@ -274,8 +275,14 @@ describe("a real Tailwind compile of the consumer's stylesheet", () => {
     expect(css).toContain("--brand:");
   });
 
-  it("bundles the Geist face", () => {
+  it("bundles both Geist faces, and resolves font-mono through the mono one", () => {
     expect(css).toContain("Geist Variable");
+    expect(css).toContain("Geist Mono Variable");
+    // `@theme inline` writes the family into the utility, so this is the whole
+    // chain: the token, the import, and the consumer class that reaches them.
+    const at = css.indexOf(".font-mono");
+    expect(at, "no .font-mono utility was compiled").toBeGreaterThan(-1);
+    expect(css.slice(at, at + 200)).toContain("Geist Mono Variable");
   });
 });
 

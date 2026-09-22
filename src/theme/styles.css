@@ -43,6 +43,7 @@
 @import "tw-animate-css";
 @import "./shadcn.css";
 @import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
 
 /*
  * The package's own components, so a class string that only ever appears
@@ -148,6 +149,10 @@
 @theme inline {
   --font-sans: "Geist Variable", sans-serif;
   --font-heading: var(--font-sans);
+  /* Machine-shaped content — an identifier, a hash, a measurement. Bundled
+     offline beside the sans face, so `font-mono` is Geist Mono here rather
+     than whatever monospace the reader's machine happens to have. */
+  --font-mono: "Geist Mono Variable", monospace;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);

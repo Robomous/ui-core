@@ -52,10 +52,15 @@ measurement with no scale to belong to.
 
 ## Typography
 
-One family, Geist, through `--font-sans`, bundled offline. `font-heading` resolves to the same
-face and survives as a hook on `h1`–`h4`. `font-mono` marks machine-shaped content — identifiers,
-hashes, measurements — and prose never wears it. Sizes come from Tailwind's scale; there is no
-custom type-scale token.
+One family for prose, Geist, through `--font-sans`, bundled offline. `font-heading` resolves to
+the same face and survives as a hook on `h1`–`h4`.
+
+`font-mono` is Geist Mono, declared as `--font-mono: "Geist Mono Variable", monospace` and bundled
+the same way. It marks machine-shaped content — identifiers, hashes, measurements, a path, a commit
+— and prose never wears it. Applying it stays a call-site decision: no base rule puts it on `code`
+or `pre`.
+
+Sizes come from Tailwind's scale; there is no custom type-scale token.
 
 ## Per-consumer extensions
 

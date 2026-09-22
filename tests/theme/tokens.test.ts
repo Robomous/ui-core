@@ -150,9 +150,10 @@ describe("@theme", () => {
     expect(colours.sort()).toEqual(ROLE_NAMES.map((name) => `--color-${name}`).sort());
   });
 
-  it("declares the two font variables", () => {
+  it("declares the three font variables", () => {
     expect(inline.get("--font-sans")).toBe("'Geist Variable', sans-serif");
     expect(inline.get("--font-heading")).toBe("var(--font-sans)");
+    expect(inline.get("--font-mono")).toBe("'Geist Mono Variable', monospace");
   });
 
   it("derives every radius step from --radius", () => {

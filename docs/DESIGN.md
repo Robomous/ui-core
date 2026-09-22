@@ -167,10 +167,17 @@ once. `tests/theme/tokens.test.ts` asserts that absence.
 
 ## Typography
 
-One family, Geist, through `--font-sans`, bundled offline through `@fontsource-variable/geist`.
-`font-heading` resolves to the same face and survives as a hook on `h1`–`h4`. `font-mono` marks
-machine-shaped content — identifiers, hashes, measurements — and prose never wears it. Sizes come
-from Tailwind's scale; there is no custom type-scale token.
+One family for prose, Geist, through `--font-sans`, bundled offline through
+`@fontsource-variable/geist`. `font-heading` resolves to the same face and survives as a hook on
+`h1`–`h4`.
+
+`font-mono` is Geist Mono, declared as `--font-mono: "Geist Mono Variable", monospace` and bundled
+the same way through `@fontsource-variable/geist-mono`. It marks machine-shaped content —
+identifiers, hashes, measurements, a path, a commit — and prose never wears it. Applying it stays a
+call-site decision: no base rule puts it on `code` or `pre`, because a `<code>` inside a sentence
+is often prose about code rather than code.
+
+Sizes come from Tailwind's scale; there is no custom type-scale token.
 
 ## State attributes
 
