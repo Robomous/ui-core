@@ -35,8 +35,10 @@
  *
  * and adds an `@source` for its own sources. There is no `tailwind.config.js`
  * anywhere in this repository and there must not be one, or the tokens acquire
- * a second home. `tokens.ts` mirrors the values for a runtime caller that cannot
- * read CSS; this file is authoritative.
+ * a second home. There is no TypeScript copy either: a caller that needs a value
+ * as a string reads it off the document with
+ * `getComputedStyle(element).getPropertyValue("--foreground")`, or writes
+ * `var(--foreground)` and lets CSS resolve it.
  */
 
 @import "tailwindcss";

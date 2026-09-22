@@ -315,7 +315,7 @@ justification written into this file.
 | What | Where |
 | --- | --- |
 | No literal colour in a class | `eslint.config.js`, `pnpm lint` |
-| Roles agree between the stylesheet and its mirror; the palette is closed; no `:focus-visible` rule | `tests/theme/tokens.test.ts` |
+| Both themes declare every role and nothing else, and `.dark` repoints rather than repeats; the palette is closed; the fonts and every radius step are declared; no `:focus-visible` rule | `tests/theme/tokens.test.ts` |
 | The vendored shadcn layer is identical to the installed package, committed, imported, and a dev dependency only | `tests/theme/shadcn.test.ts` |
 | Button type, Dialog/Sheet/Drawer focus and dismissal, Field's explicit contract, menu and popover dismissal, Tabs, Select, Progress, Combobox, Command, RadioGroup and ToggleGroup selection, Breadcrumb and Pagination landmarks, Toaster theme, Sidebar toggling and its mobile Sheet | `tests/components/*.test.tsx` |
 | The packed tarball installs, its stylesheet compiles under a real Tailwind with the components' utilities, shadcn's layer and no physical palette, its entry imports and renders (Sidebar included, through the rewritten alias), `dist/` carries no `@/` import, `shadcn` is not a runtime dependency, a Button-only bundle stays small | `tests/package/consumer.test.ts` |
