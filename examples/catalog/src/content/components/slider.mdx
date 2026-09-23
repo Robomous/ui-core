@@ -1,0 +1,58 @@
+---
+title: Slider
+description: A value, or a range of them, on a track. One thumb per value, and each thumb — the element a screen reader announces — carries the name.
+builtOn:
+  - name: Radix Slider
+    docsUrl: https://www.radix-ui.com/primitives/docs/components/slider
+    apiUrl: https://www.radix-ui.com/primitives/docs/components/slider#api-reference
+---
+
+import Default from "@/demos/slider/default";
+import Disabled from "@/demos/slider/disabled";
+import Range from "@/demos/slider/range";
+import Vertical from "@/demos/slider/vertical";
+
+<Preview demo="slider/default">
+  <Default client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { Slider } from "@robomous/ui-core";
+```
+
+```tsx
+<Slider aria-label="Confidence threshold" defaultValue={[60]} step={5} />
+```
+
+The value is always an array. `aria-label` and `aria-labelledby` are forwarded to every thumb
+rather than the root, because the thumb is the element with `role="slider"`. A `<label htmlFor>`
+names nothing here, so point `aria-labelledby` at the visible label instead. With no value, the
+slider starts at `[min]` with one thumb.
+
+## Composition
+
+```text
+Slider
+```
+
+## Range
+
+Two values render two thumbs; the filled track between them is the selection.
+
+<Preview demo="slider/range">
+  <Range client:load />
+</Preview>
+
+## Vertical
+
+<Preview demo="slider/vertical">
+  <Vertical client:load />
+</Preview>
+
+## Disabled
+
+<Preview demo="slider/disabled">
+  <Disabled client:load />
+</Preview>

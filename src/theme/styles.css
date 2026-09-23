@@ -1,174 +1,227 @@
 /*
- * @robomous/ui-core — the design system's stylesheet.
+ * @robomous/ui-core — the design system's stylesheet, and its one visual contract.
  *
- * **This file is the design system's one home for a colour.** Tailwind v4 is
- * CSS-first, so this is not a mirror of a config — it *is* the config, and
- * every utility in this package and in every consuming app resolves through
- * the names below. `brand` is Robomous's own identity colour, justified in
- * `DESIGN.md`, and it is declared the way every other name here is: a value in
- * `:root`, a dark counterpart in `.dark`, exposure through `@theme inline`.
- * Consumers add their extensions in their own stylesheet after importing this
- * one. `tokens.ts` is the TypeScript mirror of this file, for callers that
- * cannot read CSS, and `tokens.test.ts` asserts the two agree declaration for
- * declaration.
+ * Tailwind v4 is CSS-first, so this file is not a mirror of a config: it *is*
+ * the config. Every utility in this package and in every consuming app resolves
+ * through the names declared here.
  *
- * `./tailwind.css` carries the variant and utility layer the components paint
- * through: the `data-*` variants that key off the `data-state` attributes the
- * behaviour libraries emit, plus the scroll-mask and shimmer utilities. It is
- * imported ahead of the token blocks because a variant has to exist before a
- * utility can qualify on it.
+ * The package is built on top of shadcn/ui. `./shadcn.css` is shadcn's own
+ * utility and variant layer — the `data-open`, `data-active`, `data-checked`…
+ * variants that match both `[data-state="x"]` and the bare attribute while
+ * excluding `"false"`, plus `no-scrollbar`, `scroll-fade-*` and `shimmer-*` —
+ * copied byte for byte from `shadcn/dist/tailwind.css` and held to that copy by
+ * `tests/theme/shadcn.test.ts`. Vendored rather than imported from the package,
+ * because this stylesheet ships as source and a package named in it becomes a
+ * runtime dependency of every consumer; `shadcn` is the CLI, and nobody's app
+ * should install a CLI to get a stylesheet. That file is never edited: anything
+ * of ours goes below, `cn-rtl-flip` being the example.
+ *
+ * The colour vocabulary is two layers. Underneath, Tailwind's own palette,
+ * trimmed to eighteen scales (see the `@theme` block): `neutral` is what every
+ * grey role is spelled from, and the seventeen hues are there for data — a
+ * chart series, a class colour — not for controls. `slate`, `gray`, `zinc`,
+ * `stone`, the tinted neutrals, `black` and `white` produce no CSS. On top,
+ * the roles: surfaces (`background`, `card`, `popover`, `muted`), emphasis
+ * (`primary`, `secondary`, `accent`), status (`success`, `warning`, `info`,
+ * `destructive`, each with a `-surface`), structure (`border`, `input`, `ring`, `overlay`) and the
+ * `sidebar` family two product shells share. A component or a screen names a
+ * role, never a pigment; the value behind a role is this file's business.
+ *
+ * `brand` is Robomous's identity colour and is deliberately *not* a utility:
+ * it is a CSS variable (`var(--brand)`) for a wordmark or a styleguide swatch,
+ * so it cannot drift onto a control by way of `bg-brand`.
  *
  * A consuming app imports exactly this:
  *
  *     import "@robomous/ui-core/styles.css";
  *
- * and adds an `@source` for its own sources. Tailwind v4 is CSS-first: there
- * is no `tailwind.config.js` anywhere in this repository and there must not
- * be one, or the tokens acquire a second home.
+ * and adds an `@source` for its own sources. There is no `tailwind.config.js`
+ * anywhere in this repository and there must not be one, or the tokens acquire
+ * a second home. There is no TypeScript copy either: a caller that needs a value
+ * as a string reads it off the document with
+ * `getComputedStyle(element).getPropertyValue("--foreground")`, or writes
+ * `var(--foreground)` and lets CSS resolve it.
  */
 
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "./tailwind.css";
+@import "./shadcn.css";
 @import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
 
 /*
  * The package's own components, so a class string that only ever appears
- * inside `ui-core` still produces CSS in the consumer's build.
- *
- * `@source` resolves **relative to this file**, and this file is in
- * `src/theme/`. So the target is `..` — `src/`, which holds `components/` —
- * and not `.`, which would be `src/theme/` and contains no component at all.
- * A consumer's Tailwind auto-detects its own sources and never looks inside
- * `node_modules`, so this directive is the only thing that puts these
- * components' class strings in front of the compiler: point it one directory
- * too shallow and every consumer builds a stylesheet with no `h-8`, no
- * `line-clamp-1` and no variant utility in it, while every check in this
- * repository stays green.
- *
- * `src/gates/design.test.ts` resolves this path and fails if it stops
- * reaching the components.
+ * inside `ui-core` still produces CSS in the consumer's build. `@source`
+ * resolves relative to this file, and a consumer's Tailwind never looks inside
+ * `node_modules` on its own. Only the components are scanned: nothing else in
+ * the package carries a class string a consumer needs.
  */
-@source "..";
+@source "../components";
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
   --background: oklch(1 0 0);
-  --foreground: oklch(0.2 0 0);
+  --foreground: var(--color-neutral-900);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: var(--color-neutral-950);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.2 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.269 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --popover-foreground: var(--color-neutral-950);
+  --primary: var(--color-neutral-900);
+  --primary-foreground: var(--color-neutral-50);
+  --secondary: var(--color-neutral-100);
+  --secondary-foreground: var(--color-neutral-800);
+  --muted: var(--color-neutral-100);
+  --muted-foreground: var(--color-neutral-500);
+  --accent: var(--color-neutral-100);
+  --accent-foreground: var(--color-neutral-900);
 
   /*
-   * Robomous orange (#F5580B). Identity only — the wordmark and its styleguide
-   * swatch, named in `DESIGN.md` — never a functional-UI colour. A third site
-   * is a design decision, not a styling one.
-   *
-   * At 3.34:1 on `background` it clears 3:1 for large text and non-text marks
-   * and misses 4.5:1 for body copy, which is one more reason the wordmark is
-   * where it belongs.
+   * Status roles. The name is the contract; the value is a detail. Each status
+   * is a pair: the ink (`--success`, a 700 step here, a 300 step in .dark) and
+   * the soft surface it sits on (`--success-surface`, 50 here, 950 in .dark),
+   * both from Tailwind's palette. Ink on its surface clears 4.5:1 in both
+   * themes; green in light is the tightest at 4.72:1.
+   */
+  --success: var(--color-green-700);
+  --success-surface: var(--color-green-50);
+  --warning: var(--color-amber-700);
+  --warning-surface: var(--color-amber-50);
+  --info: var(--color-blue-700);
+  --info-surface: var(--color-blue-50);
+  --destructive: var(--color-red-700);
+  --destructive-surface: var(--color-red-50);
+
+  --border: var(--color-neutral-200);
+  --input: var(--color-neutral-200);
+  --ring: var(--color-neutral-400);
+  /* The scrim behind a Dialog or a Sheet: a purpose, not a pigment. */
+  --overlay: oklch(0 0 0 / 10%);
+  --radius: 0.625rem;
+
+  --sidebar: var(--color-neutral-50);
+  --sidebar-foreground: var(--color-neutral-950);
+  --sidebar-primary: var(--color-neutral-900);
+  --sidebar-primary-foreground: var(--color-neutral-50);
+  --sidebar-accent: var(--color-neutral-100);
+  --sidebar-accent-foreground: var(--color-neutral-900);
+  --sidebar-border: var(--color-neutral-200);
+  --sidebar-ring: var(--color-neutral-400);
+
+  /*
+   * Robomous orange (#F5580B). Identity only — a wordmark, a styleguide swatch —
+   * reached as `var(--brand)`, never as a utility. At 3.34:1 on `background` it
+   * clears 3:1 for large text and non-text marks and misses 4.5:1 for body copy,
+   * which is one more reason it paints no control.
    */
   --brand: oklch(0.663 0.205 39.9);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
+  --background: var(--color-neutral-950);
+  --foreground: var(--color-neutral-50);
+  --card: var(--color-neutral-900);
+  --card-foreground: var(--color-neutral-50);
+  --popover: var(--color-neutral-900);
+  --popover-foreground: var(--color-neutral-50);
+  --primary: var(--color-neutral-200);
+  --primary-foreground: var(--color-neutral-900);
+  --secondary: var(--color-neutral-800);
+  --secondary-foreground: var(--color-neutral-50);
+  --muted: var(--color-neutral-800);
+  --muted-foreground: var(--color-neutral-400);
+  --accent: var(--color-neutral-800);
+  --accent-foreground: var(--color-neutral-50);
+
+  --success: var(--color-green-300);
+  --success-surface: var(--color-green-950);
+  --warning: var(--color-amber-300);
+  --warning-surface: var(--color-amber-950);
+  --info: var(--color-blue-300);
+  --info-surface: var(--color-blue-950);
+  --destructive: var(--color-red-300);
+  --destructive-surface: var(--color-red-950);
+
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
+  --ring: var(--color-neutral-500);
+  --overlay: oklch(0 0 0 / 10%);
+
+  --sidebar: var(--color-neutral-900);
+  --sidebar-foreground: var(--color-neutral-50);
   --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-primary-foreground: var(--color-neutral-50);
+  --sidebar-accent: var(--color-neutral-800);
+  --sidebar-accent-foreground: var(--color-neutral-50);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-ring: var(--color-neutral-500);
 
   --brand: oklch(0.663 0.205 39.9);
+}
+
+@theme {
+  /*
+   * Tailwind's palette, trimmed to the eighteen scales the design keeps —
+   * neutral, red, orange, amber, yellow, lime, green, emerald, teal, cyan, sky,
+   * blue, indigo, violet, purple, fuchsia, pink, rose — at Tailwind's own values,
+   * never restated here. The rest is closed: the four other greys, the four
+   * tinted neutrals, and bare black and white, which the roles already cover.
+   */
+  --color-slate-*: initial;
+  --color-gray-*: initial;
+  --color-zinc-*: initial;
+  --color-stone-*: initial;
+  --color-mauve-*: initial;
+  --color-olive-*: initial;
+  --color-mist-*: initial;
+  --color-taupe-*: initial;
+  --color-black: initial;
+  --color-white: initial;
 }
 
 @theme inline {
   --font-sans: "Geist Variable", sans-serif;
   --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --color-foreground: var(--foreground);
+  /* Machine-shaped content — an identifier, a hash, a measurement. Bundled
+     offline beside the sans face, so `font-mono` is Geist Mono here rather
+     than whatever monospace the reader's machine happens to have. */
+  --font-mono: "Geist Mono Variable", monospace;
+
   --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-success-surface: var(--success-surface);
+  --color-warning: var(--warning);
+  --color-warning-surface: var(--warning-surface);
+  --color-info: var(--info);
+  --color-info-surface: var(--info-surface);
+  --color-destructive: var(--destructive);
+  --color-destructive-surface: var(--destructive-surface);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-overlay: var(--overlay);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -176,25 +229,33 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+}
 
-  /* Robomous's one identity token, exposed the same way as every other colour. */
-  --color-brand: var(--brand);
+/*
+ * Our own utilities, after shadcn's layer. An icon that points somewhere —
+ * the sidebar trigger's panel icon — flips with the writing direction. The
+ * registry's components name this class and shadcn defines it nowhere, so it
+ * lives here.
+ */
+@utility cn-rtl-flip {
+  &:where([dir="rtl"], [dir="rtl"] *) {
+    transform: scaleX(-1);
+  }
 }
 
 @layer base {
   /* The hairline and the outline *colour* — the two things every element
-     inherits. The focus treatment itself belongs to the components: each
-     focusable one carries its own `ring-3` ring in `ring/50` (DESIGN.md,
-     Borders and focus), so the base layer names the colour and stays out of
-     the geometry.
-     Nothing here may declare focus geometry again: one blanket declaration in
-     this layer is how thirteen components' rings got overridden at once. */
+     inherits. Focus geometry belongs to the components: each focusable one
+     carries its own `focus-visible:ring-3 focus-visible:ring-ring/50`, so this
+     layer names the colour and stays out of the geometry. One blanket
+     `:focus-visible` declaration here is how thirteen components' rings once
+     got overridden at once. */
   * {
     @apply border-border outline-ring/50;
   }
   /* Motion is opt-out for vestibular safety: under prefers-reduced-motion every
      animation and transition collapses to a frame. Information is never
-     motion-only (DESIGN.md §Accessibility), so nothing is lost. */
+     motion-only, so nothing is lost. */
   @media (prefers-reduced-motion: reduce) {
     *,
     ::before,
@@ -208,9 +269,8 @@
   body {
     @apply bg-background text-foreground;
   }
-  /* Scoped to what is actually pressable and away from what is not: a disabled
-     control keeps the arrow, because a hand over something that will not
-     respond is the cursor telling a lie. */
+  /* Scoped to what is actually pressable: a disabled control keeps the arrow,
+     because a hand over something that will not respond is a lie. */
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
@@ -218,9 +278,8 @@
   html {
     @apply font-sans;
   }
-  /* One family now: `--font-heading` resolves to `--font-sans`, so this rule
-     keeps the semantic hook without changing the face. A later decision that
-     splits them again lands here without a diff at every heading. */
+  /* One family: `--font-heading` resolves to `--font-sans`, so this rule keeps
+     the semantic hook without changing the face. */
   h1,
   h2,
   h3,

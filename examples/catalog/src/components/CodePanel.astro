@@ -1,0 +1,50 @@
+---
+import { buttonVariants, cn } from "@robomous/ui-core";
+import { Code } from "astro:components";
+
+import CopyButton from "@/components/CopyButton";
+
+interface Props {
+  code: string;
+  lang?: "tsx" | "ts" | "bash" | "css" | "json" | "text";
+  open?: boolean;
+  label?: string;
+}
+
+const { code, lang = "tsx", open = false, label = "View Code" } = Astro.props;
+---
+
+<details class="group/code border-t" open={open}>
+  <summary
+    class={cn(
+      buttonVariants({ variant: "ghost", size: "sm" }),
+      "m-2 cursor-pointer list-none select-none [&::-webkit-details-marker]:hidden",
+    )}
+  >
+    {label}
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="size-4 transition-transform group-open/code:rotate-90"
+    >
+      <path d="m9 18 6-6-6-6"></path>
+    </svg>
+  </summary>
+  <div class="relative border-t">
+    <div class="absolute top-2 right-2">
+      <CopyButton client:visible code={code} />
+    </div>
+    <Code
+      code={code}
+      lang={lang}
+      themes={{ light: "github-light", dark: "github-dark" }}
+      defaultColor={false}
+      class="max-h-[32rem] overflow-auto p-4 text-sm leading-6"
+    />
+  </div>
+</details>

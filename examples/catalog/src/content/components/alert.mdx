@@ -1,0 +1,59 @@
+---
+title: Alert
+description: An in-page notice with two variants, `default` and `destructive`, where the variant recolours the alert's ink and never its border.
+builtOn:
+  - name: native HTML
+    docsUrl: https://developer.mozilla.org/docs/Web/Accessibility/ARIA/Roles/alert_role
+---
+
+import Variants from "@/demos/alert/variants";
+import WithAction from "@/demos/alert/with-action";
+
+<Preview demo="alert/variants">
+  <Variants client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { Alert, AlertTitle, AlertDescription } from "@robomous/ui-core";
+```
+
+```tsx
+<Alert>
+  <AlertTitle>Ingest paused</AlertTitle>
+  <AlertDescription>The bucket is unreachable. Retrying in a minute.</AlertDescription>
+</Alert>
+```
+
+`role="alert"` announces the mount itself: there is no live-region prop to set and nothing else to
+wire up.
+
+## Composition
+
+```text
+Alert
+├─ <TriangleAlertIcon />
+├─ AlertTitle
+├─ AlertDescription
+└─ AlertAction
+```
+
+## Variants
+
+Two variants. `default` is a paused-but-recoverable notice; `destructive` is a failure that needs
+attention. Either way the variant recolours the alert's ink and its description, never the border
+around it — status is never a stroke.
+
+<Preview demo="alert/variants">
+  <Variants client:load />
+</Preview>
+
+## Action
+
+`AlertAction` sits absolute at the top right; the alert detects it (`has-data-[slot=alert-action]`)
+and pads its content clear on its own, so the title and description never run under it.
+
+<Preview demo="alert/with-action">
+  <WithAction client:load />
+</Preview>

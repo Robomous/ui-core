@@ -1,7 +1,11 @@
 {
-  // What ships. Test files are compiled by `typecheck` and by vitest, but they
-  // must not land in `dist/`: a consumer resolving `@robomous/ui-core` should
-  // never be one `import` away from a testing-library dependency.
+  // What ships: `src` only, declarations included. Tests live outside `src`,
+  // so nothing here has to be excluded.
   "extends": "./tsconfig.json",
-  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/testing"]
+  "compilerOptions": {
+    "declaration": true,
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src"]
 }

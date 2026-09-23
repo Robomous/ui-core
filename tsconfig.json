@@ -1,4 +1,6 @@
 {
+  // Typechecking: the shipped source and the tests together. What ships is
+  // compiled by tsconfig.build.json, which narrows this to `src`.
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
@@ -10,20 +12,16 @@
     "noFallthroughCasesInSwitch": true,
     "isolatedModules": true,
     "skipLibCheck": true,
-    // TypeScript 6 stopped pulling every installed @types package into the
-    // ambient scope; a package that is needed must now be named. `node` is here
-    // for `src/gates/index.ts`, which reads the stylesheet off disk, and for the
-    // test files that scan the tree — which is the same reason the package
-    // declares @types/node at all.
+    // TypeScript 6 pulls in only the @types packages that are named. `node` is
+    // for the tests that read files and spawn processes.
     "types": ["node"],
-    "declaration": true,
-    "outDir": "dist",
-    // TypeScript 6 stopped inferring the common source directory when that
-    // inference shapes the output layout (error TS5011). `src` is what 5.x
-    // inferred; stating it changes nothing about `dist/` and is what the
-    // compiler now requires.
-    "rootDir": "src",
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    // The alias `components.json` declares, so a component installed from the
+    // shadcn registry compiles as written. `tsc-alias` rewrites it to relative
+    // paths in dist; vitest resolves it in vitest.config.ts.
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
-  "include": ["src"]
+  "include": ["src", "tests"]
 }

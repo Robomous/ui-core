@@ -1,0 +1,102 @@
+---
+title: Table
+description: A native table in a bordered, rounded frame that is also its horizontal scroller. The header reads quieter than the data, and every column keeps its own rule.
+builtOn:
+  - name: native HTML
+    docsUrl: https://developer.mozilla.org/docs/Web/HTML/Element/table
+---
+
+import Caption from "@/demos/table/caption";
+import Dataset from "@/demos/table/dataset";
+import EmptyState from "@/demos/table/empty-state";
+import Footer from "@/demos/table/footer";
+
+<Preview demo="table/dataset">
+  <Dataset client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@robomous/ui-core";
+```
+
+```tsx
+<Table>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Model</TableHead>
+      <TableHead className="text-right">mAP@50</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell className="font-mono">yolo-v9-tiny</TableCell>
+      <TableCell className="text-right tabular-nums">0.912</TableCell>
+    </TableRow>
+  </TableBody>
+</Table>
+```
+
+Right-align a numeric column's `TableHead` with `text-right`, and give its `TableCell`s the same
+class plus `tabular-nums`, so the figures line up under the heading and each other.
+
+## Anatomy of the look
+
+The frame is `rounded-xl border`, and it is the `overflow-x-auto` container too, so the corners hold
+while a wide table scrolls. The header sits on `bg-muted/50` in muted ink at normal weight, so it
+reads quieter than the data; rows are 52px (`px-3 py-4`); every column carries a vertical rule
+(`border-r`, none on the last). An icon in a `TableHead` — a `ChevronsUpDown` beside a sortable
+label — is sized to 14px by the head; the sort itself, and `aria-sort`, are the call site's.
+
+## Composition
+
+```text
+Table
+├─ TableCaption
+├─ TableHeader
+│  └─ TableRow
+│     └─ TableHead
+├─ TableBody
+│  └─ TableRow
+│     └─ TableCell
+└─ TableFooter
+   └─ TableRow
+      └─ TableCell
+```
+
+## Wide data
+
+`Table` is its own `overflow-x-auto` frame, so a dataset with more columns than the viewport
+scrolls horizontally inside the rounded border instead of crushing every column to fit.
+
+<Preview demo="table/dataset">
+  <Dataset client:load />
+</Preview>
+
+## Footer
+
+`TableFooter` closes the table with a muted, bordered band, for a total that summarises the rows
+above rather than continuing them.
+
+<Preview demo="table/footer">
+  <Footer client:load />
+</Preview>
+
+## Caption
+
+`TableCaption` closes the frame as a muted band under a rule, for the one line of context that a
+heading above the table would overstate. It is also the table's accessible name.
+
+<Preview demo="table/caption">
+  <Caption client:load />
+</Preview>
+
+## Empty state
+
+An empty result set stays inside the table rather than replacing it: one row, spanning every
+column, carries the message.
+
+<Preview demo="table/empty-state">
+  <EmptyState client:load />
+</Preview>

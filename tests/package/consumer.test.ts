@@ -1,0 +1,346 @@
+// @vitest-environment node
+/**
+ * The package as a consumer meets it.
+ *
+ * Everything else in this repository reads source files. This test builds the
+ * package, packs it the way `npm publish` would, installs the tarball into a
+ * throwaway consumer and asks the tools a consumer actually runs: does a real
+ * Tailwind CSS 4 compile the stylesheet and emit the components' utilities; does
+ * Node import the entry; does a bundler keep a Button-only import small. It is
+ * the check that would have caught 0.2.0, whose `@source` pointed one directory
+ * too shallow while every source-level check stayed green.
+ *
+ * Slow and network-bound (the consumer installs from the registry), so it runs
+ * as its own vitest project: `pnpm test:package`.
+ */
+
+import { spawnSync } from "node:child_process";
+import {
+  copyFileSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+
+const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+const manifest = JSON.parse(readFileSync(path.join(REPO, "package.json"), "utf8")) as {
+  name: string;
+  devDependencies: Record<string, string>;
+};
+
+/** Run a command, failing the test with its full output if it exits non-zero. */
+function run(command: string, args: string[], cwd: string): string {
+  // On Windows `pnpm` is a .cmd shim, which Node refuses to spawn without a shell.
+  const shell = process.platform === "win32";
+  const quoted = shell ? args.map((arg) => (/\s/.test(arg) ? `"${arg}"` : arg)) : args;
+  const result = spawnSync(command, quoted, {
+    cwd,
+    encoding: "utf8",
+    shell,
+    env: { ...process.env, CI: "1", NO_COLOR: "1" },
+    maxBuffer: 64 * 1024 * 1024,
+  });
+  expect(
+    result.status,
+    `${command} ${args.join(" ")} (in ${cwd}) exited ${result.status}\n${result.stdout}\n${result.stderr}`,
+  ).toBe(0);
+  return result.stdout;
+}
+
+/** Every file under `dir`, as paths relative to it with forward slashes. */
+function filesUnder(dir: string): string[] {
+  return readdirSync(dir, { recursive: true, withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) =>
+      path.relative(dir, path.join(entry.parentPath, entry.name)).replaceAll("\\", "/"),
+    );
+}
+
+const consumer = mkdtempSync(path.join(os.tmpdir(), "ui-core-consumer-"));
+let css = "";
+let installed = "";
+
+beforeAll(() => {
+  run("pnpm", ["build"], REPO);
+  run("pnpm", ["pack", "--pack-destination", consumer], REPO);
+  const tarball = readdirSync(consumer).find((name) => name.endsWith(".tgz"));
+  expect(tarball, "pnpm pack produced no tarball").toBeTruthy();
+  copyFileSync(path.join(consumer, tarball!), path.join(consumer, "ui-core.tgz"));
+
+  const dev = manifest.devDependencies;
+  writeFileSync(
+    path.join(consumer, "package.json"),
+    JSON.stringify(
+      {
+        name: "ui-core-consumer",
+        private: true,
+        type: "module",
+        dependencies: {
+          [manifest.name]: "file:./ui-core.tgz",
+          react: dev.react,
+          "react-dom": dev["react-dom"],
+        },
+        devDependencies: {
+          tailwindcss: dev.tailwindcss,
+          "@tailwindcss/cli": dev.tailwindcss,
+          vite: "^8.0.0",
+        },
+      },
+      null,
+      2,
+    ),
+  );
+
+  mkdirSync(path.join(consumer, "src"));
+  // The consumer's stylesheet: import ours, scan its own sources. Nothing else.
+  writeFileSync(
+    path.join(consumer, "src", "app.css"),
+    `@import "${manifest.name}/styles.css";\n@source "./";\n`,
+  );
+  // Its one screen. The wrapper names utilities the design system does not
+  // have — a closed grey scale, bare white and the brand — which the compiled
+  // CSS must not contain; two from the kept Tailwind scales, which it must; and
+  // `font-mono`, which has to compile to the bundled Geist Mono.
+  writeFileSync(
+    path.join(consumer, "src", "App.tsx"),
+    [
+      `import { Badge, Button } from "${manifest.name}";`,
+      "export function App() {",
+      "  return (",
+      '    <div className="bg-slate-500 border-gray-200 bg-white bg-brand bg-red-500 text-emerald-700 p-4 font-mono">',
+      "      <Button>Go</Button>",
+      '      <Badge variant="success">ok</Badge>',
+      "    </div>",
+      "  );",
+      "}",
+      "",
+    ].join("\n"),
+  );
+  writeFileSync(
+    path.join(consumer, "src", "entry.ts"),
+    `export { Button } from "${manifest.name}";\n`,
+  );
+  writeFileSync(
+    path.join(consumer, "src", "icon-entry.ts"),
+    `export { CheckIcon } from "${manifest.name}/icons";\n`,
+  );
+  writeFileSync(
+    path.join(consumer, "render.mjs"),
+    [
+      'import { createElement } from "react";',
+      'import { renderToStaticMarkup } from "react-dom/server";',
+      `import { Badge, Button, Sidebar, SidebarProvider } from "${manifest.name}";`,
+      'console.log(renderToStaticMarkup(createElement(Button, null, "Go")));',
+      'console.log(renderToStaticMarkup(createElement(Badge, { variant: "success" }, "ok")));',
+      // The Sidebar is written with `@/` imports; if the build left one in dist
+      // this import chain breaks under Node.
+      "console.log(renderToStaticMarkup(createElement(SidebarProvider, null,",
+      '  createElement(Sidebar, { collapsible: "none" }, "nav"))));',
+      `const { CheckIcon } = await import("${manifest.name}/icons");`,
+      "console.log(renderToStaticMarkup(createElement(CheckIcon)));",
+      "",
+    ].join("\n"),
+  );
+  writeFileSync(
+    path.join(consumer, "bundle.mjs"),
+    [
+      'import { build } from "vite";',
+      "const result = await build({",
+      "  root: process.cwd(),",
+      "  configFile: false,",
+      '  logLevel: "silent",',
+      "  build: {",
+      "    write: false,",
+      "    minify: false,",
+      // The entry to bundle is the first argument: the Button-only one by default.
+      '    lib: { entry: process.argv[2] ?? "src/entry.ts", formats: ["es"], fileName: "entry" },',
+      "    rollupOptions: { external: [/^react(\\/|$)/, /^react-dom(\\/|$)/] },",
+      "  },",
+      "});",
+      "const outputs = Array.isArray(result) ? result : [result];",
+      "const ids = outputs.flatMap((o) => o.output.flatMap((c) => c.moduleIds ?? []));",
+      "console.log(JSON.stringify(ids));",
+      "",
+    ].join("\n"),
+  );
+
+  run("pnpm", ["install", "--ignore-scripts"], consumer);
+  run("pnpm", ["exec", "tailwindcss", "-i", "src/app.css", "-o", "dist/app.css"], consumer);
+  css = readFileSync(path.join(consumer, "dist", "app.css"), "utf8");
+  installed = realpathSync(path.join(consumer, "node_modules", ...manifest.name.split("/")));
+});
+
+afterAll(() => {
+  try {
+    rmSync(consumer, { recursive: true, force: true, maxRetries: 3 });
+  } catch {
+    // A Windows handle can outlive the process that held it; a leftover temp
+    // directory is not a failure of the package.
+  }
+});
+
+describe("the published files", () => {
+  it("ship the entry, the stylesheet and the component sources, and nothing repository-only", () => {
+    const files = filesUnder(installed);
+    expect(files).toContain("dist/index.js");
+    expect(files).toContain("dist/index.d.ts");
+    expect(files).toContain("dist/icons.js");
+    expect(files).toContain("dist/icons.d.ts");
+    expect(files).toContain("src/theme/styles.css");
+    // The vendored shadcn layer travels with the stylesheet that imports it.
+    expect(files).toContain("src/theme/shadcn.css");
+    expect(files).toContain("src/components/button.tsx");
+    const stray = files.filter((file) =>
+      /\.test\.|^tests\/|\/gates\/|^docs\/|^examples\//.test(file),
+    );
+    expect(stray).toEqual([]);
+  });
+
+  it("mark only CSS as a side effect, so a JavaScript import tree-shakes", () => {
+    const shipped = JSON.parse(readFileSync(path.join(installed, "package.json"), "utf8"));
+    expect(shipped.sideEffects).toEqual(["**/*.css"]);
+    expect(shipped.exports["./styles.css"]).toBe("./src/theme/styles.css");
+    expect(shipped.exports["./icons"]).toEqual({
+      types: "./dist/icons.d.ts",
+      import: "./dist/icons.js",
+    });
+  });
+
+  it("carry no shadcn at runtime: the layer is vendored, the CLI stays a dev tool", () => {
+    const shipped = JSON.parse(readFileSync(path.join(installed, "package.json"), "utf8"));
+    expect(Object.keys(shipped.dependencies ?? {})).not.toContain("shadcn");
+  });
+
+  it("resolve every internal import in dist without the @/ alias", () => {
+    const dist = path.join(installed, "dist");
+    const aliased = filesUnder(dist).filter((file) =>
+      /from\s+"@\//.test(readFileSync(path.join(dist, file), "utf8")),
+    );
+    expect(aliased, "tsc-alias left an @/ import a consumer cannot resolve").toEqual([]);
+  });
+});
+
+describe("a real Tailwind compile of the consumer's stylesheet", () => {
+  it("emits the components' own utilities, which only @source can have found", () => {
+    // Dropdown's floor, Table's caption, Textarea's sizing, Button's height:
+    // none appear in the consumer's sources, so each one proves the components
+    // were scanned.
+    expect(css).toContain(".min-w-32");
+    expect(css).toContain(".caption-bottom");
+    expect(css).toContain(".field-sizing-content");
+    expect(css).toContain(".h-8");
+    expect(css).toContain("line-clamp-1");
+    // One state spelling for both libraries: Dialog is Radix and Combobox is
+    // Base UI, they carry the same class, and shadcn's variant compiles it to a
+    // rule that matches either attribute.
+    expect(css).toMatch(/\.data-open\\:animate-in/);
+    expect(css).toContain('.data-open\\:animate-in:where([data-state="open"])');
+    expect(css, "a state is spelled through the layer, never as a data-[…] bracket").not.toMatch(
+      /\.data-\\\[state\\=(open|closed|active)\\\]/,
+    );
+    // And the consumer's own class still compiles.
+    expect(css).toContain(".p-4");
+  });
+
+  it("carries shadcn's utility and variant layer, and our utility on top of it", () => {
+    // `no-scrollbar` is shadcn's; the Sidebar's content names it.
+    expect(css).toContain(".no-scrollbar");
+    // And its companion, which the Combobox list wears over the bar it hides.
+    expect(css).toContain(".scroll-fade-y");
+    // shadcn's `data-active` variant is the reason the layer is load-bearing: it
+    // excludes `"false"`, which Tailwind's own presence check would match.
+    expect(css).toContain('[data-active]:not([data-active="false"])');
+    // Ours, declared in styles.css after the layer.
+    expect(css).toContain(".cn-rtl-flip");
+  });
+
+  it("carries the semantic roles, in light and dark, and resolves utilities through them", () => {
+    // `@theme inline` writes the role straight into the utility rather than
+    // emitting a --color-* variable, so what to look for is the role variable in
+    // both theme blocks and a utility that reads it.
+    const root = css.match(/:root\s*\{[^}]*\}/)?.[0] ?? "";
+    const dark = css.match(/\.dark\s*\{[^}]*\}/)?.[0] ?? "";
+    for (const role of ["success", "success-surface", "warning", "info", "overlay"]) {
+      expect(root, `:root lacks --${role}`).toContain(`--${role}:`);
+      expect(dark, `.dark lacks --${role}`).toContain(`--${role}:`);
+    }
+    // A status is ink over its surface, each a Tailwind step: the Badge the
+    // consumer renders reaches both, and the steps are emitted through them.
+    expect(css).toMatch(/\.bg-success-surface\s*\{[^}]*var\(--success-surface\)/);
+    expect(root).toMatch(/--success:\s*var\(--color-green-700\)/);
+    expect(dark).toMatch(/--success-surface:\s*var\(--color-green-950\)/);
+    expect(css).toMatch(/--color-green-50:\s*oklch\(/);
+    expect(css).toMatch(/\.text-success\s*\{[^}]*var\(--success\)/);
+    expect(css).toMatch(/\.bg-overlay\s*\{[^}]*var\(--overlay\)/);
+  });
+
+  it("carries Tailwind's kept scales, and none of the closed ones or a brand utility", () => {
+    // The kept scales compile at Tailwind's own values.
+    expect(css).toMatch(/\.bg-red-500\s*\{[^}]*var\(--color-red-500\)/);
+    expect(css).toContain(".text-emerald-700");
+    expect(css).toContain("--color-red-500:");
+    // The closed ones produce nothing.
+    expect(css).not.toContain(".bg-slate-500");
+    expect(css).not.toContain("--color-slate-500");
+    expect(css).not.toContain(".border-gray-200");
+    expect(css).not.toContain(".bg-white");
+    expect(css).not.toContain(".bg-brand");
+    expect(css).not.toContain("--color-brand");
+    // The variable itself is there for identity UI to read.
+    expect(css).toContain("--brand:");
+    // The grey roles resolve through Tailwind's neutral scale, which is emitted
+    // because they reference it.
+    expect(css).toMatch(/--color-neutral-500:\s*oklch\(55\.6% 0/);
+    expect(css).toMatch(/--muted-foreground:\s*var\(--color-neutral-500\)/);
+    expect(css).not.toMatch(/--neutral-500:/);
+  });
+
+  it("bundles both Geist faces, and resolves font-mono through the mono one", () => {
+    expect(css).toContain("Geist Variable");
+    expect(css).toContain("Geist Mono Variable");
+    // `@theme inline` writes the family into the utility, so this is the whole
+    // chain: the token, the import, and the consumer class that reaches them.
+    const at = css.indexOf(".font-mono");
+    expect(at, "no .font-mono utility was compiled").toBeGreaterThan(-1);
+    expect(css.slice(at, at + 200)).toContain("Geist Mono Variable");
+  });
+});
+
+describe("the JavaScript entry", () => {
+  it("imports under Node and renders a Button that cannot submit by accident", () => {
+    const out = run("node", ["render.mjs"], consumer);
+    expect(out).toContain('type="button"');
+    expect(out).toContain('data-slot="button"');
+    expect(out).toContain('data-variant="success"');
+  });
+
+  it("tree-shakes: a Button-only import pulls in neither sonner nor Base UI", () => {
+    const ids = JSON.parse(
+      run("node", ["bundle.mjs"], consumer).trim().split("\n").at(-1)!,
+    ) as string[];
+    expect(ids.length).toBeGreaterThan(0);
+    const heavy = ids.filter((id) => /[\\/](sonner|@base-ui|lucide-react)[\\/]/.test(id));
+    expect(heavy, `a Button-only bundle carried:\n${heavy.join("\n")}`).toEqual([]);
+  });
+
+  it("re-exports the icon set under ./icons, and one icon bundles as one icon", () => {
+    const out = run("node", ["render.mjs"], consumer);
+    expect(out).toMatch(/<svg[^>]*class="lucide lucide-check/);
+
+    const ids = JSON.parse(
+      run("node", ["bundle.mjs", "src/icon-entry.ts"], consumer).trim().split("\n").at(-1)!,
+    ) as string[];
+    const icons = ids.filter((id) => /[\\/]lucide-react[\\/].*[\\/]icons[\\/]/.test(id));
+    expect(icons.length, `an icon-only bundle carried:\n${icons.join("\n")}`).toBe(1);
+    expect(icons[0]).toMatch(/[\\/]check\.m?js$/);
+  });
+});

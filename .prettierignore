@@ -1,5 +1,7 @@
 # Build output and generated files.
 dist/
+examples/catalog/.astro/
+examples/catalog/src/generated/
 pnpm-lock.yaml
 
 # Markdown is formatted by hand here, and Prettier's markdown printer fights
@@ -17,6 +19,16 @@ pnpm-lock.yaml
 # 100-column guide in `.editorconfig`.
 *.md
 
+# MDX pages are prose too, hand-formatted for the same two reasons.
+*.mdx
+
 # Process records, kept as written at the time.
 docs/superpowers/
 .superpowers/
+
+# Vendored byte for byte from shadcn/dist/tailwind.css; tests/theme/shadcn.test.ts
+# compares the two, so a reformat here would read as drift.
+src/theme/shadcn.css
+
+# Local tool state, not part of the repository.
+.claude/

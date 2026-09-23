@@ -1,0 +1,56 @@
+---
+title: ScrollArea
+description: A scroll region with its own thin, themeable scrollbar. The viewport inside it is the actual scroll container, not the root element you size.
+builtOn:
+  - name: Radix ScrollArea
+    docsUrl: https://www.radix-ui.com/primitives/docs/components/scroll-area
+    apiUrl: https://www.radix-ui.com/primitives/docs/components/scroll-area#api-reference
+---
+
+import VerticalList from "@/demos/scroll-area/vertical-list";
+import Horizontal from "@/demos/scroll-area/horizontal";
+
+<Preview demo="scroll-area/vertical-list">
+  <VerticalList client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { ScrollArea } from "@robomous/ui-core";
+```
+
+```tsx
+<ScrollArea className="h-40 w-64 rounded-lg border">
+  <div className="flex flex-col gap-1 p-2">{/* content taller than 10rem */}</div>
+</ScrollArea>
+```
+
+Size the `ScrollArea` itself (`h-*`, `w-*`); the viewport inside it fills that box and scrolls, so
+the content can be as tall as it needs to be.
+
+## Composition
+
+```text
+ScrollArea
+                                       real scrolling viewport and a corner
+└─ ScrollBar
+```
+
+## Vertical list
+
+The viewport, not the `ScrollArea` root, is the scroll container: sizing goes on the root, content
+grows freely inside it.
+
+<Preview demo="scroll-area/vertical-list">
+  <VerticalList client:load />
+</Preview>
+
+## Horizontal
+
+A second `ScrollBar` with `orientation="horizontal"` tracks the viewport's x-axis instead of its
+default y-axis.
+
+<Preview demo="scroll-area/horizontal">
+  <Horizontal client:load />
+</Preview>

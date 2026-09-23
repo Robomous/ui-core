@@ -1,0 +1,77 @@
+---
+title: Checkbox
+description: A box the reader ticks, with an indeterminate state for select-all. Its state is `aria-checked`, and inside a form it still posts its value.
+builtOn:
+  - name: Radix Checkbox
+    docsUrl: https://www.radix-ui.com/primitives/docs/components/checkbox
+    apiUrl: https://www.radix-ui.com/primitives/docs/components/checkbox#api-reference
+---
+
+import Default from "@/demos/checkbox/default";
+import Disabled from "@/demos/checkbox/disabled";
+import Indeterminate from "@/demos/checkbox/indeterminate";
+import Invalid from "@/demos/checkbox/invalid";
+import WithDescription from "@/demos/checkbox/with-description";
+
+<Preview demo="checkbox/default">
+  <Default client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { Checkbox, Label } from "@robomous/ui-core";
+```
+
+```tsx
+<div className="flex items-center gap-2">
+  <Checkbox id="terms" />
+  <Label htmlFor="terms">Accept the terms of use</Label>
+</div>
+```
+
+`Checkbox` renders a `button` with `role="checkbox"` and `type="button"`, so pressing it never
+submits a form. Inside a `<form>`, Radix adds a hidden native input, so `name` and `value` post as
+a native checkbox would. Pair it with a `Label` through `htmlFor`.
+
+A checkbox is for a choice that takes effect when the form is saved. A setting that applies the
+moment it changes is a [Switch](/components/switch).
+
+## Composition
+
+```text
+Checkbox
+```
+
+## With a description
+
+Inside a horizontal `Field` with `FieldContent`, the box aligns to the first line of the label.
+
+<Preview demo="checkbox/with-description">
+  <WithDescription client:load />
+</Preview>
+
+## Indeterminate
+
+`checked="indeterminate"` renders `aria-checked="mixed"`: a select-all over rows that are only
+partly chosen. The box fills as it does when checked but draws a dash, not a tick, so a partial
+selection never reads as a full one. The state is the caller's to derive.
+
+<Preview demo="checkbox/indeterminate">
+  <Indeterminate client:load />
+</Preview>
+
+## Disabled
+
+<Preview demo="checkbox/disabled">
+  <Disabled client:load />
+</Preview>
+
+## Invalid
+
+`aria-invalid` on the checkbox paints the destructive ring; `data-invalid` on the `Field` colours
+its label. The message and `aria-describedby` are the call site's.
+
+<Preview demo="checkbox/invalid">
+  <Invalid client:load />
+</Preview>

@@ -1,0 +1,108 @@
+---
+title: Theming
+description: Every colour a component uses is a role, over Tailwind's palette trimmed to eighteen scales. Both themes are declared in full, and a consumer extends them without ever shadowing a name.
+order: 3
+---
+
+import Swatches from "@/components/Swatches.astro";
+
+## Tokens
+
+The tokens have one home: [`src/theme/styles.css`](https://github.com/Robomous/ui-core/blob/main/src/theme/styles.css).
+Tailwind v4 is CSS-first, so the stylesheet is not a mirror of a config — it *is* the config. There
+is no `tailwind.config.js` anywhere in the package, and there must not be one, or the tokens
+acquire a second home.
+
+Both themes are declared in full: a value in `:root`, a counterpart in `.dark`, exposed to
+Tailwind through `@theme inline` as `--color-<role>: var(--<role>)`. Every rule in this system is
+written against a role, never a light-mode value — "the page" resolves per theme and is never
+asserted to be white.
+
+**The colour vocabulary is two layers.** Components and screens paint with roles: surfaces
+(`background`, `card`, `popover`, `muted`, each with a `-foreground`), emphasis (`primary`,
+`secondary`, `accent`, each with a `-foreground`), status (`success`, `warning`, `info`,
+`destructive`), and structure (`border`, `input`, `ring`, `overlay`).
+
+Underneath them is **Tailwind's own palette, trimmed to eighteen scales** and never restated:
+`neutral`, which every grey role is spelled from — `--muted-foreground` is
+`var(--color-neutral-500)` in light and `var(--color-neutral-400)` in dark — and seventeen hues
+for data, such as a chart series or the colour of an annotation class. `slate`, `gray`, `zinc`,
+`stone`, the tinted neutrals, `bg-white` and `bg-black` compile to nothing, in this package and in
+every consumer. A component never names a palette step; it names the role.
+
+<Swatches />
+
+## Status is never the only signal
+
+Four statuses, each a pair of roles from Tailwind's palette: the ink (`success` is
+`green-700` in light, `green-300` in dark) and the surface it sits on (`success-surface`,
+`green-50` and `green-950`); `warning` is amber, `info` blue, `destructive` red. `bg-success` is a
+solid mark, `bg-success-surface text-success` a soft chip or panel — what a status `Badge`, a
+destructive `Button` or `Alert` and a failed `Attachment` wear — and `text-success` an icon or a
+run of inline text. Colour is never the only signal — every status carries a redundant channel, a
+word, an icon, a shape — and status is never a stroke on a container: a status `Badge` and a
+destructive `Alert` keep `border-transparent`.
+
+## Surfaces, borders and focus
+
+`background` is the page; `card` holds content that sits in place; `popover` holds anything that
+floats and closes; `muted` recesses. Elevation is a ring plus a resting shadow, never a coloured
+border — a menu, a select or a combobox paints on `popover` and follows the page from light to
+dark. The base layer applies `border-border` and `outline-ring/50` to every element, the outline's
+colour only; focus geometry belongs to each component, not to a blanket rule.
+
+## Radius
+
+`--radius: 0.625rem` lives in the stylesheet, and every step derives from it in `@theme inline`:
+`radius-sm` at ×0.6 through `radius-4xl` at ×2.6. Components take their radius from that scale. An
+arbitrary value that remains in a component is geometry, not radius or type — a one-off
+measurement with no scale to belong to.
+
+## Typography
+
+One family for prose, Geist, through `--font-sans`, bundled offline. `font-heading` resolves to
+the same face and survives as a hook on `h1`–`h4`.
+
+`font-mono` is Geist Mono, declared as `--font-mono: "Geist Mono Variable", monospace` and bundled
+the same way. It marks machine-shaped content — identifiers, hashes, measurements, a path, a commit
+— and prose never wears it. Applying it stays a call-site decision: no base rule puts it on `code`
+or `pre`.
+
+Sizes come from Tailwind's scale; there is no custom type-scale token.
+
+## Per-consumer extensions
+
+A consumer that needs its own role declares it in its own stylesheet, after
+`@import "@robomous/ui-core/styles.css";` — a value in `:root`, a counterpart in `.dark`, exposure
+through `@theme inline` — and never shadows a name declared here.
+
+```css
+@import "@robomous/ui-core/styles.css";
+
+:root {
+  --brand-2: oklch(0.7 0.15 200);
+}
+.dark {
+  --brand-2: oklch(0.72 0.15 200);
+}
+@theme inline {
+  --color-brand-2: var(--brand-2);
+}
+```
+
+A consumer may not reach past its own layer to restyle a component from this package, and a
+component here may not encode a product's decision. An extension that turns out to be universal is
+a change to this package, with the reason written down.
+
+## Reading a value at runtime
+
+There is no TypeScript copy of the tokens to import. A `<canvas>`, an `<svg>` or anything else that
+needs a role as a string reads it from the document, which also means it follows the theme the
+reader is actually in:
+
+```tsx
+const ink = getComputedStyle(document.documentElement).getPropertyValue("--foreground");
+```
+
+Everywhere else, write `var(--foreground)` and let CSS resolve it. The stylesheet is the only copy
+of these values, so there is nothing that can fall out of step with it.

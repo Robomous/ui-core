@@ -1,9 +1,9 @@
 /**
- * `@robomous/ui-core` — the Robomous design system.
+ * `@robomous/ui-core` — the Robomous design system, built on top of shadcn/ui.
  *
- * Twenty-one React components this package owns outright, the design tokens
- * they resolve through, and the status-tone vocabulary. A consumer imports
- * exactly:
+ * Forty-five React components this package owns outright, over Radix, Base UI, cmdk
+ * and vaul behaviour, and the one stylesheet they resolve through. A consumer
+ * imports exactly:
  *
  * ```ts
  * import "@robomous/ui-core/styles.css";   // once, in the app's entry
@@ -11,22 +11,22 @@
  * ```
  *
  * The public surface is listed explicitly rather than `export *`, so what this
- * package promises stays auditable. The scanners behind this repository's own
- * design rules are published too, for a consumer to run over its own sources:
- * `import { ... } from "@robomous/ui-core/gates"`. DESIGN.md names each rule
- * and the gate that holds it.
+ * package promises can be read off this one file. Status colour is a semantic
+ * utility (`bg-success`, `text-warning`, `border-info`), not an export.
  */
-
-// The design tokens, and their prose contract in DESIGN.md.
-export { cssVar, DARK_THEME, LIGHT_THEME, THEME } from "./theme/tokens.js";
 
 export { cn } from "cn";
 
-// The one home for status colour outside the Badge.
-export { STATUS_INK, TONE_BORDER, TONE_FILL, type StatusTone } from "./theme/statusTone.js";
-
-// The components — Radix and Base UI behaviour, iconed with lucide.
+// The components — Radix, Base UI, cmdk and vaul behaviour, iconed with lucide.
 export { Button, buttonVariants } from "./components/button.js";
+export {
+  ButtonGroup,
+  ButtonGroupSeparator,
+  ButtonGroupText,
+  buttonGroupVariants,
+} from "./components/button-group.js";
+export { Toggle, toggleVariants } from "./components/toggle.js";
+export { ToggleGroup, ToggleGroupItem } from "./components/toggle-group.js";
 export {
   Card,
   CardAction,
@@ -36,9 +36,44 @@ export {
   CardHeader,
   CardTitle,
 } from "./components/card.js";
+export {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemFooter,
+  ItemGroup,
+  ItemHeader,
+  ItemMedia,
+  ItemSeparator,
+  ItemTitle,
+} from "./components/item.js";
+export {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "./components/empty.js";
+export {
+  Attachment,
+  AttachmentAction,
+  AttachmentActions,
+  AttachmentContent,
+  AttachmentDescription,
+  AttachmentGroup,
+  AttachmentMedia,
+  AttachmentTitle,
+  AttachmentTrigger,
+} from "./components/attachment.js";
 export { Input } from "./components/input.js";
 export { Textarea } from "./components/textarea.js";
 export { Label } from "./components/label.js";
+export { RadioGroup, RadioGroupItem } from "./components/radio-group.js";
+export { Checkbox } from "./components/checkbox.js";
+export { Switch } from "./components/switch.js";
+export { Slider } from "./components/slider.js";
 export {
   Field,
   FieldContent,
@@ -77,7 +112,28 @@ export {
   ComboboxValue,
   useComboboxAnchor,
 } from "./components/combobox.js";
+export {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+  CommandShortcut,
+} from "./components/command.js";
 export { Badge, badgeVariants } from "./components/badge.js";
+export {
+  Avatar,
+  AvatarBadge,
+  AvatarFallback,
+  AvatarGroup,
+  AvatarGroupCount,
+  AvatarImage,
+} from "./components/avatar.js";
+export { Kbd, KbdGroup } from "./components/kbd.js";
+export { Spinner } from "./components/spinner.js";
 export { Alert, AlertAction, AlertDescription, AlertTitle } from "./components/alert.js";
 export {
   Dialog,
@@ -101,7 +157,71 @@ export {
   SheetTitle,
   SheetTrigger,
 } from "./components/sheet.js";
+export {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerPortal,
+  DrawerTitle,
+  DrawerTrigger,
+} from "./components/drawer.js";
+export {
+  Popover,
+  PopoverAnchor,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "./components/popover.js";
+export { HoverCard, HoverCardContent, HoverCardTrigger } from "./components/hover-card.js";
+export {
+  ContextMenu,
+  ContextMenuCheckboxItem,
+  ContextMenuContent,
+  ContextMenuGroup,
+  ContextMenuItem,
+  ContextMenuLabel,
+  ContextMenuPortal,
+  ContextMenuRadioGroup,
+  ContextMenuRadioItem,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuTrigger,
+} from "./components/context-menu.js";
+export {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "./components/accordion.js";
+export { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./components/collapsible.js";
 export { Tabs, TabsContent, TabsList, tabsListVariants, TabsTrigger } from "./components/tabs.js";
+export {
+  Breadcrumb,
+  BreadcrumbEllipsis,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "./components/breadcrumb.js";
+export {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "./components/pagination.js";
 export {
   Select,
   SelectContent,
@@ -134,6 +254,7 @@ export {
 export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./components/tooltip.js";
 export { Progress } from "./components/progress.js";
 export { Separator } from "./components/separator.js";
+export { ScrollArea, ScrollBar } from "./components/scroll-area.js";
 export { Skeleton } from "./components/skeleton.js";
 export { Toaster } from "./components/sonner.js";
 export { toast } from "sonner";
@@ -147,3 +268,32 @@ export {
   TableHeader,
   TableRow,
 } from "./components/table.js";
+export {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupAction,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInput,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuAction,
+  SidebarMenuBadge,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSkeleton,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarSeparator,
+  SidebarTrigger,
+  useSidebar,
+} from "./components/sidebar.js";
+
+// The hooks the components are built on, for a shell that needs the same answer.
+export { useIsMobile } from "./hooks/use-mobile.js";

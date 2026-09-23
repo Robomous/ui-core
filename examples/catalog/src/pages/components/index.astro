@@ -1,0 +1,32 @@
+---
+import Docs from "@/layouts/Docs.astro";
+import { buildNav } from "@/lib/nav";
+
+const { components } = await buildNav();
+---
+
+<Docs
+  title="Components"
+  description="Forty-five owned components over Radix, Base UI, cmdk and vaul behaviour."
+>
+  <header class="mb-8 flex flex-col gap-2">
+    <h1 class="text-3xl font-medium tracking-tight">Components</h1>
+    <p class="text-lg text-muted-foreground">
+      Forty-five owned components over Radix, Base UI, cmdk and vaul behaviour. Anatomy is composed
+      at the call site; geometry and colour are the component's.
+    </p>
+  </header>
+  <ul class="grid gap-3 sm:grid-cols-2">
+    {components.map((component) => (
+      <li>
+        <a
+          href={component.href}
+          class="flex h-full flex-col gap-1 rounded-xl bg-card p-4 ring-1 ring-foreground/10 transition-colors hover:bg-accent hover:text-accent-foreground"
+        >
+          <span class="font-medium">{component.title}</span>
+          <span class="text-sm text-muted-foreground">{component.description}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</Docs>
