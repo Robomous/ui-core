@@ -1,5 +1,5 @@
 import { Alert, AlertTitle, AlertDescription } from "@robomous/ui-core";
-import { TriangleAlertIcon, CircleAlertIcon } from "lucide-react";
+import { TriangleAlertIcon, CircleAlertIcon } from "@robomous/ui-core/icons";
 
 /** Two variants: default recolours nothing extra, destructive recolours its ink, never its border. */
 export default function Variants() {

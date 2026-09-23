@@ -5,7 +5,7 @@ import {
   AttachmentMedia,
   AttachmentTitle,
 } from "@robomous/ui-core";
-import { FileIcon } from "lucide-react";
+import { FileIcon } from "@robomous/ui-core/icons";
 
 /** `default`, `sm` and `xs` step the padding and text down together; `xs` also tightens the corner radius. */
 export default function Sizes() {

@@ -26,7 +26,7 @@ import {
   PlusIcon,
   SettingsIcon,
   UserIcon,
-} from "lucide-react";
+} from "@robomous/ui-core/icons";
 
 /**
  * `useSidebar` throws outside a `SidebarProvider`, so every composition starts there.

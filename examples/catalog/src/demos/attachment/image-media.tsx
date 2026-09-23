@@ -6,7 +6,7 @@ import {
   AttachmentMedia,
   AttachmentTitle,
 } from "@robomous/ui-core";
-import { XIcon } from "lucide-react";
+import { XIcon } from "@robomous/ui-core/icons";
 
 const FRAME_PREVIEW = "/placeholder-frame.svg";
 

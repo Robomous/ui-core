@@ -1,0 +1,60 @@
+---
+title: Switch
+description: A setting that applies the moment it is flipped. `role="switch"` with `aria-checked` — not a pressed button, which says something else.
+builtOn:
+  - name: Radix Switch
+    docsUrl: https://www.radix-ui.com/primitives/docs/components/switch
+    apiUrl: https://www.radix-ui.com/primitives/docs/components/switch#api-reference
+---
+
+import Default from "@/demos/switch/default";
+import Disabled from "@/demos/switch/disabled";
+import Invalid from "@/demos/switch/invalid";
+import Sizes from "@/demos/switch/sizes";
+
+<Preview demo="switch/default">
+  <Default client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { Label, Switch } from "@robomous/ui-core";
+```
+
+```tsx
+<div className="flex items-center gap-2">
+  <Switch id="auto-save" defaultChecked />
+  <Label htmlFor="auto-save">Auto-save annotations</Label>
+</div>
+```
+
+Use a switch when the change is immediate, such as a settings row or a per-project preference. A
+choice that waits for a Save button is a [Checkbox](/components/checkbox). A pressed/unpressed tool
+in a toolbar is a [Toggle](/components/toggle) (`aria-pressed`).
+
+## Composition
+
+```text
+Switch
+```
+
+## Sizes
+
+`size`: `default` and `sm`, carried as `data-size` so the thumb sizes to the track.
+
+<Preview demo="switch/sizes">
+  <Sizes client:load />
+</Preview>
+
+## Disabled
+
+<Preview demo="switch/disabled">
+  <Disabled client:load />
+</Preview>
+
+## Invalid
+
+<Preview demo="switch/invalid">
+  <Invalid client:load />
+</Preview>

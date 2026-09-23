@@ -11,7 +11,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@robomous/ui-core";
-import { CameraIcon, LayersIcon, TagIcon } from "lucide-react";
+import { CameraIcon, LayersIcon, TagIcon } from "@robomous/ui-core/icons";
 
 /**
  * `variant="floating"` lifts the panel off the page's edge into its own ringed,

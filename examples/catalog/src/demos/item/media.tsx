@@ -1,5 +1,5 @@
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@robomous/ui-core";
-import { FileIcon } from "lucide-react";
+import { FileIcon } from "@robomous/ui-core/icons";
 
 /** `ItemMedia` `variant`: `default` leaves leading content unstyled, `icon` sizes an icon, `image` crops a thumbnail to a fixed square. */
 export default function Media() {

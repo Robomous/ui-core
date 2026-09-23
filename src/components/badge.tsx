@@ -12,14 +12,15 @@ const badgeVariants = cva(
         default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
         secondary: "bg-secondary text-secondary-foreground [a]:hover:bg-secondary/80",
         destructive:
-          "bg-destructive/10 text-destructive focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:focus-visible:ring-destructive/40 [a]:hover:bg-destructive/20",
-        // The status recipe: a soft surface and readable ink on one role. The
-        // role itself flips between themes, so no `dark:` restatement is needed.
+          "bg-destructive-surface text-destructive focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 [a]:hover:bg-destructive/15",
+        // The status recipe: the status's surface role under its ink role — a 50
+        // step under a 700 in light, a 950 under a 300 in dark. Both roles flip
+        // between themes on their own, so no `dark:` restatement is needed.
         success:
-          "bg-success/10 text-success focus-visible:ring-success/20 dark:focus-visible:ring-success/40 [a]:hover:bg-success/20",
+          "bg-success-surface text-success focus-visible:ring-success/20 dark:focus-visible:ring-success/40 [a]:hover:bg-success/15",
         warning:
-          "bg-warning/10 text-warning focus-visible:ring-warning/20 dark:focus-visible:ring-warning/40 [a]:hover:bg-warning/20",
-        info: "bg-info/10 text-info focus-visible:ring-info/20 dark:focus-visible:ring-info/40 [a]:hover:bg-info/20",
+          "bg-warning-surface text-warning focus-visible:ring-warning/20 dark:focus-visible:ring-warning/40 [a]:hover:bg-warning/15",
+        info: "bg-info-surface text-info focus-visible:ring-info/20 dark:focus-visible:ring-info/40 [a]:hover:bg-info/15",
         quiet: "bg-muted text-muted-foreground [a]:hover:bg-muted/80",
         outline: "border-border text-foreground [a]:hover:bg-muted [a]:hover:text-muted-foreground",
         ghost: "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",

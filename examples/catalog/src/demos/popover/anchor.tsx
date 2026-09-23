@@ -8,7 +8,7 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@robomous/ui-core";
-import { InfoIcon } from "lucide-react";
+import { InfoIcon } from "@robomous/ui-core/icons";
 
 /** PopoverAnchor positions the content against a different element than the one that opens it. */
 export default function Anchor() {

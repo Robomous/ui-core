@@ -1,0 +1,53 @@
+---
+title: Accordion
+description: A stack of headings that each disclose a region. The arrows, Home and End move between them; `type` decides whether one or many stay open.
+builtOn:
+  - name: Radix Accordion
+    docsUrl: https://www.radix-ui.com/primitives/docs/components/accordion
+    apiUrl: https://www.radix-ui.com/primitives/docs/components/accordion#api-reference
+---
+
+import Default from "@/demos/accordion/default";
+import Multiple from "@/demos/accordion/multiple";
+
+<Preview demo="accordion/default">
+  <Default client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@robomous/ui-core";
+```
+
+```tsx
+<Accordion type="single" collapsible>
+  <AccordionItem value="general">
+    <AccordionTrigger>General</AccordionTrigger>
+    <AccordionContent>The project name, its description, and who can see it.</AccordionContent>
+  </AccordionItem>
+</Accordion>
+```
+
+Each trigger is a `button` inside an `h3`, with `aria-expanded`; each content is a `region`
+labelled by its trigger. The height animation plays both ways: the Motion rule removes exit
+animations only from floating surfaces, and a region in the page's flow has no dismissable layer
+to swallow the next press.
+
+## Composition
+
+```text
+Accordion
+└─ AccordionItem
+   ├─ AccordionTrigger
+   └─ AccordionContent
+```
+
+## Multiple
+
+`type="multiple"` lets every region open on its own. `disabled` on an item keeps it shut and out
+of the arrow-key order.
+
+<Preview demo="accordion/multiple">
+  <Multiple client:load />
+</Preview>

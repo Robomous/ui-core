@@ -1,5 +1,5 @@
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@robomous/ui-core";
-import { FileIcon } from "lucide-react";
+import { FileIcon } from "@robomous/ui-core/icons";
 
 /** `asChild` hands the row's classes to an anchor, so the whole item is a link and stays reachable as one tab stop. */
 export default function AsChild() {

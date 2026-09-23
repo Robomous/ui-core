@@ -1,5 +1,5 @@
 import { ToggleGroup, ToggleGroupItem } from "@robomous/ui-core";
-import { AlignCenterIcon, AlignLeftIcon, AlignRightIcon } from "lucide-react";
+import { AlignCenterIcon, AlignLeftIcon, AlignRightIcon } from "@robomous/ui-core/icons";
 
 /** `type="single"` behaves like radios: exactly one segment stays pressed. */
 export default function Single() {

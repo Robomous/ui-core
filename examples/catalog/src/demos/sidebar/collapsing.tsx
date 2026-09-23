@@ -13,7 +13,7 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from "@robomous/ui-core";
-import { FolderIcon, InboxIcon, SettingsIcon } from "lucide-react";
+import { FolderIcon, InboxIcon, SettingsIcon } from "@robomous/ui-core/icons";
 
 /**
  * `collapsible="icon"` renders the panel `position: fixed`, the way it behaves in a

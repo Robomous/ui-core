@@ -1,5 +1,5 @@
 import { Toggle } from "@robomous/ui-core";
-import { BoldIcon } from "lucide-react";
+import { BoldIcon } from "@robomous/ui-core/icons";
 
 /** Three heights, matched to the buttons and inputs that sit beside a Toggle. */
 export default function Sizes() {

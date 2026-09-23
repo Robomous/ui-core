@@ -215,9 +215,6 @@ importers:
       '@robomous/ui-core':
         specifier: workspace:*
         version: link:../..
-      lucide-react:
-        specifier: ^1.37.0
-        version: 1.37.0(react@19.2.8)
       react:
         specifier: ^19.2.8
         version: 19.2.8

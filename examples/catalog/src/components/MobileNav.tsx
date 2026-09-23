@@ -7,7 +7,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@robomous/ui-core";
-import { MenuIcon } from "lucide-react";
+import { MenuIcon } from "@robomous/ui-core/icons";
 
 import DocsSidebar from "@/components/DocsSidebar";
 import type { Nav } from "@/lib/nav";

@@ -77,7 +77,15 @@ import {
   SelectValue,
 } from "../../src/components/select";
 import { Spinner } from "../../src/components/spinner";
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "../../src/components/table";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../src/components/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../src/components/tabs";
 import { Toggle } from "../../src/components/toggle";
 import { ToggleGroup, ToggleGroupItem } from "../../src/components/toggle-group";
@@ -101,15 +109,22 @@ describe("Alert and Badge", () => {
     expect(screen.getByText("done").getAttribute("data-slot")).toBe("badge");
   });
 
-  it.each(["success", "warning", "info", "quiet"] as const)(
-    "%s is a soft surface on a semantic role, never a coloured stroke",
+  it.each(["success", "warning", "info", "destructive", "quiet"] as const)(
+    "%s is a soft surface on a semantic role, never a palette step or a coloured stroke",
     (variant) => {
       render(<Badge variant={variant}>x</Badge>);
       const el = screen.getByText("x");
       expect(el.getAttribute("data-variant")).toBe(variant);
       expect(el.className).toContain("border-transparent");
-      expect(el.className).toMatch(/\bbg-(success|warning|info)\/10\b|\bbg-muted\b/);
-      expect(el.className).not.toMatch(/emerald|amber|sky|border-(success|warning|info)/);
+      expect(el.className).toMatch(
+        /\bbg-(success|warning|info|destructive)-surface\b|\bbg-muted\b/,
+      );
+      // The steps live behind the roles in styles.css; the component names none.
+      expect(el.className).not.toMatch(
+        // A bare border-<status>, not `aria-invalid:border-destructive`, the
+        // validation ring every Badge carries.
+        /\b(green|emerald|amber|sky|blue|red)-\d|(?<![\w:-])border-(success|warning|info|destructive)\b/,
+      );
     },
   );
 });
@@ -204,6 +219,22 @@ describe("Card and Table", () => {
     );
     expect(screen.getByRole("columnheader", { name: "Name" })).not.toBeNull();
     expect(screen.getByRole("columnheader", { name: "State" })).not.toBeNull();
+  });
+
+  it("is named by its caption, and scrolls inside its own frame", () => {
+    render(
+      <Table>
+        <TableCaption>Runs in the last 24 hours</TableCaption>
+        <TableBody>
+          <TableRow>
+            <TableCell>4128</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>,
+    );
+    const table = screen.getByRole("table", { name: "Runs in the last 24 hours" });
+    // The frame, not the page, is what scrolls a wide table.
+    expect(table.parentElement?.getAttribute("data-slot")).toBe("table-container");
   });
 });
 

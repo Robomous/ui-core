@@ -8,7 +8,7 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from "@robomous/ui-core";
-import { FileIcon, PlusIcon, SettingsIcon } from "lucide-react";
+import { FileIcon, PlusIcon, SettingsIcon } from "@robomous/ui-core/icons";
 
 /** A listbox driven from the field above it: type to filter, arrows to move, Enter to choose. */
 export default function Inline() {

@@ -1,5 +1,5 @@
 import { ToggleGroup, ToggleGroupItem } from "@robomous/ui-core";
-import { BoldIcon, ItalicIcon, UnderlineIcon } from "lucide-react";
+import { BoldIcon, ItalicIcon, UnderlineIcon } from "@robomous/ui-core/icons";
 
 /** `type="multiple"` behaves like independent pressed buttons: any number can stay on. */
 export default function Multiple() {

@@ -2,7 +2,7 @@
 
 ## Purpose and ownership
 
-`@robomous/ui-core` is forty React components this repository owns outright, over behaviour from
+`@robomous/ui-core` is forty-five React components this repository owns outright, over behaviour from
 Radix UI and Base UI — plus cmdk under `Command` and vaul under `Drawer` — and the one stylesheet
 they resolve through. The package is **built on top of shadcn/ui**: a component starts as an item
 of the shadcn registry, installed through `components.json`, and from that moment it is ordinary
@@ -27,7 +27,8 @@ them.
 ```text
 src/components/*.tsx   the components, one file each, exported by name from src/index.ts
 src/hooks/*.tsx        the hooks the components are built on (useIsMobile)
-src/theme/styles.css   the one visual contract: tokens, the closed colour namespace, base layer
+src/icons.ts           lucide-react re-exported whole, the ./icons subpath
+src/theme/styles.css   the one visual contract: tokens, the trimmed Tailwind palette, base layer
 src/theme/shadcn.css   shadcn's utility and variant layer, vendored byte for byte, never edited
 components.json        the shadcn CLI's configuration: style, stylesheet, aliases
 tests/                 behaviour tests (jsdom), token and shadcn-layer contracts, consumer test
@@ -39,12 +40,20 @@ Internal imports are written against the `@/` alias `components.json` declares (
 to relative paths with extensions in `dist/`, and `vitest.config.ts` resolves it for the tests. The
 older components import relatively; both forms are fine, and neither is rewritten to the other.
 
-A consumer imports two things and nothing else:
+A consumer imports two things, and a third when it draws icons of its own:
 
 ```ts
 import "@robomous/ui-core/styles.css"; // once, in the app's entry
 import { Button, Card } from "@robomous/ui-core";
+import { CheckIcon } from "@robomous/ui-core/icons";
 ```
+
+`@robomous/ui-core/icons` is lucide-react, re-exported whole (`src/icons.ts`), so an app's icons
+and the components' come from one set at one version. It is the one `export *` in the package, and
+a subpath rather than part of the main entry: five lucide names — `Badge`, `Command`, `Sheet`,
+`Sidebar`, `Table` — are components here, and the main entry is meant to be read name by name.
+The `…Icon` spelling is the one to use. lucide-react has no side effects, so one icon imported is
+one icon bundled.
 
 There is no policy engine. The invariants below are held by CSS, by TypeScript, by ESLint, by the
 component API, or by a test that observes behaviour — never by a scanner of our own.
@@ -60,10 +69,11 @@ Tailwind through `@theme inline` as `--color-<role>: var(--<role>)`. Every rule 
 against a **role**, never a light-mode value: "the page" resolves per theme and is never asserted
 to be white.
 
-**The colour namespace is closed.** `@theme { --color-*: initial }` removes Tailwind's default
-palette before the roles are declared, so `bg-red-500`, `text-emerald-700` and `bg-white` are not
-words in this system: they compile to nothing, in this package and in every consumer. The
-vocabulary is exactly:
+**The colour vocabulary is two layers.** The roles below are what components and screens paint
+with. Underneath them is Tailwind's own palette, trimmed to eighteen scales (*The palette*,
+below); everything else Tailwind ships — `slate`, `gray`, `zinc`, `stone`, the tinted neutrals,
+`bg-white`, `bg-black` — compiles to nothing, in this package and in every consumer. The roles
+are exactly:
 
 | Family | Roles |
 | --- | --- |
@@ -77,8 +87,8 @@ vocabulary is exactly:
 or a menu item lights up with, never what a button fills with. `overlay` is the scrim behind a
 Dialog or a Sheet: a purpose, not a pigment.
 
-**Never a colour inside a class string.** With the palette closed, the one road left for a literal
-is an arbitrary value — `bg-[#eb5a47]`, `ring-[var(--x)]`. ESLint refuses it
+**Never a colour inside a class string.** Outside the roles and the kept scales, the one road left
+for a literal is an arbitrary value — `bg-[#eb5a47]`, `ring-[var(--x)]`. ESLint refuses it
 (`no-restricted-syntax` in [`eslint.config.js`](../eslint.config.js)); a consumer copies the two
 selectors. The Button's hover step, a `color-mix` of two roles, names no colour of its own and
 stays legal.
@@ -87,6 +97,32 @@ There is no TypeScript copy of these values. A caller that needs one as a string
 document with `getComputedStyle(element).getPropertyValue("--foreground")`, or writes
 `var(--foreground)` and lets CSS resolve it. A second copy in TypeScript is a second thing to keep
 true, and the stylesheet is the only one that paints.
+
+### The palette
+
+The scales come from Tailwind, at Tailwind's values, and are never restated here. The `@theme`
+block in `styles.css` keeps eighteen and closes the rest with `--color-<family>-*: initial`:
+
+| Kept | Closed |
+| --- | --- |
+| `neutral` · `red` · `orange` · `amber` · `yellow` · `lime` · `green` · `emerald` · `teal` · `cyan` · `sky` · `blue` · `indigo` · `violet` · `purple` · `fuchsia` · `pink` · `rose` | `slate` · `gray` · `zinc` · `stone` · `mauve` · `olive` · `mist` · `taupe` · `black` · `white` |
+
+**`neutral` is the base every grey role is spelled from.** `--muted-foreground` is
+`var(--color-neutral-500)` in light and `var(--color-neutral-400)` in dark, so the themes repoint
+roles to different steps instead of carrying two sets of literals. A role that needs a grey takes
+the nearest step; it does not add a loose `oklch(L 0 0)` beside the scale, and
+`tests/theme/tokens.test.ts` fails if one appears. Three values stay literal because they are
+not steps: pure white (`background`, `card`, `popover` in light), the translucent white strokes
+of the dark theme (`border`, `input`, `sidebar-border`), and the black scrim `overlay`.
+
+**The seventeen hues are for data, not for controls** — a chart series, the colour a user picks
+for an annotation class — which is where a role has nothing to say. They compile as utilities
+(`bg-red-500`, `text-emerald-700`) in every consumer. A component in this package never uses
+one: it paints with the role, so a status is `text-destructive`, never `text-red-600`.
+
+Tailwind emits a scale's variable only when something uses it, so `--color-neutral-*` reaches
+every consumer's `:root` through the roles, and `--color-rose-500` appears once a class or a
+`var()` names it.
 
 ### Where the brand is
 
@@ -105,12 +141,23 @@ a one-off measurement with no scale to belong to.
 
 ## Status vocabulary
 
-Four roles — `success`, `warning`, `info`, `destructive` — and one way to use each: a semantic
-utility.
+Four statuses — `success`, `warning`, `info`, `destructive` — each a pair of roles spelled from
+Tailwind's palette: the **ink** and the **surface** it sits on.
+
+| Status | Ink (light / dark) | Surface (light / dark) |
+| --- | --- | --- |
+| `success` | `green-700` / `green-300` | `green-50` / `green-950` |
+| `warning` | `amber-700` / `amber-300` | `amber-50` / `amber-950` |
+| `info` | `blue-700` / `blue-300` | `blue-50` / `blue-950` |
+| `destructive` | `red-700` / `red-300` | `red-50` / `red-950` |
+
+Ink on its surface clears 4.5:1 in both themes (green in light is the tightest, 4.72:1). One way
+to use each:
 
 | Need | Write |
 | --- | --- |
 | A chip | `<Badge variant="success">` |
+| A soft panel or state surface | `bg-success-surface text-success` |
 | A solid mark — a dot, a timeline cell | `bg-success` |
 | An icon or a run of inline text | `text-success` |
 | A stroke, where the stroke is the whole mark | `border-success` |
@@ -120,14 +167,19 @@ site. After this migration application code does not know that success happens t
 knows the word.
 
 **Colour is never the only signal.** Every status carries a redundant channel — a word, an icon, a
-shape — and status is never a stroke on a container: a status `Badge` keeps `border-transparent`,
-and an `Alert` recolours its ink, not its border.
+shape — and status is never a stroke on a container: a status `Badge` and a destructive `Alert`
+keep `border-transparent` and say it with the surface and the ink.
+
+Every component with a status state wears the same pair: the Badge's status variants, the
+destructive `Button` and `Alert`, a destructive menu item under focus, a failed `Attachment`'s
+media, and the Toaster's typed toasts (`toast.success`, `toast.error`…).
 
 ### The Badge's status variants
 
-`success`, `warning`, `info` and `quiet` share one recipe: a `/10` surface of the role, ink in the
-role, a focus ring at matching opacity, a hover step for the anchor case. `quiet` is `muted` — a
-state that exists without asking for attention. Geometry is untouched by every variant.
+`success`, `warning`, `info` and `destructive` share one recipe: the status's surface role, its ink
+role, a focus ring at matching opacity, and a `/15` step of the ink for the anchor hover. `quiet`
+is `muted` — a state that exists without asking for attention. Geometry is untouched by every
+variant.
 
 ## Action hierarchy
 
@@ -280,11 +332,12 @@ Then the component is adapted, whichever road it came by:
 
 1. **Behaviour comes from Radix or Base UI**, wrapped. Hand-rolling a floating surface from a
    `<div>` will be wrong in ways that only show up on a keyboard or a screen reader.
-2. **Spell colour only through the roles.** The palette is closed, so a physical colour produces
-   nothing; a literal in a class fails lint. A registry item that names a Tailwind palette colour
+2. **Spell colour only through the roles.** A component never names a palette step; a closed
+   scale produces nothing, and a literal in a class fails lint. A registry item that names a Tailwind palette colour
    is rewritten to a role.
 3. **Put the geometry in the component**, on the radius scale and Tailwind's spacing scale.
-4. **Draw from `lucide-react`**, sized by the component that contains the icon.
+4. **Draw from `lucide-react`**, sized by the component that contains the icon. A component
+   imports lucide directly; `@robomous/ui-core/icons` is the consumer's door to the same set.
 5. **Give it `data-slot`**, and a `className` that merges last through `cn`.
 6. **Hold it to the rules above**: a button renders `type="button"` unless asked (*Action
    hierarchy*), a menu surface carries no exit animation (*Motion*), status is never a stroke on a
@@ -315,10 +368,10 @@ justification written into this file.
 | What | Where |
 | --- | --- |
 | No literal colour in a class | `eslint.config.js`, `pnpm lint` |
-| Both themes declare every role and nothing else, and `.dark` repoints rather than repeats; the palette is closed; the fonts and every radius step are declared; no `:focus-visible` rule | `tests/theme/tokens.test.ts` |
+| Both themes declare every role and nothing else, and `.dark` repoints rather than repeats; the palette keeps its eighteen scales and closes the rest; the grey roles resolve through `neutral`; the fonts and every radius step are declared; no `:focus-visible` rule | `tests/theme/tokens.test.ts` |
 | The vendored shadcn layer is identical to the installed package, committed, imported, and a dev dependency only | `tests/theme/shadcn.test.ts` |
-| Button type, Dialog/Sheet/Drawer focus and dismissal, Field's explicit contract, menu and popover dismissal, Tabs, Select, Progress, Combobox, Command, RadioGroup and ToggleGroup selection, Breadcrumb and Pagination landmarks, Toaster theme, Sidebar toggling and its mobile Sheet | `tests/components/*.test.tsx` |
-| The packed tarball installs, its stylesheet compiles under a real Tailwind with the components' utilities, shadcn's layer and no physical palette, its entry imports and renders (Sidebar included, through the rewritten alias), `dist/` carries no `@/` import, `shadcn` is not a runtime dependency, a Button-only bundle stays small | `tests/package/consumer.test.ts` |
+| Button type, Dialog/Sheet/Drawer focus and dismissal, Field's explicit contract, menu and popover dismissal, Tabs, Select, Progress, Combobox, Command, RadioGroup and ToggleGroup selection, Checkbox and Switch state, Slider thumbs and their names, Accordion and Collapsible disclosure, Breadcrumb and Pagination landmarks, Toaster theme, Sidebar toggling and its mobile Sheet | `tests/components/*.test.tsx` |
+| The packed tarball installs, its stylesheet compiles under a real Tailwind with the components' utilities, shadcn's layer and no physical palette, its entry imports and renders (Sidebar included, through the rewritten alias), `dist/` carries no `@/` import, `shadcn` is not a runtime dependency, a Button-only bundle stays small, `./icons` re-exports lucide and one icon bundles as one | `tests/package/consumer.test.ts` |
 | The harness itself | `tests/harness.test.tsx` |
 
 `pnpm verify` runs format, lint, typecheck, the behaviour tests, the build, the docs site, and the

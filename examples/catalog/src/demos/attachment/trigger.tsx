@@ -7,7 +7,7 @@ import {
   AttachmentTitle,
   AttachmentTrigger,
 } from "@robomous/ui-core";
-import { FileIcon } from "lucide-react";
+import { FileIcon } from "@robomous/ui-core/icons";
 
 const FILES = [
   { id: "batch-0041", title: "batch-0041.zip", size: "311.9 MB" },

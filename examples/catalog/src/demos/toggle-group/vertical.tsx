@@ -1,5 +1,5 @@
 import { ToggleGroup, ToggleGroupItem } from "@robomous/ui-core";
-import { AlignCenterIcon, AlignLeftIcon, AlignRightIcon } from "lucide-react";
+import { AlignCenterIcon, AlignLeftIcon, AlignRightIcon } from "@robomous/ui-core/icons";
 
 /** `orientation="vertical"` stacks the segments and stretches them to one width. */
 export default function Vertical() {

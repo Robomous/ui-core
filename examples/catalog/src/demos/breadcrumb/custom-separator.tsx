@@ -6,7 +6,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@robomous/ui-core";
-import { SlashIcon } from "lucide-react";
+import { SlashIcon } from "@robomous/ui-core/icons";
 
 /** BreadcrumbSeparator accepts children: swap the chevron for anything else and it stays aria-hidden either way. */
 export default function CustomSeparator() {

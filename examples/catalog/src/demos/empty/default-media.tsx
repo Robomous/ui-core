@@ -1,5 +1,5 @@
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@robomous/ui-core";
-import { CameraIcon } from "lucide-react";
+import { CameraIcon } from "@robomous/ui-core/icons";
 
 /** `variant="default"` leaves the icon unstyled, for a larger mark that carries the panel on its own instead of sitting in a chip. */
 export default function DefaultMedia() {

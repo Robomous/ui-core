@@ -1,5 +1,5 @@
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupButton } from "@robomous/ui-core";
-import { PlusIcon } from "lucide-react";
+import { PlusIcon } from "@robomous/ui-core/icons";
 
 /** InputGroupButton comes in four sizes, `xs` by default, so a dense control never overruns the group's own height. */
 export default function ButtonSizes() {

@@ -1,5 +1,5 @@
 import { Button } from "@robomous/ui-core";
-import { PlusIcon, TrashIcon } from "lucide-react";
+import { PlusIcon, TrashIcon } from "@robomous/ui-core/icons";
 
 /** Square sizes for a bare icon. The label moves to `aria-label`. */
 export default function Icon() {

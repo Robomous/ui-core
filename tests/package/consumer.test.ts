@@ -106,17 +106,17 @@ beforeAll(() => {
     path.join(consumer, "src", "app.css"),
     `@import "${manifest.name}/styles.css";\n@source "./";\n`,
   );
-  // Its one screen. The wrapper names three utilities the design system does
-  // not have — a physical palette colour twice and the brand — and the
-  // compiled CSS must contain none of them. It also names one the system does
-  // have, `font-mono`, which has to compile to the bundled Geist Mono.
+  // Its one screen. The wrapper names utilities the design system does not
+  // have — a closed grey scale, bare white and the brand — which the compiled
+  // CSS must not contain; two from the kept Tailwind scales, which it must; and
+  // `font-mono`, which has to compile to the bundled Geist Mono.
   writeFileSync(
     path.join(consumer, "src", "App.tsx"),
     [
       `import { Badge, Button } from "${manifest.name}";`,
       "export function App() {",
       "  return (",
-      '    <div className="bg-red-500 text-emerald-700 bg-brand p-4 font-mono">',
+      '    <div className="bg-slate-500 border-gray-200 bg-white bg-brand bg-red-500 text-emerald-700 p-4 font-mono">',
       "      <Button>Go</Button>",
       '      <Badge variant="success">ok</Badge>',
       "    </div>",
@@ -130,6 +130,10 @@ beforeAll(() => {
     `export { Button } from "${manifest.name}";\n`,
   );
   writeFileSync(
+    path.join(consumer, "src", "icon-entry.ts"),
+    `export { CheckIcon } from "${manifest.name}/icons";\n`,
+  );
+  writeFileSync(
     path.join(consumer, "render.mjs"),
     [
       'import { createElement } from "react";',
@@ -141,6 +145,8 @@ beforeAll(() => {
       // this import chain breaks under Node.
       "console.log(renderToStaticMarkup(createElement(SidebarProvider, null,",
       '  createElement(Sidebar, { collapsible: "none" }, "nav"))));',
+      `const { CheckIcon } = await import("${manifest.name}/icons");`,
+      "console.log(renderToStaticMarkup(createElement(CheckIcon)));",
       "",
     ].join("\n"),
   );
@@ -155,7 +161,8 @@ beforeAll(() => {
       "  build: {",
       "    write: false,",
       "    minify: false,",
-      '    lib: { entry: "src/entry.ts", formats: ["es"], fileName: "entry" },',
+      // The entry to bundle is the first argument: the Button-only one by default.
+      '    lib: { entry: process.argv[2] ?? "src/entry.ts", formats: ["es"], fileName: "entry" },',
       "    rollupOptions: { external: [/^react(\\/|$)/, /^react-dom(\\/|$)/] },",
       "  },",
       "});",
@@ -186,6 +193,8 @@ describe("the published files", () => {
     const files = filesUnder(installed);
     expect(files).toContain("dist/index.js");
     expect(files).toContain("dist/index.d.ts");
+    expect(files).toContain("dist/icons.js");
+    expect(files).toContain("dist/icons.d.ts");
     expect(files).toContain("src/theme/styles.css");
     // The vendored shadcn layer travels with the stylesheet that imports it.
     expect(files).toContain("src/theme/shadcn.css");
@@ -200,6 +209,10 @@ describe("the published files", () => {
     const shipped = JSON.parse(readFileSync(path.join(installed, "package.json"), "utf8"));
     expect(shipped.sideEffects).toEqual(["**/*.css"]);
     expect(shipped.exports["./styles.css"]).toBe("./src/theme/styles.css");
+    expect(shipped.exports["./icons"]).toEqual({
+      types: "./dist/icons.d.ts",
+      import: "./dist/icons.js",
+    });
   });
 
   it("carry no shadcn at runtime: the layer is vendored, the CLI stays a dev tool", () => {
@@ -256,23 +269,39 @@ describe("a real Tailwind compile of the consumer's stylesheet", () => {
     // both theme blocks and a utility that reads it.
     const root = css.match(/:root\s*\{[^}]*\}/)?.[0] ?? "";
     const dark = css.match(/\.dark\s*\{[^}]*\}/)?.[0] ?? "";
-    for (const role of ["success", "warning", "info", "overlay"]) {
+    for (const role of ["success", "success-surface", "warning", "info", "overlay"]) {
       expect(root, `:root lacks --${role}`).toContain(`--${role}:`);
       expect(dark, `.dark lacks --${role}`).toContain(`--${role}:`);
     }
-    expect(css).toMatch(/\.bg-success\\\/10\s*\{[^}]*var\(--success\)/);
+    // A status is ink over its surface, each a Tailwind step: the Badge the
+    // consumer renders reaches both, and the steps are emitted through them.
+    expect(css).toMatch(/\.bg-success-surface\s*\{[^}]*var\(--success-surface\)/);
+    expect(root).toMatch(/--success:\s*var\(--color-green-700\)/);
+    expect(dark).toMatch(/--success-surface:\s*var\(--color-green-950\)/);
+    expect(css).toMatch(/--color-green-50:\s*oklch\(/);
     expect(css).toMatch(/\.text-success\s*\{[^}]*var\(--success\)/);
     expect(css).toMatch(/\.bg-overlay\s*\{[^}]*var\(--overlay\)/);
   });
 
-  it("knows no physical palette and no brand utility", () => {
-    expect(css).not.toContain(".bg-red-500");
-    expect(css).not.toContain("--color-red-500");
-    expect(css).not.toContain(".text-emerald-700");
+  it("carries Tailwind's kept scales, and none of the closed ones or a brand utility", () => {
+    // The kept scales compile at Tailwind's own values.
+    expect(css).toMatch(/\.bg-red-500\s*\{[^}]*var\(--color-red-500\)/);
+    expect(css).toContain(".text-emerald-700");
+    expect(css).toContain("--color-red-500:");
+    // The closed ones produce nothing.
+    expect(css).not.toContain(".bg-slate-500");
+    expect(css).not.toContain("--color-slate-500");
+    expect(css).not.toContain(".border-gray-200");
+    expect(css).not.toContain(".bg-white");
     expect(css).not.toContain(".bg-brand");
     expect(css).not.toContain("--color-brand");
     // The variable itself is there for identity UI to read.
     expect(css).toContain("--brand:");
+    // The grey roles resolve through Tailwind's neutral scale, which is emitted
+    // because they reference it.
+    expect(css).toMatch(/--color-neutral-500:\s*oklch\(55\.6% 0/);
+    expect(css).toMatch(/--muted-foreground:\s*var\(--color-neutral-500\)/);
+    expect(css).not.toMatch(/--neutral-500:/);
   });
 
   it("bundles both Geist faces, and resolves font-mono through the mono one", () => {
@@ -301,5 +330,17 @@ describe("the JavaScript entry", () => {
     expect(ids.length).toBeGreaterThan(0);
     const heavy = ids.filter((id) => /[\\/](sonner|@base-ui|lucide-react)[\\/]/.test(id));
     expect(heavy, `a Button-only bundle carried:\n${heavy.join("\n")}`).toEqual([]);
+  });
+
+  it("re-exports the icon set under ./icons, and one icon bundles as one icon", () => {
+    const out = run("node", ["render.mjs"], consumer);
+    expect(out).toMatch(/<svg[^>]*class="lucide lucide-check/);
+
+    const ids = JSON.parse(
+      run("node", ["bundle.mjs", "src/icon-entry.ts"], consumer).trim().split("\n").at(-1)!,
+    ) as string[];
+    const icons = ids.filter((id) => /[\\/]lucide-react[\\/].*[\\/]icons[\\/]/.test(id));
+    expect(icons.length, `an icon-only bundle carried:\n${icons.join("\n")}`).toBe(1);
+    expect(icons[0]).toMatch(/[\\/]check\.m?js$/);
   });
 });

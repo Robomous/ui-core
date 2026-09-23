@@ -10,7 +10,7 @@ import {
   Kbd,
   KbdGroup,
 } from "@robomous/ui-core";
-import { FileIcon, PlusIcon } from "lucide-react";
+import { FileIcon, PlusIcon } from "@robomous/ui-core/icons";
 import { useEffect, useState } from "react";
 
 /** Opened from a button or Cmd/Ctrl+K; its title and description are sr-only, naming the dialog with no visible heading. */

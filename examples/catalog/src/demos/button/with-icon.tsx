@@ -1,5 +1,5 @@
 import { Button } from "@robomous/ui-core";
-import { ArrowRightIcon, PlusIcon } from "lucide-react";
+import { ArrowRightIcon, PlusIcon } from "@robomous/ui-core/icons";
 
 /** An icon reads as part of the label: `data-icon` tells the button which side to pad. */
 export default function WithIcon() {

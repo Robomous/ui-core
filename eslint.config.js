@@ -7,9 +7,10 @@ import tseslint from "typescript-eslint";
 
 /**
  * A Tailwind arbitrary value whose content is a colour: `bg-[#fff]`,
- * `text-[rgb(0 0 0)]`, `ring-[var(--x)]`. The colour namespace is closed in
- * `src/theme/styles.css`, so a named palette utility already produces nothing;
- * this is the one road left for a literal to enter a class string, and it is
+ * `text-[rgb(0 0 0)]`, `ring-[var(--x)]`. `src/theme/styles.css` trims
+ * Tailwind's palette to the scales the design keeps, so a closed scale already
+ * produces nothing; this is the one road left for a literal to enter a class
+ * string, and it is
  * held by the linter rather than by a scanner of our own. A consumer that wants
  * the same rule copies these two selectors.
  */

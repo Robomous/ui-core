@@ -8,7 +8,7 @@ import {
   ContextMenuShortcut,
   ContextMenuTrigger,
 } from "@robomous/ui-core";
-import { CopyIcon, Trash2Icon } from "lucide-react";
+import { CopyIcon, Trash2Icon } from "@robomous/ui-core/icons";
 
 /** The trigger is the area itself, not a button — right-click it to open the menu. */
 export default function Basic() {

@@ -1,5 +1,5 @@
 import { Alert, AlertTitle, AlertDescription, AlertAction, Button } from "@robomous/ui-core";
-import { TriangleAlertIcon } from "lucide-react";
+import { TriangleAlertIcon } from "@robomous/ui-core/icons";
 
 /** AlertAction sits top-right; the alert gains the padding to clear it on its own. */
 export default function WithAction() {

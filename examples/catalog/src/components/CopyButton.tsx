@@ -1,5 +1,5 @@
 import { Button } from "@robomous/ui-core";
-import { CheckIcon, CopyIcon } from "lucide-react";
+import { CheckIcon, CopyIcon } from "@robomous/ui-core/icons";
 import { useEffect, useState } from "react";
 
 /** Copies a code sample; the icon confirms for a moment, then resets. */

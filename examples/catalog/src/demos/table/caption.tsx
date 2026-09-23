@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@robomous/ui-core";
 
-/** `TableCaption` sits below the table in muted text, for the one line of context a heading would overstate. */
+/** `TableCaption` closes the frame as a muted band, and names the table for assistive technology. */
 export default function Caption() {
   return (
     <Table>

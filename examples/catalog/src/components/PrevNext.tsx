@@ -1,5 +1,5 @@
 import { Button } from "@robomous/ui-core";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon } from "@robomous/ui-core/icons";
 
 import type { NavLink } from "@/lib/nav";
 

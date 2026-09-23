@@ -1,5 +1,5 @@
 import { Button } from "@robomous/ui-core";
-import { MoonIcon, SunIcon } from "lucide-react";
+import { MoonIcon, SunIcon } from "@robomous/ui-core/icons";
 import { useEffect, useState } from "react";
 
 /**

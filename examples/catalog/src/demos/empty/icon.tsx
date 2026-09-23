@@ -7,7 +7,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@robomous/ui-core";
-import { InboxIcon, PlusIcon } from "lucide-react";
+import { InboxIcon, PlusIcon } from "@robomous/ui-core/icons";
 
 /** `EmptyMedia` `variant="icon"` sets the icon in a muted square; `EmptyContent` holds the one action that resolves the panel. */
 export default function Icon() {

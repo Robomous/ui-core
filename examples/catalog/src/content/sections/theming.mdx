@@ -1,6 +1,6 @@
 ---
 title: Theming
-description: Every colour is a role. The vocabulary is closed, both themes are declared in full, and a consumer extends it without ever shadowing a name.
+description: Every colour a component uses is a role, over Tailwind's palette trimmed to eighteen scales. Both themes are declared in full, and a consumer extends them without ever shadowing a name.
 order: 3
 ---
 
@@ -18,22 +18,30 @@ Tailwind through `@theme inline` as `--color-<role>: var(--<role>)`. Every rule 
 written against a role, never a light-mode value — "the page" resolves per theme and is never
 asserted to be white.
 
-**The colour namespace is closed.** `@theme { --color-*: initial }` removes Tailwind's default
-palette before the roles are declared, so `bg-red-500` and `text-emerald-700` are not words in
-this system: they compile to nothing, in this package and in every consumer. The vocabulary is
-exactly: surfaces (`background`, `card`, `popover`, `muted`, each with a `-foreground`), emphasis
-(`primary`, `secondary`, `accent`, each with a `-foreground`), status (`success`, `warning`,
-`info`, `destructive`), and structure (`border`, `input`, `ring`, `overlay`).
+**The colour vocabulary is two layers.** Components and screens paint with roles: surfaces
+(`background`, `card`, `popover`, `muted`, each with a `-foreground`), emphasis (`primary`,
+`secondary`, `accent`, each with a `-foreground`), status (`success`, `warning`, `info`,
+`destructive`), and structure (`border`, `input`, `ring`, `overlay`).
+
+Underneath them is **Tailwind's own palette, trimmed to eighteen scales** and never restated:
+`neutral`, which every grey role is spelled from — `--muted-foreground` is
+`var(--color-neutral-500)` in light and `var(--color-neutral-400)` in dark — and seventeen hues
+for data, such as a chart series or the colour of an annotation class. `slate`, `gray`, `zinc`,
+`stone`, the tinted neutrals, `bg-white` and `bg-black` compile to nothing, in this package and in
+every consumer. A component never names a palette step; it names the role.
 
 <Swatches />
 
 ## Status is never the only signal
 
-Four status roles, one way to use each: `bg-success` for a solid mark, `bg-success/10 text-success`
-for a soft surface with matching ink, `text-success` for an icon or a run of inline text. Colour is
-never the only signal — every status carries a redundant channel, a word, an icon, a shape — and
-status is never a stroke on a container: a status `Badge` keeps `border-transparent`, and an
-`Alert` recolours its ink, not its border.
+Four statuses, each a pair of roles from Tailwind's palette: the ink (`success` is
+`green-700` in light, `green-300` in dark) and the surface it sits on (`success-surface`,
+`green-50` and `green-950`); `warning` is amber, `info` blue, `destructive` red. `bg-success` is a
+solid mark, `bg-success-surface text-success` a soft chip or panel — what a status `Badge`, a
+destructive `Button` or `Alert` and a failed `Attachment` wear — and `text-success` an icon or a
+run of inline text. Colour is never the only signal — every status carries a redundant channel, a
+word, an icon, a shape — and status is never a stroke on a container: a status `Badge` and a
+destructive `Alert` keep `border-transparent`.
 
 ## Surfaces, borders and focus
 

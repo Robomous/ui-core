@@ -7,7 +7,7 @@ import {
   AttachmentTitle,
   Spinner,
 } from "@robomous/ui-core";
-import { FileIcon } from "lucide-react";
+import { FileIcon } from "@robomous/ui-core/icons";
 
 /** `AttachmentGroup` lays a batch of uploads out as a horizontally scrolling, snapping row instead of wrapping them. */
 export default function Group() {

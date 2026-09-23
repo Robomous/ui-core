@@ -6,7 +6,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@robomous/ui-core";
-import { Trash2Icon } from "lucide-react";
+import { Trash2Icon } from "@robomous/ui-core/icons";
 
 /** `variant="destructive"` recolours the text and its icon before focus even lands. */
 export default function Destructive() {

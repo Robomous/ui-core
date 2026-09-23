@@ -1,5 +1,5 @@
 import { Badge, Button } from "@robomous/ui-core";
-import { ExternalLinkIcon } from "lucide-react";
+import { ExternalLinkIcon } from "@robomous/ui-core/icons";
 
 export interface BuiltOnEntry {
   name: string;

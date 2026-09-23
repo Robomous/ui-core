@@ -7,7 +7,7 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@robomous/ui-core";
-import { CopyIcon, FileIcon, TrashIcon } from "lucide-react";
+import { CopyIcon, FileIcon, TrashIcon } from "@robomous/ui-core/icons";
 
 /** Three variants: `default` is borderless, `outline` draws a border, `muted` fills with the muted surface. */
 export default function Variants() {

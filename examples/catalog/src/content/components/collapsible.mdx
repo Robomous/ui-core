@@ -1,0 +1,43 @@
+---
+title: Collapsible
+description: One trigger, one region, no styling. The primitive the Accordion is built from, for a disclosure that is not a stack of headings.
+builtOn:
+  - name: Radix Collapsible
+    docsUrl: https://www.radix-ui.com/primitives/docs/components/collapsible
+    apiUrl: https://www.radix-ui.com/primitives/docs/components/collapsible#api-reference
+---
+
+import Default from "@/demos/collapsible/default";
+
+<Preview demo="collapsible/default">
+  <Default client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { Button, Collapsible, CollapsibleContent, CollapsibleTrigger } from "@robomous/ui-core";
+```
+
+```tsx
+<Collapsible>
+  <CollapsibleTrigger asChild>
+    <Button variant="ghost" size="icon-sm" aria-label="Toggle advanced filters">
+      <ChevronsUpDownIcon />
+    </Button>
+  </CollapsibleTrigger>
+  <CollapsibleContent>…</CollapsibleContent>
+</Collapsible>
+```
+
+`Collapsible` carries no classes at all. The trigger sets `aria-expanded` and `aria-controls`
+itself. Give it a real control through `asChild`, and give an icon-only trigger an `aria-label`.
+The content leaves the DOM while closed.
+
+## Composition
+
+```text
+Collapsible
+├─ CollapsibleTrigger
+└─ CollapsibleContent
+```

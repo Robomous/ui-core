@@ -8,7 +8,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
 } from "@robomous/ui-core";
-import { FolderIcon } from "lucide-react";
+import { FolderIcon } from "@robomous/ui-core/icons";
 
 /** `variant="outline"` rings a menu button with `--sidebar-border` instead of filling it on hover. */
 export default function Outline() {

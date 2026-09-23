@@ -10,7 +10,7 @@ import {
   Kbd,
   KbdGroup,
 } from "@robomous/ui-core";
-import { SearchIcon } from "lucide-react";
+import { SearchIcon } from "@robomous/ui-core/icons";
 import { useEffect, useState } from "react";
 
 interface Entry {

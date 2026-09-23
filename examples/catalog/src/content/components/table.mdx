@@ -1,6 +1,6 @@
 ---
 title: Table
-description: A native table, header rows separated from the body by a rule, wrapped in its own horizontal scroller so a wide dataset never squeezes the page around it.
+description: A native table in a bordered, rounded frame that is also its horizontal scroller. The header reads quieter than the data, and every column keeps its own rule.
 builtOn:
   - name: native HTML
     docsUrl: https://developer.mozilla.org/docs/Web/HTML/Element/table
@@ -41,6 +41,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 Right-align a numeric column's `TableHead` with `text-right`, and give its `TableCell`s the same
 class plus `tabular-nums`, so the figures line up under the heading and each other.
 
+## Anatomy of the look
+
+The frame is `rounded-xl border`, and it is the `overflow-x-auto` container too, so the corners hold
+while a wide table scrolls. The header sits on `bg-muted/50` in muted ink at normal weight, so it
+reads quieter than the data; rows are 52px (`px-3 py-4`); every column carries a vertical rule
+(`border-r`, none on the last). An icon in a `TableHead` — a `ChevronsUpDown` beside a sortable
+label — is sized to 14px by the head; the sort itself, and `aria-sort`, are the call site's.
+
 ## Composition
 
 ```text
@@ -59,8 +67,8 @@ Table
 
 ## Wide data
 
-`Table` wraps itself in an `overflow-x-auto` container, so a dataset with more columns than the
-viewport scrolls horizontally instead of crushing every column to fit.
+`Table` is its own `overflow-x-auto` frame, so a dataset with more columns than the viewport
+scrolls horizontally inside the rounded border instead of crushing every column to fit.
 
 <Preview demo="table/dataset">
   <Dataset client:load />
@@ -77,8 +85,8 @@ above rather than continuing them.
 
 ## Caption
 
-`TableCaption` sits below the table in muted text, for the one line of context that a heading above
-the table would overstate.
+`TableCaption` closes the frame as a muted band under a rule, for the one line of context that a
+heading above the table would overstate. It is also the table's accessible name.
 
 <Preview demo="table/caption">
   <Caption client:load />

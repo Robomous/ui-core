@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@robomous/ui-core";
 
-/** A realistic dataset table: `Table` wraps itself in an `overflow-x-auto` container, so extra columns scroll instead of squeezing the page. */
+/** A realistic dataset table: `Table` is its own bordered `overflow-x-auto` frame, so extra columns scroll inside it instead of squeezing the page. */
 export default function Dataset() {
   return (
     <Table>

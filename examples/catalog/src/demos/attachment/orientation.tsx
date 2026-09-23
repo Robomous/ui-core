@@ -7,7 +7,7 @@ import {
   AttachmentMedia,
   AttachmentTitle,
 } from "@robomous/ui-core";
-import { FileIcon, XIcon } from "lucide-react";
+import { FileIcon, XIcon } from "@robomous/ui-core/icons";
 
 /** `vertical` stacks the media above the content and floats `AttachmentActions` over its corner, the shape a thumbnail grid wants. */
 export default function Orientation() {

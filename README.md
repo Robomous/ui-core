@@ -4,7 +4,7 @@
 
 # @robomous/ui-core
 
-The Robomous design system, built on top of [shadcn/ui](https://ui.shadcn.com): forty React
+The Robomous design system, built on top of [shadcn/ui](https://ui.shadcn.com): forty-five React
 components this package owns outright, over Radix UI and Base UI behaviour — plus cmdk under
 `Command` and vaul under `Drawer` — and the one stylesheet they resolve through. Extracted from
 [Robomous/VisionSet](https://github.com/Robomous/VisionSet), where it grew up.
@@ -22,12 +22,20 @@ Peer dependencies: `react` ≥ 19, `react-dom` ≥ 19, `tailwindcss` ≥ 4.
 ```ts
 import "@robomous/ui-core/styles.css";   // once, in the app's entry
 import { Button, Card } from "@robomous/ui-core";
+import { CheckIcon } from "@robomous/ui-core/icons"; // lucide-react, the set the components use
 ```
 
+`@robomous/ui-core/icons` re-exports all of lucide-react at the version the components are built
+against, so an app draws its own icons from the same set without declaring a second copy. It is a
+subpath because five lucide names (`Badge`, `Command`, `Sheet`, `Sidebar`, `Table`) are also
+components; prefer the `…Icon` spelling. One imported icon bundles as one icon.
+
 The stylesheet is the contract. Tailwind v4 reads its `@theme` block, so `bg-primary` in a
-component here and `bg-primary` in a consuming app are the same colour by construction. The colour
-namespace is closed: every colour is a role (`primary`, `muted`, `success`, `warning`, `info`,
-`destructive`, `overlay`, …) and Tailwind's default palette produces nothing. A consumer adds an
+component here and `bg-primary` in a consuming app are the same colour by construction. Components
+paint with roles (`primary`, `muted`, `success`, `warning`, `info`, `destructive`, `overlay`, …).
+Underneath, Tailwind's palette is trimmed to eighteen scales — `neutral`, which the grey roles are
+spelled from, and seventeen hues for data such as chart series — while `slate`, `gray`, `zinc`,
+`stone`, the tinted neutrals, `white` and `black` produce nothing. A consumer adds an
 `@source` for its own sources after the import, and declares any extension of its own in its own
 stylesheet.
 

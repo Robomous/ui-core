@@ -16,12 +16,14 @@
  * should install a CLI to get a stylesheet. That file is never edited: anything
  * of ours goes below, `cn-rtl-flip` being the example.
  *
- * The colour vocabulary is closed. `@theme { --color-*: initial }` removes
- * Tailwind's default palette, so `bg-red-500` or `text-emerald-700` is not a
- * word in this system — it produces no CSS. What exists is the set of roles
- * below: surfaces (`background`, `card`, `popover`, `muted`), emphasis
+ * The colour vocabulary is two layers. Underneath, Tailwind's own palette,
+ * trimmed to eighteen scales (see the `@theme` block): `neutral` is what every
+ * grey role is spelled from, and the seventeen hues are there for data — a
+ * chart series, a class colour — not for controls. `slate`, `gray`, `zinc`,
+ * `stone`, the tinted neutrals, `black` and `white` produce no CSS. On top,
+ * the roles: surfaces (`background`, `card`, `popover`, `muted`), emphasis
  * (`primary`, `secondary`, `accent`), status (`success`, `warning`, `info`,
- * `destructive`), structure (`border`, `input`, `ring`, `overlay`) and the
+ * `destructive`, each with a `-surface`), structure (`border`, `input`, `ring`, `overlay`) and the
  * `sidebar` family two product shells share. A component or a screen names a
  * role, never a pigment; the value behind a role is this file's business.
  *
@@ -60,41 +62,51 @@
 
 :root {
   --background: oklch(1 0 0);
-  --foreground: oklch(0.2 0 0);
+  --foreground: var(--color-neutral-900);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: var(--color-neutral-950);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.2 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.269 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --popover-foreground: var(--color-neutral-950);
+  --primary: var(--color-neutral-900);
+  --primary-foreground: var(--color-neutral-50);
+  --secondary: var(--color-neutral-100);
+  --secondary-foreground: var(--color-neutral-800);
+  --muted: var(--color-neutral-100);
+  --muted-foreground: var(--color-neutral-500);
+  --accent: var(--color-neutral-100);
+  --accent-foreground: var(--color-neutral-900);
 
-  /* Status roles. The name is the contract; the value is a detail. */
-  --success: oklch(0.508 0.118 165.612);
-  --warning: oklch(0.555 0.163 48.998);
-  --info: oklch(0.5 0.134 242.749);
-  --destructive: oklch(0.577 0.245 27.325);
+  /*
+   * Status roles. The name is the contract; the value is a detail. Each status
+   * is a pair: the ink (`--success`, a 700 step here, a 300 step in .dark) and
+   * the soft surface it sits on (`--success-surface`, 50 here, 950 in .dark),
+   * both from Tailwind's palette. Ink on its surface clears 4.5:1 in both
+   * themes; green in light is the tightest at 4.72:1.
+   */
+  --success: var(--color-green-700);
+  --success-surface: var(--color-green-50);
+  --warning: var(--color-amber-700);
+  --warning-surface: var(--color-amber-50);
+  --info: var(--color-blue-700);
+  --info-surface: var(--color-blue-50);
+  --destructive: var(--color-red-700);
+  --destructive-surface: var(--color-red-50);
 
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: var(--color-neutral-200);
+  --input: var(--color-neutral-200);
+  --ring: var(--color-neutral-400);
   /* The scrim behind a Dialog or a Sheet: a purpose, not a pigment. */
   --overlay: oklch(0 0 0 / 10%);
   --radius: 0.625rem;
 
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: var(--color-neutral-50);
+  --sidebar-foreground: var(--color-neutral-950);
+  --sidebar-primary: var(--color-neutral-900);
+  --sidebar-primary-foreground: var(--color-neutral-50);
+  --sidebar-accent: var(--color-neutral-100);
+  --sidebar-accent-foreground: var(--color-neutral-900);
+  --sidebar-border: var(--color-neutral-200);
+  --sidebar-ring: var(--color-neutral-400);
 
   /*
    * Robomous orange (#F5580B). Identity only — a wordmark, a styleguide swatch —
@@ -106,46 +118,65 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: var(--color-neutral-950);
+  --foreground: var(--color-neutral-50);
+  --card: var(--color-neutral-900);
+  --card-foreground: var(--color-neutral-50);
+  --popover: var(--color-neutral-900);
+  --popover-foreground: var(--color-neutral-50);
+  --primary: var(--color-neutral-200);
+  --primary-foreground: var(--color-neutral-900);
+  --secondary: var(--color-neutral-800);
+  --secondary-foreground: var(--color-neutral-50);
+  --muted: var(--color-neutral-800);
+  --muted-foreground: var(--color-neutral-400);
+  --accent: var(--color-neutral-800);
+  --accent-foreground: var(--color-neutral-50);
 
-  --success: oklch(0.765 0.177 163.223);
-  --warning: oklch(0.828 0.189 84.429);
-  --info: oklch(0.746 0.16 232.661);
-  --destructive: oklch(0.704 0.191 22.216);
+  --success: var(--color-green-300);
+  --success-surface: var(--color-green-950);
+  --warning: var(--color-amber-300);
+  --warning-surface: var(--color-amber-950);
+  --info: var(--color-blue-300);
+  --info-surface: var(--color-blue-950);
+  --destructive: var(--color-red-300);
+  --destructive-surface: var(--color-red-950);
 
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --ring: var(--color-neutral-500);
   --overlay: oklch(0 0 0 / 10%);
 
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar: var(--color-neutral-900);
+  --sidebar-foreground: var(--color-neutral-50);
   --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-primary-foreground: var(--color-neutral-50);
+  --sidebar-accent: var(--color-neutral-800);
+  --sidebar-accent-foreground: var(--color-neutral-50);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-ring: var(--color-neutral-500);
 
   --brand: oklch(0.663 0.205 39.9);
 }
 
 @theme {
-  /* Close Tailwind's default palette. The roles below are the whole vocabulary. */
-  --color-*: initial;
+  /*
+   * Tailwind's palette, trimmed to the eighteen scales the design keeps —
+   * neutral, red, orange, amber, yellow, lime, green, emerald, teal, cyan, sky,
+   * blue, indigo, violet, purple, fuchsia, pink, rose — at Tailwind's own values,
+   * never restated here. The rest is closed: the four other greys, the four
+   * tinted neutrals, and bare black and white, which the roles already cover.
+   */
+  --color-slate-*: initial;
+  --color-gray-*: initial;
+  --color-zinc-*: initial;
+  --color-stone-*: initial;
+  --color-mauve-*: initial;
+  --color-olive-*: initial;
+  --color-mist-*: initial;
+  --color-taupe-*: initial;
+  --color-black: initial;
+  --color-white: initial;
 }
 
 @theme inline {
@@ -171,9 +202,13 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-success: var(--success);
+  --color-success-surface: var(--success-surface);
   --color-warning: var(--warning);
+  --color-warning-surface: var(--warning-surface);
   --color-info: var(--info);
+  --color-info-surface: var(--info-surface);
   --color-destructive: var(--destructive);
+  --color-destructive-surface: var(--destructive-surface);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);

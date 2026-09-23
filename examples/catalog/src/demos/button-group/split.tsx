@@ -1,5 +1,5 @@
 import { Button, ButtonGroup, ButtonGroupSeparator } from "@robomous/ui-core";
-import { ChevronDownIcon } from "lucide-react";
+import { ChevronDownIcon } from "@robomous/ui-core/icons";
 
 /** ButtonGroupSeparator is a Separator underneath: it inherits its orientation from the group instead of setting one. */
 export default function Split() {

@@ -7,7 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@robomous/ui-core";
-import { SlidersHorizontalIcon } from "lucide-react";
+import { SlidersHorizontalIcon } from "@robomous/ui-core/icons";
 import { useState } from "react";
 
 /** Checked, unchecked, and indeterminate — a class visible on some cameras but not all wears a dash, not a tick. */

@@ -11,6 +11,33 @@ afterEach(() => document.documentElement.classList.remove("dark"));
 // `data-sonner-theme`, not `data-theme`. A toast is fired here to bring the
 // element into being; `waitFor` covers the render sonner does outside this
 // call stack when it flushes the toast through its module-global store.
+describe("typed toasts", () => {
+  it("wear their status through the surface and ink roles", async () => {
+    const { container } = render(<Toaster />);
+    toast.success("Saved");
+    await waitFor(() => {
+      expect(
+        container.querySelector('[data-type="success"]')?.getAttribute("data-rich-colors"),
+      ).toBe("true");
+    });
+    const toaster = container.querySelector<HTMLElement>("[data-sonner-toaster]");
+    expect(toaster?.style.getPropertyValue("--success-bg")).toBe("var(--success-surface)");
+    expect(toaster?.style.getPropertyValue("--success-text")).toBe("var(--success)");
+    expect(toaster?.style.getPropertyValue("--error-bg")).toBe("var(--destructive-surface)");
+  });
+
+  it("stay neutral when the caller turns rich colours off", async () => {
+    const { container } = render(<Toaster richColors={false} />);
+    toast.error("Failed");
+    await waitFor(() => {
+      expect(container.querySelector('[data-type="error"]')).not.toBeNull();
+    });
+    expect(container.querySelector('[data-type="error"]')?.getAttribute("data-rich-colors")).toBe(
+      "false",
+    );
+  });
+});
+
 describe("toaster theme", () => {
   it("is light when <html> carries no class", async () => {
     const { container } = render(<Toaster />);

@@ -1,7 +1,7 @@
 /**
  * `@robomous/ui-core` — the Robomous design system, built on top of shadcn/ui.
  *
- * Forty React components this package owns outright, over Radix, Base UI, cmdk
+ * Forty-five React components this package owns outright, over Radix, Base UI, cmdk
  * and vaul behaviour, and the one stylesheet they resolve through. A consumer
  * imports exactly:
  *
@@ -71,6 +71,9 @@ export { Input } from "./components/input.js";
 export { Textarea } from "./components/textarea.js";
 export { Label } from "./components/label.js";
 export { RadioGroup, RadioGroupItem } from "./components/radio-group.js";
+export { Checkbox } from "./components/checkbox.js";
+export { Switch } from "./components/switch.js";
+export { Slider } from "./components/slider.js";
 export {
   Field,
   FieldContent,
@@ -193,6 +196,13 @@ export {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "./components/context-menu.js";
+export {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "./components/accordion.js";
+export { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./components/collapsible.js";
 export { Tabs, TabsContent, TabsList, tabsListVariants, TabsTrigger } from "./components/tabs.js";
 export {
   Breadcrumb,

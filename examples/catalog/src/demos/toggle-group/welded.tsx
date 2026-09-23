@@ -1,5 +1,5 @@
 import { ToggleGroup, ToggleGroupItem } from "@robomous/ui-core";
-import { BoldIcon, ItalicIcon, UnderlineIcon } from "lucide-react";
+import { BoldIcon, ItalicIcon, UnderlineIcon } from "@robomous/ui-core/icons";
 
 /** `spacing={0}` welds the segments into one control, sharing borders instead of gaps. */
 export default function Welded() {

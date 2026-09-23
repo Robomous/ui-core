@@ -1,5 +1,5 @@
 import { Toggle } from "@robomous/ui-core";
-import { BoldIcon } from "lucide-react";
+import { BoldIcon } from "@robomous/ui-core/icons";
 
 /** `aria-pressed` is the state, not a class; `outline` adds a border for a track-free toolbar. */
 export default function Variants() {

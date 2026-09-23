@@ -6,7 +6,7 @@ import {
   AttachmentTitle,
   Spinner,
 } from "@robomous/ui-core";
-import { FileIcon } from "lucide-react";
+import { FileIcon } from "@robomous/ui-core/icons";
 
 /** Every part styles off `state`: dashed and quiet while idle, a spinner mid-upload, a shimmering title while processing, and a plain settled `done`. */
 export default function States() {

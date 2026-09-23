@@ -7,7 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@robomous/ui-core";
-import { CopyIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import { CopyIcon, PencilIcon, Trash2Icon } from "@robomous/ui-core/icons";
 
 /** `inset` lines a label's or an item's leading edge up with the icons in the rows around it. */
 export default function Inset() {

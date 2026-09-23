@@ -3,7 +3,7 @@
  *
  * The token contract. `styles.css` is the one home of the tokens, so this
  * suite parses it structurally and asserts that both themes declare every role
- * and nothing else, that the colour namespace is closed, and that the few
+ * and nothing else, that the palette is trimmed to the kept scales, and that the few
  * stylesheet-level rules the components depend on are still there.
  *
  * Parsed rather than imported: nothing here evaluates `@theme`, and the
@@ -76,9 +76,13 @@ const ROLE_NAMES = [
   "accent",
   "accent-foreground",
   "success",
+  "success-surface",
   "warning",
+  "warning-surface",
   "info",
+  "info-surface",
   "destructive",
+  "destructive-surface",
   "border",
   "input",
   "ring",
@@ -96,11 +100,53 @@ const ROLE_NAMES = [
 // Declared as a variable in both themes, exposed as no utility.
 const VARIABLE_ONLY = ["brand"];
 
+// Tailwind's palette, trimmed to what the design keeps. The values are
+// Tailwind's own and are never restated in styles.css; what this file holds is
+// which families survive and which are closed.
+const KEPT_SCALES = [
+  "neutral",
+  "red",
+  "orange",
+  "amber",
+  "yellow",
+  "lime",
+  "green",
+  "emerald",
+  "teal",
+  "cyan",
+  "sky",
+  "blue",
+  "indigo",
+  "violet",
+  "purple",
+  "fuchsia",
+  "pink",
+  "rose",
+];
+const CLOSED_SCALES = ["slate", "gray", "zinc", "stone", "mauve", "olive", "mist", "taupe"];
+
+/**
+ * An opaque grey spelled as a literal, which is what a role must not be: every
+ * one of them is a step of Tailwind's neutral scale. Pure white and the
+ * translucent strokes and scrims are not steps, so they stay literal.
+ */
+function isLooseGrey(value: string): boolean {
+  const match = value.match(/^oklch\(([\d.]+) 0 0\)$/);
+  return match !== null && match[1] !== "1";
+}
+
 describe(":root", () => {
   const root = declarations(blockBody(STYLESHEET, ":root {"));
 
   it("declares every role, the brand variable and --radius, and nothing else", () => {
+    // No neutral scale of our own: the greys come from Tailwind's theme.
     expect([...root.keys()].sort()).toEqual([...ROLE_NAMES, ...VARIABLE_ONLY, "radius"].sort());
+  });
+
+  it("spells every grey role from Tailwind's neutral scale, never as a loose literal", () => {
+    for (const name of ROLE_NAMES) {
+      expect(isLooseGrey(root.get(name) ?? ""), `--${name} is ${root.get(name)}`).toBe(false);
+    }
   });
 
   it("gives every role a value, and pins --radius", () => {
@@ -118,6 +164,12 @@ describe(".dark", () => {
     expect([...dark.keys()].sort()).toEqual([...ROLE_NAMES, ...VARIABLE_ONLY].sort());
   });
 
+  it("spells every grey role from Tailwind's neutral scale, never as a loose literal", () => {
+    for (const name of ROLE_NAMES) {
+      expect(isLooseGrey(dark.get(name) ?? ""), `--${name} is ${dark.get(name)}`).toBe(false);
+    }
+  });
+
   /**
    * A role that repeats its light value is the bug this catches: the dark
    * theme is a counterpart, not a copy. `background` and `foreground` swap
@@ -133,10 +185,29 @@ describe(".dark", () => {
 describe("@theme", () => {
   const inline = rawDeclarations(blockBody(STYLESHEET, "@theme inline {"));
 
-  it("closes Tailwind's default palette before declaring its own", () => {
-    const reset = STYLESHEET.indexOf("--color-*: initial;");
-    expect(reset, "styles.css does not reset --color-*").toBeGreaterThan(-1);
-    expect(reset).toBeLessThan(STYLESHEET.indexOf("@theme inline {"));
+  const palette = blockBody(STYLESHEET, "@theme {");
+
+  it("closes the scales the design leaves out, and bare black and white", () => {
+    for (const name of CLOSED_SCALES) {
+      expect(palette, `--color-${name}-* is not closed`).toContain(`--color-${name}-*: initial;`);
+    }
+    expect(palette).toContain("--color-black: initial;");
+    expect(palette).toContain("--color-white: initial;");
+  });
+
+  it("keeps the eighteen scales at Tailwind's values, neither closed nor restated", () => {
+    expect(palette, "the whole palette is closed again").not.toContain("--color-*: initial;");
+    for (const name of KEPT_SCALES) {
+      expect(STYLESHEET, `--color-${name}-* is touched in styles.css`).not.toMatch(
+        new RegExp(String.raw`--color-${name}-(\*|\d+):`),
+      );
+    }
+  });
+
+  it("spells the grey roles through --color-neutral-<step>", () => {
+    const root = declarations(blockBody(STYLESHEET, ":root {"));
+    expect(root.get("muted-foreground")).toBe("var(--color-neutral-500)");
+    expect(root.get("border")).toBe("var(--color-neutral-200)");
   });
 
   it("exposes --color-<role>: var(--<role>) for every role", () => {

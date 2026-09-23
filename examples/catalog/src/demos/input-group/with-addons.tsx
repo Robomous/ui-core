@@ -1,5 +1,5 @@
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupButton } from "@robomous/ui-core";
-import { SearchIcon } from "lucide-react";
+import { SearchIcon } from "@robomous/ui-core/icons";
 
 /** An icon addon at `inline-start`, the control, and a button addon at `inline-end`; clicking anywhere in an addon that isn't a button refocuses the input. */
 export default function WithAddons() {

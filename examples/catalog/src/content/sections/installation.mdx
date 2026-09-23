@@ -24,8 +24,8 @@ Import it once, in the app's CSS entry, before anything else that touches Tailwi
 
 The stylesheet is the contract: Tailwind v4 reads its `@theme` block, so `bg-primary` in a
 component from this package and `bg-primary` written in the app are the same colour by
-construction. It also closes Tailwind's default palette — `bg-red-500` and `text-emerald-700`
-compile to nothing, in the app and in the package alike, because every colour here is a role.
+construction. It also trims Tailwind's palette to eighteen scales — `bg-slate-500` and `bg-white`
+compile to nothing, in the app and in the package alike, while `bg-rose-500` is there for data.
 The `@source "./src"` line is the app's own: `@robomous/ui-core` already scans its own components,
 but Tailwind never looks inside `node_modules` on its own, and the app's roles only reach classes
 written in the app's own sources.
@@ -43,6 +43,28 @@ import { Button, Card } from "@robomous/ui-core";
 ```
 
 That is the whole surface: no config file, no theme provider to wrap the tree in.
+
+## Icons
+
+```tsx
+import { Button } from "@robomous/ui-core";
+import { PlusIcon } from "@robomous/ui-core/icons";
+```
+
+```tsx
+<Button>
+  <PlusIcon data-icon="inline-start" />
+  New project
+</Button>
+```
+
+`@robomous/ui-core/icons` re-exports all of [lucide-react](https://lucide.dev/icons), the set the
+components themselves are drawn from, at the version they are built against — so the app needs no
+lucide dependency of its own, and its icons cannot drift from the components'. Use the `…Icon`
+names: five plain lucide names (`Badge`, `Command`, `Sheet`, `Sidebar`, `Table`) are also
+components, which is why the icons live on a subpath and not on the main entry. An icon inside a
+component is sized by the component; do not add `size-*` to it. One imported icon bundles as one
+icon.
 
 ## Dark mode
 

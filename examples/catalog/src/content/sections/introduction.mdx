@@ -4,7 +4,7 @@ description: What @robomous/ui-core is, and what it is built on.
 order: 1
 ---
 
-`@robomous/ui-core` is the Robomous design system: forty React components this repository owns
+`@robomous/ui-core` is the Robomous design system: forty-five React components this repository owns
 outright, over behaviour from Radix UI and Base UI — plus [cmdk](https://github.com/pacocoursey/cmdk)
 under `Command` and [vaul](https://vaul.emilkowal.ski/) under `Drawer` — and the one stylesheet
 they all resolve through. It is **built on top of [shadcn/ui](https://ui.shadcn.com)**: a
@@ -17,8 +17,9 @@ dismissal; Robomous owns the API, the styling, the semantic variants and the pub
 
 Every colour in the system is a role, not a pigment — `primary`, `muted`, `success`,
 `destructive`, `overlay` and the rest — and both a light and a dark value are declared for each
-one, so an interface never asserts that the page is white. There is no `bg-red-500`: the default
-Tailwind palette is closed, and a role is the only vocabulary that produces CSS.
+one, so an interface never asserts that the page is white. Underneath the roles sits
+Tailwind's palette, trimmed to eighteen scales: `neutral` is what the grey roles are made of, and
+the hues are for data, not controls.
 
 A consumer imports exactly two things:
 

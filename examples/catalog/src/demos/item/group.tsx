@@ -7,7 +7,7 @@ import {
   ItemSeparator,
   ItemTitle,
 } from "@robomous/ui-core";
-import { FileIcon, FolderIcon } from "lucide-react";
+import { FileIcon, FolderIcon } from "@robomous/ui-core/icons";
 
 /** `ItemGroup` is `role="list"`; `ItemSeparator` sits between rows in place of each item's own border. */
 export default function Group() {

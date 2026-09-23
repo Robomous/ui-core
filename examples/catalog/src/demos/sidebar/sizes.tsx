@@ -8,7 +8,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
 } from "@robomous/ui-core";
-import { InboxIcon } from "lucide-react";
+import { InboxIcon } from "@robomous/ui-core/icons";
 
 /** Three heights on the same baseline: `sm`, `default`, `lg`. */
 export default function Sizes() {

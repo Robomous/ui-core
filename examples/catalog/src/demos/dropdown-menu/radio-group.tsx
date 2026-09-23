@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@robomous/ui-core";
-import { FolderInputIcon } from "lucide-react";
+import { FolderInputIcon } from "@robomous/ui-core/icons";
 import { useState } from "react";
 
 /** One tab stop; the arrow keys move the selection inside the group, same as a RadioGroup. */

@@ -1,5 +1,5 @@
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@robomous/ui-core";
-import { FolderIcon } from "lucide-react";
+import { FolderIcon } from "@robomous/ui-core/icons";
 
 /** `size` steps `default` down to `sm` and `xs`, tightening the row's own padding and the gap between stacked items with it. */
 export default function Sizes() {

@@ -1,5 +1,5 @@
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@robomous/ui-core";
-import { SearchIcon } from "lucide-react";
+import { SearchIcon } from "@robomous/ui-core/icons";
 
 /** No `EmptyContent`: some panels only need to say why the list is empty, with nothing to do about it. */
 export default function NoResults() {
