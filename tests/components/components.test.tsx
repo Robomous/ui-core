@@ -103,6 +103,19 @@ describe("Alert and Badge", () => {
     expect(alert.textContent).toContain("because");
   });
 
+  it("announces a warning at once and an informational alert politely", () => {
+    render(
+      <>
+        <Alert variant="warning">w</Alert>
+        <Alert variant="info">i</Alert>
+        <Alert variant="success">s</Alert>
+      </>,
+    );
+    expect(screen.getByText("w").getAttribute("role")).toBe("alert");
+    expect(screen.getByText("i").getAttribute("role")).toBe("status");
+    expect(screen.getByText("s").getAttribute("role")).toBe("status");
+  });
+
   it("marks a badge with its variant, so a style can be keyed on data rather than colour", () => {
     render(<Badge variant="success">done</Badge>);
     expect(screen.getByText("done").getAttribute("data-variant")).toBe("success");
@@ -116,8 +129,9 @@ describe("Alert and Badge", () => {
       const el = screen.getByText("x");
       expect(el.getAttribute("data-variant")).toBe(variant);
       expect(el.className).toContain("border-transparent");
+      // Destructive has no surface role; it wears a tint of its own role.
       expect(el.className).toMatch(
-        /\bbg-(success|warning|info|destructive)-surface\b|\bbg-muted\b/,
+        /\bbg-(success|warning|info)-surface\b|\bbg-destructive\/10\b|\bbg-muted\b/,
       );
       // The steps live behind the roles in styles.css; the component names none.
       expect(el.className).not.toMatch(

@@ -1,6 +1,18 @@
+"use client";
+
 import * as React from "react";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronsLeftIcon,
+  ChevronsRightIcon,
+} from "lucide-react";
 
 import { cn } from "cn";
+import { Button } from "@/components/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/select";
+import { Skeleton } from "@/components/skeleton";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/tooltip";
 
 /**
  * A bordered, rounded frame around a native table. The frame is the scroll
@@ -46,7 +58,7 @@ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
     <tfoot
       data-slot="table-footer"
       className={cn(
-        "border-t bg-muted/50 font-medium [&_tr]:hover:bg-transparent [&>tr]:last:border-b-0",
+        "border-t bg-muted/50 font-medium [&_td]:h-12 [&_td]:py-0 [&_tr]:hover:bg-transparent [&>tr]:last:border-b-0",
         className,
       )}
       {...props}
@@ -103,4 +115,185 @@ function TableCaption({ className, ...props }: React.ComponentProps<"caption">) 
   );
 }
 
-export { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableCaption };
+function PagerButton({
+  label,
+  disabled,
+  onClick,
+  children,
+}: {
+  label: string;
+  disabled: boolean;
+  onClick?: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant="outline"
+          size="icon"
+          aria-label={label}
+          disabled={disabled}
+          onClick={onClick}
+          className="[&_svg]:stroke-[1.75]"
+        >
+          {children}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+/**
+ * The table's footer when it pages: the range on the left; on the right Rows per page, the
+ * page position in a fixed lane, and first / previous / next / last. It is a `<tfoot>`, so it
+ * sits inside the table's own frame; `colSpan` should cover every column. With one page or
+ * none (`pageCount <= 1`) it is a count only (`total` and `unit`), and `loading` swaps the
+ * range and page number for skeletons and disables the pager. The range is a polite live
+ * region, so a page change announces itself.
+ */
+function TablePagination({
+  className,
+  colSpan = 100,
+  page,
+  pageCount,
+  pageSize,
+  total,
+  unit = "rows",
+  pageSizeOptions = [10, 20, 50, 100],
+  onPageChange,
+  onPageSizeChange,
+  loading = false,
+  ...props
+}: Omit<React.ComponentProps<"tfoot">, "children"> & {
+  colSpan?: number;
+  /** The current page, from 1. */
+  page: number;
+  pageCount: number;
+  pageSize: number;
+  total: number;
+  /** The noun after the count when there is no pager: `3 runs`. */
+  unit?: string;
+  pageSizeOptions?: number[];
+  onPageChange?: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
+  loading?: boolean;
+}) {
+  const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
+  const to = Math.min(page * pageSize, total);
+  const paged = pageCount > 1;
+  const first = page <= 1;
+  const last = page >= pageCount;
+
+  return (
+    <tfoot
+      data-slot="table-pagination"
+      className={cn("border-t bg-muted/50", className)}
+      {...props}
+    >
+      <tr>
+        <td colSpan={colSpan} className="h-12 px-3 py-0">
+          <div className="flex items-center justify-between gap-4">
+            <div aria-live="polite" className="flex items-center gap-1.5 text-sm">
+              {loading ? (
+                <Skeleton className="h-3.5 w-24 rounded-sm bg-muted-foreground/20" />
+              ) : paged ? (
+                <>
+                  <span className="font-mono tabular-nums">
+                    {from}–{to}
+                  </span>
+                  <span>of</span>
+                  <span className="font-mono tabular-nums">{total}</span>
+                </>
+              ) : (
+                <>
+                  <span className="font-mono tabular-nums">{total}</span>
+                  <span>{unit}</span>
+                </>
+              )}
+            </div>
+            {paged || loading ? (
+              <TooltipProvider>
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">Rows per page</span>
+                    <Select
+                      value={String(pageSize)}
+                      onValueChange={(value) => onPageSizeChange?.(Number(value))}
+                    >
+                      <SelectTrigger aria-label="Rows per page" className="w-16 font-mono">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {pageSizeOptions.map((option) => (
+                          <SelectItem key={option} value={String(option)} className="font-mono">
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex w-26 shrink-0 items-center justify-end gap-1.5">
+                    <span>Page</span>
+                    {loading ? (
+                      <Skeleton className="h-3.5 w-14 shrink-0 rounded-sm bg-muted-foreground/20" />
+                    ) : (
+                      <>
+                        <span className="font-mono tabular-nums">{page}</span>
+                        <span>of</span>
+                        <span className="font-mono tabular-nums">{pageCount}</span>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <PagerButton
+                      label="First page"
+                      disabled={loading || first}
+                      onClick={() => onPageChange?.(1)}
+                    >
+                      <ChevronsLeftIcon />
+                    </PagerButton>
+                    <PagerButton
+                      label="Previous page"
+                      disabled={loading || first}
+                      onClick={() => onPageChange?.(page - 1)}
+                    >
+                      <ChevronLeftIcon />
+                    </PagerButton>
+                    <PagerButton
+                      label="Next page"
+                      disabled={loading || last}
+                      onClick={() => onPageChange?.(page + 1)}
+                    >
+                      <ChevronRightIcon />
+                    </PagerButton>
+                    <PagerButton
+                      label="Last page"
+                      disabled={loading || last}
+                      onClick={() => onPageChange?.(pageCount)}
+                    >
+                      <ChevronsRightIcon />
+                    </PagerButton>
+                  </div>
+                </div>
+              </TooltipProvider>
+            ) : null}
+          </div>
+        </td>
+      </tr>
+    </tfoot>
+  );
+}
+
+export {
+  Table,
+  TableHeader,
+  TableBody,
+  TableFooter,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableCaption,
+  TablePagination,
+};

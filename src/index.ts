@@ -266,6 +266,7 @@ export {
   TableFooter,
   TableHead,
   TableHeader,
+  TablePagination,
   TableRow,
 } from "./components/table.js";
 export {

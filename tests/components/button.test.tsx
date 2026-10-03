@@ -71,23 +71,23 @@ describe("Button", () => {
 
   it("lets a caller's className outrank a size's own geometry", () => {
     render(
-      <Button variant="link" size="inline" className="h-8">
+      <Button variant="link" size="sm" className="h-auto">
         More
       </Button>,
     );
     const classes = screen.getByRole("button").className.split(" ");
-    expect(classes).toContain("h-8");
-    expect(classes).not.toContain("h-auto");
+    expect(classes).toContain("h-auto");
+    expect(classes).not.toContain("h-7");
   });
 
   it("marks its variant and size as data, so a parent can style by decision rather than by colour", () => {
     render(
-      <Button variant="link" size="inline">
+      <Button variant="link" size="sm">
         Read the docs
       </Button>,
     );
     const button = screen.getByRole("button", { name: "Read the docs" });
     expect(button.getAttribute("data-variant")).toBe("link");
-    expect(button.getAttribute("data-size")).toBe("inline");
+    expect(button.getAttribute("data-size")).toBe("sm");
   });
 });

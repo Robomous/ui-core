@@ -40,8 +40,8 @@ const itemVariants = cva(
         muted: "border-transparent bg-muted/50",
       },
       size: {
-        default: "gap-2.5 px-3 py-2.5",
-        sm: "gap-2.5 px-3 py-2.5",
+        default: "gap-2 px-2.5 py-2",
+        sm: "gap-2 px-2.5 py-2",
         xs: "gap-2 px-2.5 py-2 in-data-[slot=dropdown-menu-content]:p-0",
       },
     },
@@ -77,7 +77,7 @@ const itemMediaVariants = cva(
     variants: {
       variant: {
         default: "bg-transparent",
-        icon: "[&_svg:not([class*='size-'])]:size-4",
+        icon: "size-10 rounded-sm bg-muted group-data-[size=sm]/item:size-8 group-data-[size=xs]/item:size-6 group-data-[variant=muted]/item:bg-background [&_svg:not([class*='size-'])]:size-4 group-data-[size=xs]/item:[&_svg:not([class*='size-'])]:size-3.5",
         image:
           "size-10 overflow-hidden rounded-sm group-data-[size=sm]/item:size-8 group-data-[size=xs]/item:size-6 [&_img]:size-full [&_img]:object-cover",
       },
@@ -108,7 +108,7 @@ function ItemContent({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="item-content"
       className={cn(
-        "flex flex-1 flex-col gap-1 group-data-[size=xs]/item:gap-0 [&+[data-slot=item-content]]:flex-none",
+        "flex flex-1 flex-col gap-px group-data-[size=xs]/item:gap-0 [&+[data-slot=item-content]]:flex-none",
         className,
       )}
       {...props}

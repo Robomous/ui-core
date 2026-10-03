@@ -1,6 +1,6 @@
 ---
 title: Alert
-description: An in-page notice with two variants, `default` and `destructive`, where the variant recolours the alert's ink and never its border.
+description: An in-page notice with a plain `default` and four tonal variants, `info`, `success`, `warning` and `destructive`, where a variant paints the alert's surface and ink and never its border.
 builtOn:
   - name: native HTML
     docsUrl: https://developer.mozilla.org/docs/Web/Accessibility/ARIA/Roles/alert_role
@@ -26,8 +26,9 @@ import { Alert, AlertTitle, AlertDescription } from "@robomous/ui-core";
 </Alert>
 ```
 
-`role="alert"` announces the mount itself: there is no live-region prop to set and nothing else to
-wire up.
+`default`, `warning` and `destructive` render `role="alert"`, which announces the mount itself;
+`info` and `success` render `role="status"`, announced politely. There is no live-region prop to set
+and nothing else to wire up.
 
 ## Composition
 
@@ -41,9 +42,9 @@ Alert
 
 ## Variants
 
-Two variants. `default` is a paused-but-recoverable notice; `destructive` is a failure that needs
-attention. Either way the variant recolours the alert's ink and its description, never the border
-around it — status is never a stroke.
+`default` is a plain notice on the card surface. `info`, `success`, `warning` and `destructive` are
+tonal: the status's surface role under its ink role, with the icon and description in that same ink.
+No variant recolours the border around it — status is never a stroke.
 
 <Preview demo="alert/variants">
   <Variants client:load />
