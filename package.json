@@ -1,6 +1,6 @@
 {
   "name": "@robomous/ui-core",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Robomous design system, built on top of shadcn/ui: owned React components over Radix, Base UI, cmdk and vaul, and the one stylesheet they resolve through.",
   "license": "Apache-2.0",
   "repository": {
