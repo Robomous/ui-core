@@ -18,11 +18,15 @@ export default function Confirm() {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete this dataset?</DialogTitle>
+          <DialogTitle>Delete warehouse-2024?</DialogTitle>
           <DialogDescription>
-            Eleven batches and their annotations go with it. This cannot be undone.
+            The dataset and everything in it will be removed. This cannot be undone.
           </DialogDescription>
         </DialogHeader>
+        <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2 text-sm">
+          <span className="font-medium">11 batches</span>
+          <span className="text-muted-foreground">4,812 annotations</span>
+        </div>
         <DialogFooter showCloseButton>
           <Button variant="destructive">Delete</Button>
         </DialogFooter>

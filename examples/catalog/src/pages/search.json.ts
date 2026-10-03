@@ -7,7 +7,7 @@ export const GET: APIRoute = async () => {
   const nav = await buildNav();
   const entries = [
     ...nav.sections.map((link) => ({ ...link, group: "Sections" })),
-    ...nav.components.map((link) => ({ ...link, group: "Components" })),
+    ...nav.components.map((link) => ({ ...link, group: link.group ?? "Components" })),
   ];
   return new Response(JSON.stringify(entries), {
     headers: { "Content-Type": "application/json" },

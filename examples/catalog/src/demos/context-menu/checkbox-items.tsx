@@ -6,6 +6,7 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@robomous/ui-core";
+import { ImageIcon } from "@robomous/ui-core/icons";
 import { useState } from "react";
 
 /** Checked, unchecked, and indeterminate — a class kept visible on some cameras but not all. */
@@ -13,10 +14,16 @@ export default function CheckboxItems() {
   const [hidden, setHidden] = useState(true);
   return (
     <ContextMenu>
-      <ContextMenuTrigger className="flex h-32 w-full items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
-        Right-click the frame
+      <ContextMenuTrigger className="flex w-64 flex-col gap-2 rounded-lg border bg-card p-2 select-none">
+        <div className="flex aspect-video items-center justify-center rounded-md bg-muted text-muted-foreground">
+          <ImageIcon className="size-6" />
+        </div>
+        <div className="flex items-center justify-between px-0.5 text-xs">
+          <span className="font-mono">warehouse-cam-04</span>
+          <span className="font-mono text-muted-foreground">1920 × 1080</span>
+        </div>
       </ContextMenuTrigger>
-      <ContextMenuContent>
+      <ContextMenuContent className="w-60">
         <ContextMenuLabel>View options</ContextMenuLabel>
         <ContextMenuSeparator />
         <ContextMenuCheckboxItem checked={hidden} onCheckedChange={setHidden}>

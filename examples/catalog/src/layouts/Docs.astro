@@ -22,19 +22,22 @@ const { prev, next } = neighbours(nav, current);
 
 <Base title={title} description={description}>
   <Header nav={nav} current={current} />
-  <div class="mx-auto flex w-full max-w-[90rem] px-4 md:px-6">
-    <aside class="sticky top-14 no-scrollbar hidden h-[calc(100svh-3.5rem)] w-56 shrink-0 overflow-y-auto md:block">
+  <!-- Three lanes: navigation, the page, and where you are on it. The page
+       column keeps a reading measure and centres in whatever room is left, so
+       the rails never push the prose off its line length. -->
+  <div class="mx-auto grid w-full max-w-[90rem] md:grid-cols-[15rem_minmax(0,1fr)] xl:grid-cols-[15rem_minmax(0,1fr)_14rem]">
+    <aside class="sticky top-14 no-scrollbar hidden h-[calc(100svh-3.5rem)] overflow-y-auto border-r px-3 md:block">
       <DocsSidebar client:load nav={nav} current={current} />
     </aside>
-    <main class="min-w-0 flex-1 py-10 md:px-10 lg:px-16">
+    <main class="min-w-0 px-4 pt-8 pb-16 sm:px-8 md:pt-12 lg:px-12">
       <article class="mx-auto max-w-3xl">
         <slot />
       </article>
-      <div class="mx-auto mt-16 max-w-3xl">
+      <div class="mx-auto mt-20 max-w-3xl">
         <PrevNext prev={prev} next={next} />
       </div>
     </main>
-    <aside class="sticky top-14 hidden h-[calc(100svh-3.5rem)] w-52 shrink-0 py-10 xl:block">
+    <aside class="sticky top-14 hidden h-[calc(100svh-3.5rem)] py-12 pr-6 xl:block">
       <Toc headings={headings} />
     </aside>
   </div>

@@ -22,11 +22,11 @@ export default function RadioGroup() {
           Move to
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent className="w-48" align="start">
         <DropdownMenuLabel>Destination</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuRadioGroup value={destination} onValueChange={setDestination}>
-          <DropdownMenuRadioItem value="review">Review</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="review">Review queue</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="archive">Archive</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="warehouse">Warehouse</DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>

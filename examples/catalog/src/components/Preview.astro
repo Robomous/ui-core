@@ -19,10 +19,12 @@ const alignment = {
 ---
 
 <figure
-  class:list={["my-6 overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10", className]}
+  class:list={["my-6 overflow-hidden rounded-xl ring-1 ring-foreground/10", className]}
   data-demo={demo}
 >
-  <div class:list={["flex min-h-44 flex-wrap gap-3 p-6 md:p-10", alignment]}>
+  <!-- The height follows the demo; the floor only keeps a lone button from
+       looking stranded. -->
+  <div class:list={["flex min-h-40 flex-wrap gap-3 px-6 py-10 md:px-10 md:py-12", alignment]}>
     <slot />
   </div>
   <CodePanel code={code} />
