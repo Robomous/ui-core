@@ -23,7 +23,9 @@ describe("typed toasts", () => {
     const toaster = container.querySelector<HTMLElement>("[data-sonner-toaster]");
     expect(toaster?.style.getPropertyValue("--success-bg")).toBe("var(--success-surface)");
     expect(toaster?.style.getPropertyValue("--success-text")).toBe("var(--success)");
-    expect(toaster?.style.getPropertyValue("--error-bg")).toBe("var(--destructive-surface)");
+    expect(toaster?.style.getPropertyValue("--error-bg")).toBe(
+      "color-mix(in oklch, var(--destructive) 10%, var(--popover))",
+    );
   });
 
   it("stay neutral when the caller turns rich colours off", async () => {

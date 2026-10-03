@@ -7,6 +7,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  Field,
+  FieldLabel,
+  Input,
 } from "@robomous/ui-core";
 
 /** DialogHeader stacks the title and description; DialogFooter right-aligns the actions. */
@@ -21,6 +24,10 @@ export default function Default() {
           <DialogTitle>New dataset</DialogTitle>
           <DialogDescription>Frames are grouped into batches as they arrive.</DialogDescription>
         </DialogHeader>
+        <Field>
+          <FieldLabel htmlFor="dlg-default-name">Name</FieldLabel>
+          <Input id="dlg-default-name" placeholder="warehouse-2025" />
+        </Field>
         <DialogFooter>
           <Button variant="outline">Cancel</Button>
           <Button>Create</Button>

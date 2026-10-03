@@ -21,7 +21,7 @@ export default function CheckboxItems() {
           <SlidersHorizontalIcon />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent className="w-56" align="start">
         <DropdownMenuLabel>Visible classes</DropdownMenuLabel>
         <DropdownMenuCheckboxItem checked={vehicle} onCheckedChange={setVehicle}>
           Vehicle

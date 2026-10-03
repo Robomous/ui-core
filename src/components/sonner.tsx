@@ -66,9 +66,11 @@ const Toaster = ({ ...props }: ToasterProps) => {
           "--warning-bg": "var(--warning-surface)",
           "--warning-text": "var(--warning)",
           "--warning-border": "var(--warning-surface)",
-          "--error-bg": "var(--destructive-surface)",
+          // Destructive has no surface role: the tint is mixed onto the toast's
+          // own background, under the role itself, as on Button.
+          "--error-bg": "color-mix(in oklch, var(--destructive) 10%, var(--popover))",
           "--error-text": "var(--destructive)",
-          "--error-border": "var(--destructive-surface)",
+          "--error-border": "color-mix(in oklch, var(--destructive) 10%, var(--popover))",
           "--border-radius": "var(--radius)",
         } as React.CSSProperties
       }

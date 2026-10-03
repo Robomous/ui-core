@@ -176,17 +176,18 @@ media, and the Toaster's typed toasts (`toast.success`, `toast.error`…).
 
 ### The Badge's status variants
 
-`success`, `warning`, `info` and `destructive` share one recipe: the status's surface role, its ink
-role, a focus ring at matching opacity, and a `/15` step of the ink for the anchor hover. `quiet`
-is `muted` — a state that exists without asking for attention. Geometry is untouched by every
-variant.
+`success`, `warning` and `info` share one recipe: the status's surface role, its ink role, a
+focus ring at matching opacity, and a `/15` step of the ink for the anchor hover. `destructive`
+has no surface role: it wears the Button's destructive recipe — the role over `/10` of itself
+(`/20` in dark), with a `/20` hover (`/30` in dark) — as does every other destructive variant or
+state. `quiet` is `muted` — a state that exists without asking for attention. Geometry is
+untouched by every variant.
 
 ## Action hierarchy
 
 Six Button variants, one intent each: `default` (the one dominant action in a view), `outline`,
 `secondary`, `ghost`, `destructive` (the action that ends something), `link`. Sizes are `default`,
-`xs`, `sm`, `lg`, `icon`, `icon-xs`, `icon-sm`, `icon-lg` and `inline` — the last one `h-auto p-0`
-for a link button inside a sentence.
+`xs`, `sm`, `lg`, `icon`, `icon-xs`, `icon-sm` and `icon-lg`.
 
 **A Button does not submit a form unless asked.** A native `<button>` renders `type="button"` by
 default; `<Button type="submit">` is the explicit opt-in. With `asChild` the child keeps its own
@@ -198,8 +199,8 @@ reports itself with a toast or a Badge while its button stays `default`.
 ## Status and feedback
 
 - **Badge** — a state belonging to a row, a card or a heading, that stays on screen.
-- **Alert** — a condition about the surface the reader is looking at, in place. `default` and
-  `destructive`; no informational or settled Alert.
+- **Alert** — a condition about the surface the reader is looking at, in place. A plain
+  `default` plus four tonal variants (`info`, `success`, `warning`, `destructive`).
 - **Toaster** and `toast` — the outcome of something the reader just did.
 - **Progress** — how much of a known quantity is done. No polarity, no variant; it forwards its
   `value` to the Radix root so `aria-valuenow` is announced with nothing asked of the caller.

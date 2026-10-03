@@ -26,7 +26,8 @@ const links = [
 ---
 
 <header class="sticky top-0 z-40 border-b bg-background/90 backdrop-blur-sm">
-  <div class="mx-auto flex h-14 w-full max-w-[90rem] items-center gap-2 px-4 md:px-6">
+  <!-- md:px-5 puts the wordmark on the sidebar's label edge (px-3 + the label's px-2). -->
+  <div class="mx-auto flex h-14 w-full max-w-[90rem] items-center gap-2 px-4 md:px-5">
     <MobileNav client:load nav={nav} current={current} />
     <a href="/" class="mr-2 font-heading text-sm font-medium">
       {SITE.short}

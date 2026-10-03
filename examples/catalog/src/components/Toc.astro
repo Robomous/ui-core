@@ -12,12 +12,17 @@ const items = headings.filter((heading) => heading.depth === 2 || heading.depth 
 {items.length > 0 && (
   <nav aria-label="On this page" class="text-sm" data-toc>
     <p class="mb-3 font-medium">On This Page</p>
-    <ul class="flex flex-col gap-2">
+    <!-- A rail with the current heading marked on it: position is read from
+         the edge, not only from a colour change. -->
+    <ul class="flex flex-col border-l">
       {items.map((heading) => (
-        <li class={heading.depth === 3 ? "pl-4" : undefined}>
+        <li>
           <a
             href={`#${heading.slug}`}
-            class="block text-muted-foreground transition-colors hover:text-foreground aria-[current=location]:text-foreground"
+            class:list={[
+              "-ml-px block border-l border-transparent py-1 pl-3 text-pretty text-muted-foreground transition-colors hover:text-foreground aria-[current=location]:border-foreground aria-[current=location]:text-foreground",
+              heading.depth === 3 && "pl-6",
+            ]}
           >
             {heading.text}
           </a>

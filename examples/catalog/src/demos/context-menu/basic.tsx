@@ -8,23 +8,34 @@ import {
   ContextMenuShortcut,
   ContextMenuTrigger,
 } from "@robomous/ui-core";
-import { CopyIcon, Trash2Icon } from "@robomous/ui-core/icons";
+import { CopyIcon, DownloadIcon, ImageIcon, Trash2Icon } from "@robomous/ui-core/icons";
 
 /** The trigger is the area itself, not a button — right-click it to open the menu. */
 export default function Basic() {
   return (
     <ContextMenu>
-      <ContextMenuTrigger className="flex h-32 w-full items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
-        Right-click batch-0042.zip
+      <ContextMenuTrigger className="flex w-64 flex-col gap-2 rounded-lg border bg-card p-2 select-none">
+        <div className="flex aspect-video items-center justify-center rounded-md bg-muted text-muted-foreground">
+          <ImageIcon className="size-6" />
+        </div>
+        <div className="flex items-center justify-between px-0.5 text-xs">
+          <span className="font-mono">frame-000184.jpg</span>
+          <span className="font-mono text-muted-foreground">412 KB</span>
+        </div>
       </ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuLabel>batch-0042.zip</ContextMenuLabel>
+      <ContextMenuContent className="w-52">
+        <ContextMenuLabel>frame-000184.jpg</ContextMenuLabel>
         <ContextMenuSeparator />
         <ContextMenuGroup>
           <ContextMenuItem>
             <CopyIcon />
             Copy link
             <ContextMenuShortcut>⌘C</ContextMenuShortcut>
+          </ContextMenuItem>
+          <ContextMenuItem>
+            <DownloadIcon />
+            Download
+            <ContextMenuShortcut>⌘S</ContextMenuShortcut>
           </ContextMenuItem>
         </ContextMenuGroup>
         <ContextMenuSeparator />

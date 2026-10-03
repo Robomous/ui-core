@@ -1,0 +1,31 @@
+---
+import CopyButton from "@/components/CopyButton";
+
+/**
+ * A fenced code block in an MDX body, with a copy button. MDX hands every `pre`
+ * here already highlighted by Shiki, so the text to copy is recovered from the
+ * rendered markup: Shiki puts each line in its own span and escapes only the
+ * five HTML-significant characters, so dropping the tags and decoding those is
+ * exact.
+ */
+const { class: className, ...attributes } = Astro.props;
+const html = await Astro.slots.render("default");
+const code = html
+  .replace(/<[^>]*>/g, "")
+  .replace(/&(lt|gt|quot|apos|amp|#\d+|#x[\da-f]+);/gi, (entity, name: string) => {
+    const named: Record<string, string> = { lt: "<", gt: ">", quot: '"', apos: "'", amp: "&" };
+    if (name in named) return named[name]!;
+    const hex = name.toLowerCase().startsWith("#x");
+    const point = Number.parseInt(name.slice(hex ? 2 : 1), hex ? 16 : 10);
+    return Number.isNaN(point) ? entity : String.fromCodePoint(point);
+  })
+  .replace(/\n$/, "");
+---
+
+<div class="relative">
+  <!-- pr-12 keeps a long first line from running under the button. -->
+  <pre {...attributes} class:list={[className, "pr-12"]} set:html={html}></pre>
+  <div class="absolute top-2 right-2">
+    <CopyButton client:visible code={code} />
+  </div>
+</div>

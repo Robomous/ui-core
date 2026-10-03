@@ -17,9 +17,11 @@ export default function DocsSidebar({ nav, current }: { nav: Nav; current: strin
   return (
     <SidebarProvider className="min-h-0 w-auto">
       <Sidebar collapsible="none" className="w-full bg-transparent">
-        <SidebarContent className="gap-6 py-6">
-          <Group label="Sections" links={nav.sections} current={current} />
-          <Group label="Components" links={nav.components} current={current} />
+        <SidebarContent className="gap-5 py-6">
+          <Group label="Getting started" links={nav.sections} current={current} />
+          {nav.groups.map((group) => (
+            <Group key={group.label} label={group.label} links={group.links} current={current} />
+          ))}
         </SidebarContent>
       </Sidebar>
     </SidebarProvider>

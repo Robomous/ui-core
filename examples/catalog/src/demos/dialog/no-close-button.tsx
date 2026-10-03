@@ -1,4 +1,5 @@
 import {
+  Badge,
   Button,
   Dialog,
   DialogContent,
@@ -9,7 +10,7 @@ import {
   DialogTrigger,
 } from "@robomous/ui-core";
 
-/** `showCloseButton={false}` on DialogContent removes the corner close affordance entirely. */
+/** `showCloseButton={false}` removes the corner close affordance entirely. */
 export default function NoCloseButton() {
   return (
     <Dialog>
@@ -19,10 +20,18 @@ export default function NoCloseButton() {
       <DialogContent showCloseButton={false}>
         <DialogHeader>
           <DialogTitle>Retraining queued</DialogTitle>
-          <DialogDescription>
-            org/model-base will retrain against batch-0044 once ingest finishes.
-          </DialogDescription>
+          <DialogDescription>It starts once ingest finishes.</DialogDescription>
         </DialogHeader>
+        <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
+          <dt className="text-muted-foreground">Model</dt>
+          <dd className="font-medium">org/detector-base</dd>
+          <dt className="text-muted-foreground">Dataset</dt>
+          <dd className="font-medium">batch-0044</dd>
+          <dt className="text-muted-foreground">Status</dt>
+          <dd>
+            <Badge variant="secondary">Queued</Badge>
+          </dd>
+        </dl>
         <DialogFooter>
           <Button>Got it</Button>
         </DialogFooter>

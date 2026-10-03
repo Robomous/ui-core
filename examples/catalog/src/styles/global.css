@@ -27,13 +27,13 @@
 
 /* MDX bodies: the few element styles a docs page needs, all on tokens. */
 .docs-prose > h2 {
-  @apply mt-12 mb-4 scroll-mt-20 text-xl font-medium tracking-tight;
+  @apply mt-16 mb-4 scroll-mt-20 text-xl font-medium tracking-tight text-balance;
 }
 .docs-prose > h3 {
-  @apply mt-8 mb-3 scroll-mt-20 text-base font-medium;
+  @apply mt-10 mb-3 scroll-mt-20 text-base font-medium text-balance;
 }
 .docs-prose p:not([data-demo] *) {
-  @apply my-4 leading-7;
+  @apply my-4 leading-7 text-pretty;
 }
 .docs-prose a:not([data-demo] *) {
   @apply underline underline-offset-4 hover:text-foreground/80;

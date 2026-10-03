@@ -10,6 +10,7 @@ import Caption from "@/demos/table/caption";
 import Dataset from "@/demos/table/dataset";
 import EmptyState from "@/demos/table/empty-state";
 import Footer from "@/demos/table/footer";
+import Pagination from "@/demos/table/pagination";
 
 <Preview demo="table/dataset">
   <Dataset client:load />
@@ -81,6 +82,17 @@ above rather than continuing them.
 
 <Preview demo="table/footer">
   <Footer client:load />
+</Preview>
+
+## Pagination
+
+`TablePagination` is the footer of a table that pages: the range on the left, Rows per page, the
+page position and first / previous / next / last on the right. It renders a `<tfoot>`, so give it
+`colSpan` for the columns above. With one page it is a count only, and `loading` swaps the range
+for a skeleton and disables the pager.
+
+<Preview demo="table/pagination">
+  <Pagination client:load />
 </Preview>
 
 ## Caption

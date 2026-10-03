@@ -82,7 +82,7 @@ const ROLE_NAMES = [
   "info",
   "info-surface",
   "destructive",
-  "destructive-surface",
+  "destructive-foreground",
   "border",
   "input",
   "ring",

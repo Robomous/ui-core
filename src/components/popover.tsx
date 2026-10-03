@@ -38,8 +38,22 @@ function PopoverContent({
   );
 }
 
+// Radix's popper takes its anchor from a callback ref that only reports an
+// attach. On the first commit the trigger is an anchor too and registers after
+// this one; the trigger then remounts without its anchor wrapper once Radix
+// learns a custom anchor exists, leaving the popper measuring a detached button
+// — the content opens at the viewport's corner. Remounting this anchor once,
+// in that same update, makes it register last.
 function PopoverAnchor({ ...props }: React.ComponentProps<typeof PopoverPrimitive.Anchor>) {
-  return <PopoverPrimitive.Anchor data-slot="popover-anchor" {...props} />;
+  const [registered, setRegistered] = React.useState(false);
+  React.useEffect(() => setRegistered(true), []);
+  return (
+    <PopoverPrimitive.Anchor
+      key={registered ? "registered" : "initial"}
+      data-slot="popover-anchor"
+      {...props}
+    />
+  );
 }
 
 function PopoverHeader({ className, ...props }: React.ComponentProps<"div">) {

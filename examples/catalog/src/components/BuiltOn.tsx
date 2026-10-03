@@ -22,7 +22,7 @@ export default function BuiltOn({ builtOn }: { builtOn: BuiltOnEntry[] }) {
       ))}
       <span className="text-muted-foreground">This component uses {sentence}.</span>
       {primary ? (
-        <Button asChild variant="link" size="inline" className="ml-auto">
+        <Button asChild variant="link" className="ml-auto h-auto p-0">
           {/* One way out of the page: the upstream API, or its docs where there is no
               separate API page (cmdk, a native element). */}
           <a href={primary.apiUrl ?? primary.docsUrl} target="_blank" rel="noreferrer">

@@ -312,7 +312,11 @@ const STATUS = [
   { name: "success", solid: "bg-success", soft: "bg-success-surface text-success" },
   { name: "warning", solid: "bg-warning", soft: "bg-warning-surface text-warning" },
   { name: "info", solid: "bg-info", soft: "bg-info-surface text-info" },
-  { name: "destructive", solid: "bg-destructive", soft: "bg-destructive-surface text-destructive" },
+  {
+    name: "destructive",
+    solid: "bg-destructive",
+    soft: "bg-destructive/10 text-destructive dark:bg-destructive/20",
+  },
 ] as const;
 
 const STRUCTURE = [

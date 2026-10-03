@@ -45,7 +45,6 @@ describe("extract-api: declaration styles", () => {
     expect(variant.default).toBe('"default"');
     const size = prop("button", "Button", "size");
     expect(size.type).toContain('"icon-xs"');
-    expect(size.type).toContain('"inline"');
     expect(prop("button", "Button", "asChild")).toMatchObject({
       type: "boolean",
       default: "false",
