@@ -77,6 +77,7 @@ docs/             DESIGN.md, CONTRIBUTING.md, components/, MIGRATION-*.md
 - [docs/components/README.md](docs/components/README.md) — what each component is for.
 - [docs/MIGRATION-0.3.md](docs/MIGRATION-0.3.md) — moving from 0.2 to 0.3.
 - [docs/MIGRATION-0.5.md](docs/MIGRATION-0.5.md) — moving from 0.3/0.4 to 0.5, the next release after 0.2.1.
+- [docs/MIGRATION-0.6.md](docs/MIGRATION-0.6.md) — moving from 0.5 to 0.6.
 
 ## Verification
 
