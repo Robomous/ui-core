@@ -1,25 +1,30 @@
 import { Button } from "@robomous/ui-core";
-import { PlusIcon, TrashIcon } from "@robomous/ui-core/icons";
+import { RefreshCwIcon } from "@robomous/ui-core/icons";
 
-/** Square sizes for a bare icon. The label moves to `aria-label`. */
+const sizes = [
+  { text: "xs", icon: "icon-xs" },
+  { text: "sm", icon: "icon-sm" },
+  { text: "default", icon: "icon" },
+  { text: "lg", icon: "icon-lg" },
+] as const;
+
+/** Square sizes for a bare icon, each as tall as its text sibling. The label moves to `aria-label`. */
 export default function Icon() {
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <Button size="icon-xs" aria-label="Add, extra small">
-        <PlusIcon />
-      </Button>
-      <Button size="icon-sm" aria-label="Add, small">
-        <PlusIcon />
-      </Button>
-      <Button size="icon" aria-label="Add">
-        <PlusIcon />
-      </Button>
-      <Button size="icon-lg" aria-label="Add, large">
-        <PlusIcon />
-      </Button>
-      <Button variant="destructive" size="icon" aria-label="Delete">
-        <TrashIcon />
-      </Button>
+    <div className="flex w-fit items-end gap-8">
+      {sizes.map(({ text, icon }) => (
+        <div key={icon} className="flex flex-col items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            <Button variant="outline" size={text}>
+              Refresh
+            </Button>
+            <Button variant="outline" size={icon} aria-label={`Refresh telemetry, ${text}`}>
+              <RefreshCwIcon />
+            </Button>
+          </div>
+          <span className="text-muted-foreground">{icon}</span>
+        </div>
+      ))}
     </div>
   );
 }

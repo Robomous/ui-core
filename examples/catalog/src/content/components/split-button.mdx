@@ -1,0 +1,135 @@
+---
+title: SplitButton
+description: One clear default action welded to a menu of its close variants. Only `default`, `secondary` and `outline` are offered, so a destructive button never hides in a dropdown.
+related: [button-group, dropdown-menu, button]
+builtOn:
+  - name: Radix Dropdown Menu
+    docsUrl: https://www.radix-ui.com/primitives/docs/components/dropdown-menu
+    apiUrl: https://www.radix-ui.com/primitives/docs/components/dropdown-menu#api-reference
+---
+
+import Default from "@/demos/split-button/default";
+import Disabled from "@/demos/split-button/disabled";
+import LastUsed from "@/demos/split-button/last-used";
+import MenuAlignment from "@/demos/split-button/menu-alignment";
+import Overview from "@/demos/split-button/overview";
+import WithIcon from "@/demos/split-button/with-icon";
+
+<Preview demo="split-button/overview" hero>
+  <Overview client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { DropdownMenuGroup, DropdownMenuItem, SplitButton } from "@robomous/ui-core";
+
+export function DeployButton() {
+  return (
+    <SplitButton label="Deploy" onClick={deploy} menuLabel="More deploy options">
+      <DropdownMenuGroup>
+        <DropdownMenuItem onSelect={deploy}>Deploy</DropdownMenuItem>
+        <DropdownMenuItem onSelect={deployToStaging}>Deploy to Staging</DropdownMenuItem>
+      </DropdownMenuGroup>
+    </SplitButton>
+  );
+}
+```
+
+<Callout title="Name the chevron">
+  The chevron button has no visible text, so `menuLabel` is its only name for a screen reader. Write
+  a sentence that names the set, such as `More deploy options`, not just "More".
+</Callout>
+
+## Composition
+
+```text
+SplitButton
+└─ ButtonGroup
+   ├─ Button                              the primary action: `label`, optional `icon`
+   └─ DropdownMenu
+      ├─ DropdownMenuTrigger → Button     the chevron: `menuLabel`
+      └─ DropdownMenuContent → children
+```
+
+## Examples
+
+### Variants and sizes
+
+`default` is the page's primary action, `secondary` and `outline` suit a toolbar. Three sizes
+(`sm`, `default`, `lg`) step the chevron up and down with the label, and a filled variant draws a
+hairline seam between the halves where an outline one shares its border.
+
+<Preview demo="split-button/default">
+  <Default client:load />
+</Preview>
+
+### Remember the last choice
+
+When the variants are alternatives to the same job, such as an export format, let the menu choose and
+the primary button repeat. Use a `DropdownMenuRadioGroup` so the checked item is the one the label
+names, and the next export is one click.
+
+<Preview demo="split-button/last-used">
+  <LastUsed client:load />
+</Preview>
+
+### With an icon
+
+`icon` leads the label, with `data-icon="inline-start"` for the same padding a `Button` uses. Put a
+destructive item last, under a separator, so it is the hardest to hit by accident.
+
+<Preview demo="split-button/with-icon">
+  <WithIcon client:load />
+</Preview>
+
+### Menu alignment
+
+The menu opens aligned to the start of the button, which suits a control on the left. When the
+control sits flush against the right edge of its container, pass `menuAlign="end"` so the menu
+opens inward instead of past the edge.
+
+<Preview demo="split-button/menu-alignment">
+  <MenuAlignment client:load />
+</Preview>
+
+### Disabled
+
+`disabled` turns off the primary button and the trigger together. Say why the action is blocked
+nearby, since neither half can be focused to explain it.
+
+<Preview demo="split-button/disabled">
+  <Disabled client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Use it when one action is the clear default and one to four close variants belong beside it.",
+    "Mirror the primary action as the menu's first item, with the same words.",
+    "Title Case every item as Verb + Noun, and put destructive items last under a separator.",
+    'Pass `menuAlign="end"` when the button sits at the right edge of its container.',
+  ]}
+  dont={[
+    "Don't use it for unrelated actions; use a `DropdownMenu` behind a single button.",
+    "Don't make the primary action the dangerous one.",
+    "Don't pack more than four or five items in; the menu should stay a glance.",
+    'Don\'t leave `menuLabel` as a bare "More".',
+  ]}
+/>
+
+## Accessibility
+
+The chevron is a menu trigger from Radix `DropdownMenu`: it sets `aria-haspopup="menu"` and
+`aria-expanded`, and the menu closes and returns focus to it on selection or Escape. The primary
+button stays a plain button, so each half is its own tab stop.
+
+<Keyboard
+  keys={[
+    ["Enter / Space", "Runs the primary action, or opens the menu from the chevron."],
+    ["ArrowDown", "Opens the menu from the chevron and moves through its items."],
+    ["Escape", "Closes the menu and returns focus to the chevron."],
+    ["Tab", "Moves from the primary button to the chevron, then on."],
+  ]}
+/>

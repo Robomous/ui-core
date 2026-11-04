@@ -1,56 +1,124 @@
 ---
 title: ScrollArea
 description: A scroll region with its own thin, themeable scrollbar. The viewport inside it is the actual scroll container, not the root element you size.
+related: [table, command, show-more, drawer]
 builtOn:
   - name: Radix ScrollArea
     docsUrl: https://www.radix-ui.com/primitives/docs/components/scroll-area
     apiUrl: https://www.radix-ui.com/primitives/docs/components/scroll-area#api-reference
 ---
 
-import VerticalList from "@/demos/scroll-area/vertical-list";
+import Both from "@/demos/scroll-area/both";
+import FixedHeader from "@/demos/scroll-area/fixed-header";
 import Horizontal from "@/demos/scroll-area/horizontal";
+import Overview from "@/demos/scroll-area/overview";
+import VerticalList from "@/demos/scroll-area/vertical-list";
 
-<Preview demo="scroll-area/vertical-list">
-  <VerticalList client:load />
+<Preview demo="scroll-area/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import { ScrollArea } from "@robomous/ui-core";
+
+export function Checkpoints({ files }: { files: string[] }) {
+  return (
+    <ScrollArea className="h-48 w-64 rounded-lg border">
+      <ul className="flex flex-col gap-1 p-2">
+        {files.map((file) => (
+          <li key={file}>{file}</li>
+        ))}
+      </ul>
+    </ScrollArea>
+  );
+}
 ```
 
-```tsx
-<ScrollArea className="h-40 w-64 rounded-lg border">
-  <div className="flex flex-col gap-1 p-2">{/* content taller than 10rem */}</div>
-</ScrollArea>
-```
-
-Size the `ScrollArea` itself (`h-*`, `w-*`); the viewport inside it fills that box and scrolls, so
-the content can be as tall as it needs to be.
+<Callout title="Give the root a height, not a max-height" tone="warning">
+  The viewport is `size-full`, so it needs a definite box to fill. With `max-h-*` on the root the
+  percentage has nothing to resolve against, and the region grows with its content instead of
+  scrolling. Use `h-*` (or a flex/grid parent that fixes the height).
+</Callout>
 
 ## Composition
 
 ```text
 ScrollArea
-                                       real scrolling viewport and a corner
-└─ ScrollBar
+└─ ScrollBar   vertical is built in; add one with orientation="horizontal" for the x-axis
 ```
 
-## Vertical list
+## Examples
 
-The viewport, not the `ScrollArea` root, is the scroll container: sizing goes on the root, content
-grows freely inside it.
+### Vertical list
+
+The default case. Size the root (`h-*`, `w-*`) and let the content grow inside it; the viewport
+scrolls it and the scrollbar appears only while it is needed. The viewport fades the edge that
+still has content behind it, and only that edge: nothing fades at the top until you scroll, and
+the last row comes back to full strength at the bottom. Pass `fade="none"` for hard edges.
 
 <Preview demo="scroll-area/vertical-list">
   <VerticalList client:load />
 </Preview>
 
-## Horizontal
+### Horizontal
 
-A second `ScrollBar` with `orientation="horizontal"` tracks the viewport's x-axis instead of its
-default y-axis.
+A vertical scrollbar ships with every `ScrollArea`. For the x-axis, add a second
+`<ScrollBar orientation="horizontal" />` as a child, and keep the items from shrinking
+(`shrink-0`, `whitespace-nowrap`) so they overflow instead of wrapping. Set `fade="x"` so the
+side edges fade instead of the top and bottom.
 
 <Preview demo="scroll-area/horizontal">
   <Horizontal client:load />
 </Preview>
+
+### Both directions
+
+Wide content such as a JSON payload needs both axes. Adding the horizontal `ScrollBar` is enough;
+the corner where the two tracks meet is rendered for you, so they never overlap.
+
+<Preview demo="scroll-area/both">
+  <Both client:load />
+</Preview>
+
+### Fixed header
+
+Anything that should stay in view, like a title and a count, belongs outside the `ScrollArea`
+as a sibling above it. The region then scrolls under the header without any `sticky` positioning,
+and the border and radius stay on the outer wrapper.
+
+<Preview demo="scroll-area/fixed-header">
+  <FixedHeader client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Put `h-*` and `w-*` on the `ScrollArea`; the viewport fills it.",
+    "Use it where a themed scrollbar matters: logs, side panels, lists inside cards.",
+    "Add `ScrollBar orientation=\"horizontal\"` when content can be wider than the box.",
+    "Keep the header or toolbar of a panel outside the scrolling region.",
+  ]}
+  dont={[
+    "Don't scroll the whole page with it; the browser's own scrollbar is the right one there.",
+    "Don't use `max-h-*` on the root and expect it to scroll.",
+    "Don't nest scroll regions that scroll the same axis; wheel and touch input gets trapped.",
+    "Don't hide content a reader must see behind a scroll; show it, or use `ShowMore`.",
+  ]}
+/>
+
+## Accessibility
+
+The scroll container is a native overflow element, so wheel, touch, and keyboard scrolling work as
+the browser does them, with no ARIA layered on top. The viewport shows a focus ring when it takes
+focus.
+
+<Keyboard
+  keys={[
+    ["Arrow Up / Arrow Down", "Scrolls the focused region a step."],
+    ["Page Up / Page Down", "Scrolls it a page."],
+    ["Home / End", "Jumps to the start or end."],
+  ]}
+/>

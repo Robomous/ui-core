@@ -1,0 +1,114 @@
+---
+title: LoadingDots
+description: Three breathing dots for work running in the background, set inline after the words that name it.
+related: [spinner, progress, skeleton, badge]
+builtOn:
+  - name: native HTML
+    docsUrl: https://developer.mozilla.org/docs/Web/HTML/Element/span
+---
+
+import Default from "@/demos/loading-dots/default";
+import InContext from "@/demos/loading-dots/in-context";
+import Overview from "@/demos/loading-dots/overview";
+import Steps from "@/demos/loading-dots/steps";
+import Tones from "@/demos/loading-dots/tones";
+import WithText from "@/demos/loading-dots/with-text";
+
+<Preview demo="loading-dots/overview" hero>
+  <Overview client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { LoadingDots } from "@robomous/ui-core";
+
+export function SyncStatus() {
+  return <LoadingDots className="text-muted-foreground">Syncing telemetry</LoadingDots>;
+}
+```
+
+<Callout title="The label is the status">
+  The dots are decoration and hidden from assistive technology; the words you put in front of them
+  are what is announced. Use a verb in the present tense, and never keep the dots after the work
+  finishes: `Saved` with dots says the opposite of what happened.
+</Callout>
+
+## Composition
+
+```text
+LoadingDots           inline span, a polite live region
+├─ children           the words that name the work
+└─ three dots         decorative, aria-hidden
+```
+
+## Examples
+
+### With text
+
+The label names the work in flight, and the dots only say it is still going. Be specific, and add a
+number when you have one, so a wait longer than a second still says what is happening.
+
+<Preview demo="loading-dots/with-text">
+  <WithText client:load />
+</Preview>
+
+### Sizes
+
+`size` is the dot diameter in pixels, 4 by default. Pass it only when the default does not sit well
+beside the type: smaller next to caption text, larger next to a heading.
+
+<Preview demo="loading-dots/default">
+  <Default client:load />
+</Preview>
+
+### Colour
+
+The dots take the current text colour, so a colour utility on the wrapper tints the label and dots
+together. Use `text-muted-foreground` for background chatter and a status colour when the wait
+belongs to that status.
+
+<Preview demo="loading-dots/tones">
+  <Tones client:load />
+</Preview>
+
+### Steps of a job
+
+In a sequence, give the dots only to the step in flight. Finished steps get a check and waiting ones
+stay muted, so the reader sees where the job is without a progress bar.
+
+<Preview demo="loading-dots/steps">
+  <Steps client:load />
+</Preview>
+
+### In a list
+
+In a list the dots replace a status only while it is changing. When the run finishes, swap them for
+a `Badge`, so every row ends in a settled state.
+
+<Preview demo="loading-dots/in-context">
+  <InContext client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Name the work in flight: \"Saving\", \"Uploading 312 frames\".",
+    "Use it for short, indeterminate waits that belong in a line of text.",
+    "Swap it for a settled status as soon as the work finishes or fails.",
+    "Inherit the text colour; set it on the wrapper if you need a tone.",
+  ]}
+  dont={[
+    "Don't use it with a finished verb such as \"Saved\".",
+    "Don't use it without words; the dots alone say nothing.",
+    "Don't use it when you can measure progress; show a `Progress` bar.",
+    "Don't put it inside a button; use a `Spinner` in the icon slot.",
+  ]}
+/>
+
+## Accessibility
+
+The wrapper is a polite live region (`aria-live="polite"`), so its label is announced when it
+appears and the dots, hidden with `aria-hidden`, are skipped. The animation collapses under
+`prefers-reduced-motion`, so the label must carry the meaning on its own.

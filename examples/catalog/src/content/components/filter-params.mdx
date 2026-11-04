@@ -1,0 +1,134 @@
+---
+title: FilterParams
+description: A filter bar of pills over a searchable list of each filter's options, with suggestions, readonly context and URL-backed state through `useFilterParams`.
+related: [search-input, select, combobox, table]
+builtOn:
+  - name: Radix Popover
+    docsUrl: https://www.radix-ui.com/primitives/docs/components/popover
+    apiUrl: https://www.radix-ui.com/primitives/docs/components/popover#api-reference
+  - name: cmdk
+    docsUrl: https://github.com/pacocoursey/cmdk
+---
+
+import Overview from "@/demos/filter-params/overview";
+import Readonly from "@/demos/filter-params/readonly";
+import Suggestions from "@/demos/filter-params/suggestions";
+import Uncontrolled from "@/demos/filter-params/uncontrolled";
+import Url from "@/demos/filter-params/url";
+
+<Preview demo="filter-params/overview" hero>
+  <Overview client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { FilterParamsBar, useFilterParams, type FilterDefinition } from "@robomous/ui-core";
+
+const filters: FilterDefinition[] = [
+  {
+    id: "status",
+    label: "Status",
+    options: [
+      { value: "running", label: "Running" },
+      { value: "finished", label: "Finished" },
+    ],
+  },
+];
+
+export function RunFilters() {
+  const [values, setValues] = useFilterParams(["status"]);
+  return <FilterParamsBar filters={filters} values={values} onValuesChange={setValues} />;
+}
+```
+
+<Callout title="The bar filters nothing by itself">
+  `FilterParamsBar` only edits the constraints. Read `values` in your page and filter the rows (or
+  the query) with it. Each filter's `id` is the URL parameter it owns, and picking a selected option
+  again clears it.
+</Callout>
+
+## Composition
+
+```text
+FilterParamsBar
+├─ Popover → Select (filter) + cmdk list (options)
+└─ pills: applied, suggested, readonly
+useFilterParams
+```
+
+## Examples
+
+### Uncontrolled
+
+Without `values` the bar keeps its own state. Seed it with `defaultValues`, a map of filter id to
+option value, and rename the button with `addLabel` when "Add filter" is too generic. Use this when
+nothing else on the page reads the filters.
+
+<Preview demo="filter-params/uncontrolled">
+  <Uncontrolled client:load />
+</Preview>
+
+### Suggestions
+
+A `suggestion` draws a dashed pill for a useful starting value, such as the one filter people reach
+for first. It stays optional until pressed, then becomes an ordinary pill. Offer one or two, not
+every filter.
+
+<Preview demo="filter-params/suggestions">
+  <Suggestions client:load />
+</Preview>
+
+### Readonly filters
+
+A `readonly` filter shows page context that cannot be changed or removed, such as the site
+a list is scoped to. `note` explains why in a hover card on the pill, so the reader knows where to
+change it.
+
+<Preview demo="filter-params/readonly">
+  <Readonly client:load />
+</Preview>
+
+### In the URL
+
+`useFilterParams` reads and writes only the parameters it is given, so removing a pill never clears
+unrelated page state, and it replaces the history entry rather than pushing one. Refresh or share the
+page and the filters stay. Try a filter here and look at the address bar.
+
+<Preview demo="filter-params/url">
+  <Url client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Use it on list pages where the active constraints should be visible, linkable and kept on refresh.",
+    "Keep filter labels to a word or two, and option labels specific enough to read without reopening.",
+    "Pair it with `useFilterParams` so a filtered view can be shared as a link.",
+    "Show an empty state in the list when no row matches the filters.",
+  ]}
+  dont={[
+    "Don't use it for free-text search; use a `SearchInput` beside it.",
+    "Don't offer a filter with only one option unless it is `readonly` context.",
+    "Don't give every filter a `suggestion`; the dashed pills become noise.",
+    "Don't share one parameter id between two filters; each `id` owns its URL parameter.",
+  ]}
+/>
+
+## Accessibility
+
+Each applied pill has a remove button named for its filter, such as "Remove Status filter", and a
+suggestion announces as "Apply Status Diverged". A readonly pill with a `note` has an info button named
+"Why Workspace is fixed" that opens its hover card. The options open in a popover over a cmdk list
+whose field is labelled with the active filter.
+
+<Keyboard
+  keys={[
+    ["Enter / Space", "Opens Add filter, or presses a pill's remove or suggestion button."],
+    ["Arrow Down / Arrow Up", "Moves the highlight through the options."],
+    ["Enter", "Applies the highlighted option, or clears it if it is already applied, and closes."],
+    ["Escape", "Closes the options without changing anything."],
+    ["Tab", "Moves between Add filter and each pill's button."],
+  ]}
+/>

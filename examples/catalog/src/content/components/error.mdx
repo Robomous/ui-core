@@ -1,0 +1,127 @@
+---
+title: Error
+description: An inline error, one sentence in the destructive ink behind an alert icon, with an optional label and follow-up link. Exported as `ErrorMessage`.
+related: [alert, toast, field, input]
+builtOn:
+  - name: native HTML
+    docsUrl: https://developer.mozilla.org/docs/Web/HTML/Element/p
+---
+
+import CustomLabel from "@/demos/error/custom-label";
+import FromThrown from "@/demos/error/from-thrown";
+import InAField from "@/demos/error/in-a-field";
+import InARow from "@/demos/error/in-a-row";
+import Overview from "@/demos/error/overview";
+import Sizes from "@/demos/error/sizes";
+import WithErrorProperty from "@/demos/error/with-error-property";
+
+<Preview demo="error/overview" hero>
+  <Overview client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { ErrorMessage } from "@robomous/ui-core";
+
+export function MemberError() {
+  return <ErrorMessage>This email address is already a member of the workspace.</ErrorMessage>;
+}
+```
+
+<Callout title="Mount it only when there is an error" tone="warning">
+  `ErrorMessage` renders `role="alert"`, which is announced when it appears. Render it conditionally
+  (`{error ? <ErrorMessage error={error} /> : null}`) so it arrives as news, instead of sitting on the
+  page empty. It is exported as `ErrorMessage` because a named import called `Error` would shadow the
+  global constructor.
+</Callout>
+
+## Composition
+
+```text
+ErrorMessage
+├─ <CircleAlertIcon />        always, decorative
+└─ label?  message  link?
+```
+
+## Examples
+
+### Label
+
+Without a label, a screen reader still hears "Error:" first. `label` makes that lead-in visible, which
+helps on a page where several things can fail and the reader has to tell them apart.
+
+<Preview demo="error/custom-label">
+  <CustomLabel client:load />
+</Preview>
+
+### Sizes
+
+Three sizes to sit beside the type around them: `sm` in a dense row or table cell, `default` under a
+field, `lg` in a panel. The icon scales with the text so the two stay aligned.
+
+<Preview demo="error/sizes">
+  <Sizes client:load />
+</Preview>
+
+### With a link
+
+`error` can be an object: `message` is the sentence, `action` the words of the link and `link` its
+URL. Use it when the failure has a clear next step elsewhere. The link opens in a new tab, so the
+reader keeps their place.
+
+<Preview demo="error/with-error-property">
+  <WithErrorProperty client:load />
+</Preview>
+
+### From a thrown Error
+
+`error` also takes an `Error` instance, so a `catch` can pass what it caught straight in. Only the
+`message` is shown, so write messages that are safe and useful to read. `children` always win over
+`error` when both are given.
+
+<Preview demo="error/from-thrown">
+  <FromThrown client:load />
+</Preview>
+
+### In a field
+
+Under a control, give the message an `id` and point the control's `aria-describedby` at it. Mark the
+input `aria-invalid` too, so the input and its message agree about what is wrong.
+
+<Preview demo="error/in-a-field">
+  <InAField client:load />
+</Preview>
+
+### In a row
+
+When one item in a list fails, show the error beneath it at `size="sm"` instead of replacing the
+whole list with a banner. The failure stays attached to what failed.
+
+<Preview demo="error/in-a-row">
+  <InARow client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Say what happened, then what to do: \"Couldn't write to this bucket. Check its policy.\"",
+    "Name the thing that failed, such as the bucket, camera or field.",
+    "Place the message next to the control or row that failed.",
+    "Offer a next step with `error={{ message, action, link }}` when one exists.",
+  ]}
+  dont={[
+    "Don't write \"Oops\" or \"Something went wrong\"; it tells the reader nothing.",
+    "Don't use it for a transient failure of an action. Use `toast.error` instead.",
+    "Don't use it for a page-level problem that needs a title; that is an `Alert`.",
+    "Don't render the same message in a toast and inline.",
+  ]}
+/>
+
+## Accessibility
+
+The message is a `<p role="alert">`: an error that appears after a request is announced without moving
+focus. The icon is hidden from assistive technology, and when there is no visible `label` a
+screen-reader-only "Error:" is read first so the sentence never arrives without its status. Under a
+control, link it with `aria-describedby` so the input announces the problem when it gets focus.

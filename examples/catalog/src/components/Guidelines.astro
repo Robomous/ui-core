@@ -1,0 +1,50 @@
+---
+import InlineText from "@/components/InlineText.astro";
+
+interface Props {
+  /** What to do, one sentence each; backticks mark code. */
+  do: string[];
+  /** What to avoid, one sentence each. */
+  dont: string[];
+}
+
+const { do: dos, dont } = Astro.props;
+const columns = [
+  { label: "Do", items: dos, tone: "text-success", path: "M20 6 9 17l-5-5" },
+  { label: "Don't", items: dont, tone: "text-destructive", path: "M18 6 6 18M6 6l12 12" },
+];
+---
+
+<!-- Two lists side by side on one hairline panel. The verdict is carried by the
+     heading and the icon, not by colour alone. -->
+<div data-block class="my-6 grid overflow-hidden rounded-md border text-sm sm:grid-cols-2">
+  {columns.map((column, index) => (
+    <section class:list={["flex flex-col", index > 0 && "border-t sm:border-t-0 sm:border-l"]}>
+      <h4 class="flex items-center gap-2 border-b bg-muted/40 px-4 py-2.5 font-medium">
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class:list={["size-4", column.tone]}
+        >
+          <path d={column.path}></path>
+        </svg>
+        {column.label}
+      </h4>
+      <ul class="flex flex-col gap-3 px-4 py-4">
+        {column.items.map((item) => (
+          <li class="flex gap-3 leading-6 text-pretty text-muted-foreground">
+            <span aria-hidden="true" class="mt-2.5 size-1 shrink-0 rounded-full bg-border"></span>
+            <span>
+              <InlineText text={item} />
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+</div>

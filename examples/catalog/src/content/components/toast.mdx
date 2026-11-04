@@ -1,0 +1,163 @@
+---
+title: Toast
+description: A short message about something the reader just did, shown for a moment. `Toaster` follows the `dark` class on `<html>`, and typed toasts carry their status in the icon alone.
+related: [alert, error, dialog, destructive-action-modal]
+builtOn:
+  - name: sonner
+    docsUrl: https://sonner.emilkowal.ski/
+    apiUrl: https://sonner.emilkowal.ski/toaster
+---
+
+import Intents from "@/demos/toast/intents";
+import Overview from "@/demos/toast/overview";
+import Preserve from "@/demos/toast/preserve";
+import ExportPromise from "@/demos/toast/promise";
+import Undo from "@/demos/toast/undo";
+import WithAction from "@/demos/toast/with-action";
+import WithDescription from "@/demos/toast/with-description";
+import WithLink from "@/demos/toast/with-link";
+
+<Preview demo="toast/overview" hero>
+  <Overview client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { Button, Toaster, toast } from "@robomous/ui-core";
+
+// Once, near the app root
+export function Root({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      {children}
+      <Toaster />
+    </>
+  );
+}
+
+// Anywhere below it
+export function QueueButton() {
+  return <Button onClick={() => toast("Mission queued for rb-07")}>Queue mission</Button>;
+}
+```
+
+<Callout title="No Toaster, no toast" tone="warning">
+  `toast()` only sends a message; the `Toaster` is what draws it. Mount exactly one near the root of
+  the app. Without it nothing appears, and with two, toasts can appear twice. This catalog mounts
+  one in its layout.
+</Callout>
+
+## Composition
+
+One row on a card lifted half a step off the page toward `muted`, with a hairline `border` and a
+short shadow. The mark sits on the title's first line; the title is semibold in the popover's ink
+and the description a step lighter, both at 13px. Action, cancel and a round X trail on the same
+line. There is no progress bar: the toast leaves when its time is up, and hovering it holds it.
+
+```text
+Toaster                  mounted once, near the root
+toast(message, options)  called from anywhere
+├─ toast.success | info | warning | error
+├─ toast.promise(promise, { loading, success, error })
+└─ options: description · action · cancel · duration
+```
+
+## Examples
+
+### Intents
+
+Four intents beyond a plain `toast()`: `success`, `info`, `warning` and `error`. The card stays
+neutral, the same lifted grey for every intent; each one supplies a solid mark in its status colour,
+with a shape of its own, so the colour is never the only cue. The function you call is the state,
+so there is no `variant` prop.
+
+<Preview demo="toast/intents">
+  <Intents client:load />
+</Preview>
+
+### With a description
+
+`description` adds a second line under the message, for detail that does not belong in the title.
+Keep the title a complete sentence on its own, since the description can be missed.
+
+<Preview demo="toast/with-description">
+  <WithDescription client:load />
+</Preview>
+
+### With an action
+
+`action` puts one button on the toast, beside the X on the title's line, for the single place the
+reader will want to go next. It closes the toast when clicked. The toast stays short, so offer an action instead of a second sentence.
+
+<Preview demo="toast/with-action">
+  <WithAction client:load />
+</Preview>
+
+### Undo
+
+`cancel` and `action` together put a Dismiss and an Undo on the title's line, where the X would be. A
+toast with its own Dismiss drops the X, so there is one way out, not two. This is the right alternative to
+a confirmation dialog for a reversible action.
+
+<Preview demo="toast/undo">
+  <Undo client:load />
+</Preview>
+
+### Promise
+
+`toast.promise` shows a loading toast and then swaps it for a success or error one, decided by the
+promise it wraps. The reader is never left wondering whether anything happened.
+
+<Preview demo="toast/promise">
+  <ExportPromise client:load />
+</Preview>
+
+### Persistent
+
+`duration: Infinity` keeps the toast until it is closed. Reserve it for something the reader has to
+act on, because a toast that will not leave becomes clutter.
+
+<Preview demo="toast/preserve">
+  <Preserve client:load />
+</Preview>
+
+### With a link
+
+The message can be JSX, for a link to the thing the toast is about. Treat it as a shortcut, not the
+only route to that page.
+
+<Preview demo="toast/with-link">
+  <WithLink client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Confirm what the reader just did, naming the resource: \"Exported batch 0412\".",
+    "Match the verb of the button that started it: \"Remove robot\" becomes \"Robot removed\".",
+    "Offer Undo for a reversible action instead of a confirmation dialog in front of it.",
+    "Use `toast.promise` for work that takes a moment and can fail.",
+  ]}
+  dont={[
+    "Don't use a toast as the only report of an error the reader must fix; show it inline.",
+    "Don't stack several toasts to narrate a flow: one per thing the reader did.",
+    "Don't put essential information or the only route to a page in a toast.",
+    "Don't make a toast persistent unless it needs an answer.",
+  ]}
+/>
+
+## Accessibility
+
+Sonner renders the toasts in a region with `aria-live="polite"`, so a new toast is announced without
+interrupting. Every toast can be closed by hand, and the buttons on it are ordinary buttons in the
+tab order.
+
+<Keyboard
+  keys={[
+    ["Alt+T", "Moves focus into the toast region."],
+    ["Tab", "Moves between the toast's action, cancel and close buttons."],
+    ["Enter / Space", "Activates the focused button."],
+  ]}
+/>

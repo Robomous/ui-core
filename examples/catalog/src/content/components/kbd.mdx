@@ -1,34 +1,45 @@
 ---
 title: Kbd
 description: A real `<kbd>` for a single keystroke, with `KbdGroup` holding several keys together as one chord.
+related: [command, tooltip, input-group, dropdown-menu]
 builtOn:
   - name: native HTML
     docsUrl: https://developer.mozilla.org/docs/Web/HTML/Element/kbd
 ---
 
 import Chord from "@/demos/kbd/chord";
-import Single from "@/demos/kbd/single";
 import InButton from "@/demos/kbd/in-button";
 import InTooltip from "@/demos/kbd/in-tooltip";
+import Overview from "@/demos/kbd/overview";
+import Platform from "@/demos/kbd/platform";
+import Single from "@/demos/kbd/single";
 
-<Preview demo="kbd/chord">
-  <Chord client:load />
+<Preview demo="kbd/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import { Kbd, KbdGroup } from "@robomous/ui-core";
+
+export function ApproveHint() {
+  return (
+    <p>
+      Approve the frame with{" "}
+      <KbdGroup>
+        <Kbd>⌘</Kbd>
+        <Kbd>Enter</Kbd>
+      </KbdGroup>
+    </p>
+  );
+}
 ```
 
-```tsx
-<KbdGroup>
-  <Kbd>⌘</Kbd>
-  <Kbd>K</Kbd>
-</KbdGroup>
-```
-
-A lone key is just a `Kbd`; reach for `KbdGroup` only once there is more than one to read together.
+<Callout title="It documents a shortcut; it does not create one">
+  `Kbd` only draws the key. Binding the shortcut is your job, and the two must stay in step: a hint
+  that shows `⌘K` over a handler that listens for something else is worse than no hint.
+</Callout>
 
 ## Composition
 
@@ -38,36 +49,74 @@ KbdGroup
 └─ Kbd
 ```
 
-## Chord
+## Examples
 
-`KbdGroup` holds a chord: the keys read together as one shortcut, not a list of separate ones.
+### Chord
+
+`KbdGroup` holds a chord: keys that are pressed together and read as one shortcut, not a list of
+separate ones. Use it for a shortcut sheet, where each action is paired with its keys.
 
 <Preview demo="kbd/chord">
   <Chord client:load />
 </Preview>
 
-## Single key
+### Single key
 
-A lone `Kbd` sits inline with body text, sized to the line rather than as a boxed control.
+A lone `Kbd` sits inline with body text, sized to the line rather than as a boxed control. Reach
+for `KbdGroup` only once there is more than one key to read together.
 
 <Preview demo="kbd/single">
   <Single client:load />
 </Preview>
 
-## Inside a button
+### Inside a button
 
-`data-icon="inline-end"` pads a `KbdGroup` the same way it pads an icon, so a shortcut sits at the
-label's edge.
+`data-icon="inline-end"` pads a `KbdGroup` the same way it pads an icon, so the shortcut sits at the
+label's edge. The button stays the control; the keys are a reminder of the faster path.
 
 <Preview demo="kbd/in-button">
   <InButton client:load />
 </Preview>
 
-## Inside a tooltip
+### Inside a tooltip
 
 `Kbd`'s background and text recolour automatically inside a `TooltipContent`, so it reads on the
-tooltip's own fill instead of the page's.
+tooltip's own fill instead of the page's. This is the place for the shortcut of an icon-only button.
 
 <Preview demo="kbd/in-tooltip">
   <InTooltip client:load />
 </Preview>
+
+### By platform
+
+Keycaps are plain children, so the modifier can follow the reader's platform. Render the neutral
+form first and switch after mount, so server and client markup agree and nothing flashes in the
+wrong key.
+
+<Preview demo="kbd/platform">
+  <Platform client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Show one key per `Kbd` and group a chord in `KbdGroup`.",
+    "Match the label of the key to what is on the keyboard: `Esc`, `Enter`, `Shift`.",
+    "Put the hint at the edge of the control it triggers, or in its tooltip.",
+    "Switch `⌘` to `Ctrl` for readers who are not on a Mac.",
+  ]}
+  dont={[
+    "Don't put a whole chord such as `Ctrl+Shift+L` in one `Kbd`; the parts read as separate keys.",
+    "Don't use `Kbd` for buttons or badges; it is styled to look like a key, not a control.",
+    "Don't show a shortcut that nothing handles.",
+    "Don't rely on symbols alone for assistive tech; add `sr-only` text for `⌘` and `⇧`.",
+  ]}
+/>
+
+## Accessibility
+
+`Kbd` renders a native `<kbd>`, which marks the text as keyboard input but adds no role and is not
+focusable. It is `pointer-events-none` and `select-none`, so it never intercepts a click on the
+control it decorates. Screen readers announce symbols such as `⌘` inconsistently; where the key
+matters, include its name as visually hidden text.

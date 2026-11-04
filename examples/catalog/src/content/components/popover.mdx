@@ -1,17 +1,21 @@
 ---
 title: Popover
-description: A small surface anchored to its trigger, for a short task like renaming something in place. It has no exit animation, because the trigger is a button the reader can press again on the next frame.
+description: A small surface anchored to its trigger, for a short task like renaming something in place. It has no exit animation, because the trigger can be pressed again on the next frame.
+related: [dialog, hover-card, tooltip, dropdown-menu]
 builtOn:
   - name: Radix Popover
     docsUrl: https://www.radix-ui.com/primitives/docs/components/popover
     apiUrl: https://www.radix-ui.com/primitives/docs/components/popover#api-reference
 ---
 
+import Align from "@/demos/popover/align";
 import Anchor from "@/demos/popover/anchor";
+import Labels from "@/demos/popover/labels";
+import Overview from "@/demos/popover/overview";
 import Rename from "@/demos/popover/rename";
 
-<Preview demo="popover/rename">
-  <Rename client:load />
+<Preview demo="popover/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
@@ -27,54 +31,113 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@robomous/ui-core";
+
+export function RenameRobot() {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline">Rename robot</Button>
+      </PopoverTrigger>
+      <PopoverContent>
+        <PopoverHeader>
+          <PopoverTitle>Rename</PopoverTitle>
+          <PopoverDescription>Shown in the fleet list and on mission logs.</PopoverDescription>
+        </PopoverHeader>
+        <Input defaultValue="Atlas" aria-label="Robot name" />
+        <Button size="sm">Save</Button>
+      </PopoverContent>
+    </Popover>
+  );
+}
 ```
 
-```tsx
-<Popover>
-  <PopoverTrigger asChild>
-    <Button variant="outline">Rename batch</Button>
-  </PopoverTrigger>
-  <PopoverContent>
-    <PopoverHeader>
-      <PopoverTitle>Rename</PopoverTitle>
-      <PopoverDescription>Shown wherever this batch is listed.</PopoverDescription>
-    </PopoverHeader>
-    <Input defaultValue="batch-0012" aria-label="Batch name" />
-    <Button size="sm">Save</Button>
-  </PopoverContent>
-</Popover>
-```
-
-`PopoverHeader` is optional layout for `PopoverTitle` and `PopoverDescription`; the rest of
-`PopoverContent` is free-form, same as filling out a small form.
+<Callout title="There is no PopoverClose">
+  Nothing inside the content closes it on its own. To close from a Save or Cancel button, keep
+  `open` in state and set it to `false`. A click outside or Escape still dismisses it.
+</Callout>
 
 ## Composition
 
 ```text
 Popover
 ├─ PopoverTrigger
-├─ PopoverAnchor
-└─ PopoverContent
-   └─ PopoverHeader
-      ├─ PopoverTitle
-      └─ PopoverDescription
+├─ PopoverAnchor              optional; positions the content against another element
+└─ PopoverContent             w-72 by default; portals itself
+   ├─ PopoverHeader           optional layout
+   │  ├─ PopoverTitle
+   │  └─ PopoverDescription
+   └─ …your content
 ```
 
-## Rename
+## Examples
 
-`PopoverContent` carries no exit animation, unlike a Dialog's or a Sheet's, because its trigger
-is a plain button the reader is free to press again on the very next frame (see DESIGN.md,
-*Motion*).
+### Rename
+
+The classic: a single field, opened from the thing it changes. `PopoverContent` is free-form beyond
+the optional header, so a form drops straight in. With no `PopoverClose`, the demo owns `open` and
+closes it on save.
 
 <Preview demo="popover/rename">
   <Rename client:load />
 </Preview>
 
-## Anchor
+### Choosing several options
 
-`PopoverAnchor` positions the content against a different element than the one that opens it —
-here, the camera's name rather than the info button beside it.
+A popover stays open while the reader interacts with it, so it suits a multi-select that a menu
+would close after every pick. Show the result on the trigger, here as a count, so the choice is
+visible once the popover is gone.
+
+<Preview demo="popover/labels">
+  <Labels client:load />
+</Preview>
+
+### Aligned to an edge
+
+`align` sets which edge of the trigger the content lines up with: `start`, `center` (the default)
+or `end`. A trigger on the trailing edge of a card opens with `align="end"`, so the popover grows
+inward. `side` and `sideOffset` work the same way.
+
+<Preview demo="popover/align">
+  <Align client:load />
+</Preview>
+
+### Anchored elsewhere
+
+`PopoverAnchor` positions the content against a different element than the one that opens it. Here
+the popover hangs from the camera's name rather than the info button beside it.
 
 <Preview demo="popover/anchor">
   <Anchor client:load />
 </Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Use a popover for a small, optional task the reader starts and finishes in place.",
+    "Show the current value on the trigger so the setting is readable while the popover is closed.",
+    "Align to the edge nearest the screen border with `align=\"end\"` or `align=\"start\"`.",
+    "Own `open` in state when a Save or Cancel button needs to close it.",
+  ]}
+  dont={[
+    "Don't use a popover for a decision that blocks the page; that is a Dialog.",
+    "Don't put a list of actions in one; a DropdownMenu has the right keyboard model.",
+    "Don't use it for a label or a hint; a Tooltip is lighter.",
+    "Don't nest long, scrolling content in it; a Sheet has room.",
+  ]}
+/>
+
+## Accessibility
+
+The trigger carries `aria-haspopup="dialog"` and `aria-expanded`, and the content is a
+`role="dialog"` surface that Radix focuses on open and returns focus from on close. Unlike a
+Dialog, the page behind stays interactive.
+
+<Keyboard
+  keys={[
+    ["Enter / Space", "Opens the popover from its trigger, and closes it again."],
+    ["Tab", "Moves focus through the controls inside the popover."],
+    ["Shift+Tab", "Moves focus backwards through the controls."],
+    ["Escape", "Closes the popover and returns focus to the trigger."],
+  ]}
+/>

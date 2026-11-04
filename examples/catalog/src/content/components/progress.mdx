@@ -1,52 +1,111 @@
 ---
 title: Progress
-description: A determinate progress bar that forwards `value` straight to `aria-valuenow`; completion is an amount, not a polarity, so there is no variant.
+description: A determinate progress bar. `value` fills it by its share of `max` (100 unless you say otherwise) and feeds `aria-valuenow`; completion is an amount, not a polarity, so there is no variant.
+related: [spinner, loading-dots, skeleton, slider]
 builtOn:
   - name: Radix Progress
     docsUrl: https://www.radix-ui.com/primitives/docs/components/progress
     apiUrl: https://www.radix-ui.com/primitives/docs/components/progress#api-reference
 ---
 
-import Value from "@/demos/progress/value";
+import Overview from "@/demos/progress/overview";
 import Stages from "@/demos/progress/stages";
+import Thickness from "@/demos/progress/thickness";
+import Upload from "@/demos/progress/upload";
+import Value from "@/demos/progress/value";
 
-<Preview demo="progress/value">
-  <Value client:load />
+<Preview demo="progress/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import { Progress } from "@robomous/ui-core";
+
+export function ExportProgress({ done, total }: { done: number; total: number }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <span id="export-label">
+        Exporting frames, {done} of {total}
+      </span>
+      <Progress value={(done / total) * 100} aria-labelledby="export-label" />
+    </div>
+  );
+}
 ```
 
-```tsx
-<Progress value={42} aria-label="Ingest" />
-```
-
-`aria-label` (or `aria-labelledby`) is the caller's own responsibility: `Progress` has no visible
-label and announces only the number.
+<Callout title="It needs a name">
+  `Progress` draws no label or number of its own, so pass `aria-label` or `aria-labelledby`. A
+  count needs no conversion: pass `value={42} max={120}` and the bar fills to 35%.
+</Callout>
 
 ## Composition
 
 ```text
 Progress
+└─ indicator          drawn for you, sized by `value`
 ```
 
-## Value
+## Examples
 
-The indicator's width and `aria-valuenow` both come straight from `value`. There is no variant,
-because completion is an amount, never a status.
+### Labelled
+
+The label and the figure live beside the bar, so you decide how the number reads: a percentage, a
+count, an estimate. Wire the label to the bar with `aria-labelledby` and put `tabular-nums` on the
+figure so it does not jitter as it changes.
 
 <Preview demo="progress/value">
   <Value client:load />
 </Preview>
 
-## Stages
+### Thickness
 
-Several bars stacked report the steps of one pipeline independently, each with its own `value` and
-label.
+The track is 4px tall by default and takes its height from `className`. Keep the default inside rows
+and cards. Go thicker only when the bar is the main thing the reader is watching.
+
+<Preview demo="progress/thickness">
+  <Thickness client:load />
+</Preview>
+
+### Across a fleet
+
+Several bars stacked report one rollout independently, each with its own `value` and its own
+accessible name. Align the labels and figures in a grid so the bars start and end together.
 
 <Preview demo="progress/stages">
   <Stages client:load />
 </Preview>
+
+### Driven by state
+
+`Progress` has no internal state: re-render it with a new `value` and the indicator slides there.
+When the work finishes, swap the bar for a status instead of leaving a full bar behind.
+
+<Preview demo="progress/upload">
+  <Upload client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Use it when the amount of work is known and the reader can see it advance.",
+    "Name the work in a visible label, and wire it with `aria-labelledby`.",
+    "Show the number beside the bar, in `tabular-nums`, when precision helps.",
+    "Replace the bar with a status once the work completes or fails.",
+  ]}
+  dont={[
+    "Don't use it when you cannot measure progress; use `Spinner` or `LoadingDots`.",
+    "Don't convert a count to a percentage yourself; pass the count as `value` and the total as `max`.",
+    "Don't try to colour it for success or failure. A bar shows how far, not how it ended.",
+    "Don't leave it without an accessible name.",
+  ]}
+/>
+
+## Accessibility
+
+Built on the Radix primitive, so the root is `role="progressbar"` with `aria-valuenow` taken from
+`value`, `aria-valuemin` 0 and `aria-valuemax` from `max`. There is no visible label, so the name is
+yours to give with `aria-label` or `aria-labelledby`. The bar is not focusable and has no keyboard
+interaction.

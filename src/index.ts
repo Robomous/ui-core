@@ -1,7 +1,7 @@
 /**
  * `@robomous/ui-core` — the Robomous design system, built on top of shadcn/ui.
  *
- * Forty-five React components this package owns outright, over Radix, Base UI, cmdk
+ * Fifty-four React components this package owns outright, over Radix, Base UI, cmdk
  * and vaul behaviour, and the one stylesheet they resolve through. A consumer
  * imports exactly:
  *
@@ -25,6 +25,7 @@ export {
   ButtonGroupText,
   buttonGroupVariants,
 } from "./components/button-group.js";
+export { SplitButton } from "./components/split-button.js";
 export { Toggle, toggleVariants } from "./components/toggle.js";
 export { ToggleGroup, ToggleGroupItem } from "./components/toggle-group.js";
 export {
@@ -68,6 +69,7 @@ export {
   AttachmentTrigger,
 } from "./components/attachment.js";
 export { Input } from "./components/input.js";
+export { SearchInput } from "./components/search-input.js";
 export { Textarea } from "./components/textarea.js";
 export { Label } from "./components/label.js";
 export { RadioGroup, RadioGroupItem } from "./components/radio-group.js";
@@ -123,6 +125,13 @@ export {
   CommandSeparator,
   CommandShortcut,
 } from "./components/command.js";
+export {
+  FilterParamsBar,
+  useFilterParams,
+  type FilterDefinition,
+  type FilterOption,
+  type FilterValues,
+} from "./components/filter-params.js";
 export { Badge, badgeVariants } from "./components/badge.js";
 export {
   Avatar,
@@ -134,6 +143,11 @@ export {
 } from "./components/avatar.js";
 export { Kbd, KbdGroup } from "./components/kbd.js";
 export { Spinner } from "./components/spinner.js";
+export { LoadingDots } from "./components/loading-dots.js";
+export { ErrorMessage, errorMessageVariants } from "./components/error.js";
+export { Snippet, snippetVariants } from "./components/snippet.js";
+export { CodeBlock, type CodeBlockVariant } from "./components/code-block.js";
+export { ShowMore, ShowMoreContent, ShowMoreTrigger } from "./components/show-more.js";
 export { Alert, AlertAction, AlertDescription, AlertTitle } from "./components/alert.js";
 export {
   Dialog,
@@ -179,6 +193,7 @@ export {
   PopoverTrigger,
 } from "./components/popover.js";
 export { HoverCard, HoverCardContent, HoverCardTrigger } from "./components/hover-card.js";
+export { DestructiveActionModal } from "./components/destructive-action-modal.js";
 export {
   ContextMenu,
   ContextMenuCheckboxItem,
@@ -256,7 +271,7 @@ export { Progress } from "./components/progress.js";
 export { Separator } from "./components/separator.js";
 export { ScrollArea, ScrollBar } from "./components/scroll-area.js";
 export { Skeleton } from "./components/skeleton.js";
-export { Toaster } from "./components/sonner.js";
+export { Toaster } from "./components/toast.js";
 export { toast } from "sonner";
 export {
   Table,
@@ -264,6 +279,9 @@ export {
   TableCaption,
   TableCell,
   TableFooter,
+  TableFrame,
+  TableFrameHeader,
+  TableFrameTitle,
   TableHead,
   TableHeader,
   TablePagination,

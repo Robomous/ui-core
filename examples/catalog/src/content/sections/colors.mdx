@@ -1,0 +1,111 @@
+---
+title: Colors
+description: Every colour a component uses is a role, over Tailwind's palette trimmed to eighteen scales. Both themes are declared in full.
+group: Foundations
+order: 3
+---
+
+import ColorRoles from "@/components/ColorRoles.astro";
+import ColorScales from "@/components/ColorScales.astro";
+
+## Scales
+
+Eighteen of Tailwind's scales survive the trim, at Tailwind's own values and never restated:
+`neutral`, which every grey role is spelled from, and seventeen hues for data — a chart series, the
+colour of an annotation class. `slate`, `gray`, `zinc`, `stone`, the tinted neutrals, `bg-white` and
+`bg-black` compile to nothing, in this package and in every consumer. A component never names a
+palette step; it names a role.
+
+<ColorScales />
+
+## Surfaces
+
+Four surfaces, each with the ink that reads on it. `background` is the page; `card` holds content
+that sits in place; `popover` holds anything that floats and closes; `muted` recesses. A menu, a
+select or a combobox paints on `popover` and follows the page from light to dark on its own.
+
+<ColorRoles set="surfaces" />
+
+## Emphasis
+
+Three degrees of weight for an action or a selection. `primary` is reserved for the one thing on a
+surface that matters most, which is why a form has one default Button and the rest are `outline`
+or `ghost`.
+
+<ColorRoles set="emphasis" />
+
+## Status
+
+Four statuses, each a pair from Tailwind's palette: the ink (`success` is `green-700` in light,
+`green-300` in dark) and the soft surface it sits on (`success-surface`, `green-50` and
+`green-950`). `destructive` has no surface role; its tint is the ink at low alpha, which is what a
+destructive Button, Badge or Alert wears.
+
+<ColorRoles set="status" />
+
+Colour is never the only signal. Every status carries a redundant channel — a word, an icon, a
+shape — and status is never a stroke on a container: a status Badge and a destructive Alert keep
+`border-transparent`.
+
+## Structure
+
+The roles that draw edges rather than fill areas. The base layer applies `border-border` and
+`outline-ring/50` to every element, the outline's colour only; focus geometry belongs to each
+component, not to a blanket rule.
+
+<ColorRoles set="structure" />
+
+## Brand
+
+Robomous orange is identity, not a control colour. It is a variable, `var(--brand)`, for a wordmark
+or a styleguide swatch, and deliberately not a utility: there is no `bg-brand`, so it cannot drift
+onto a button. At 3.34:1 on the page it clears the threshold for large text and marks, and misses
+it for body copy, which is one more reason it paints no control.
+
+## One home, two themes
+
+The tokens live in [`src/theme/styles.css`](https://github.com/Robomous/ui-core/blob/main/src/theme/styles.css).
+Tailwind v4 is CSS-first, so the stylesheet is not a mirror of a config — it *is* the config. There
+is no `tailwind.config.js` anywhere in the package, and there must not be one, or the tokens
+acquire a second home.
+
+Both themes are declared in full: a value in `:root`, a counterpart in `.dark`, exposed to
+Tailwind through `@theme inline` as `--color-<role>: var(--<role>)`. Every rule is written against a
+role, never a light-mode value — "the page" resolves per theme and is never asserted to be white.
+
+## Extending the roles
+
+A consumer that needs its own role declares it in its own stylesheet, after
+`@import "@robomous/ui-core/styles.css";` — a value in `:root`, a counterpart in `.dark`, exposure
+through `@theme inline` — and never shadows a name declared here.
+
+```css
+@import "@robomous/ui-core/styles.css";
+
+:root {
+  --brand-2: oklch(0.7 0.15 200);
+}
+.dark {
+  --brand-2: oklch(0.72 0.15 200);
+}
+@theme inline {
+  --color-brand-2: var(--brand-2);
+}
+```
+
+A consumer may not reach past its own layer to restyle a component from this package, and a
+component here may not encode a product's decision. An extension that turns out to be universal is
+a change to this package, with the reason written down.
+
+## Reading a value at runtime
+
+There is no TypeScript copy of the tokens to import. A `<canvas>`, an `<svg>` or anything else that
+needs a role as a string reads it from the document, which also means it follows the theme the
+reader is actually in:
+
+```tsx
+const ink = getComputedStyle(document.documentElement).getPropertyValue("--foreground");
+```
+
+Everywhere else, write `var(--foreground)` and let CSS resolve it. The stylesheet is the only copy
+of these values, so there is nothing that can fall out of step with it.

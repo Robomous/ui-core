@@ -1,51 +1,105 @@
 ---
 title: Skeleton
-description: A loading placeholder — an animate-pulse block shaped by the className you give it, standing in for content that has not arrived yet.
+description: A loading placeholder, an `animate-pulse` block shaped by the `className` you give it, standing in for content that has not arrived yet.
+related: [spinner, progress, loading-dots, empty]
 builtOn:
   - name: native HTML
     docsUrl: https://developer.mozilla.org/docs/Web/HTML/Element/div
 ---
 
 import Card from "@/demos/skeleton/card";
+import Overview from "@/demos/skeleton/overview";
+import Paragraph from "@/demos/skeleton/paragraph";
+import TableSkeleton from "@/demos/skeleton/table";
 import Text from "@/demos/skeleton/text";
 
-<Preview demo="skeleton/card">
-  <Card client:load />
+<Preview demo="skeleton/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import { Skeleton } from "@robomous/ui-core";
+
+export function ModelSkeleton() {
+  return (
+    <div className="flex flex-col gap-2">
+      <Skeleton className="h-32 w-full rounded-lg" />
+      <Skeleton className="h-4 w-3/4" />
+    </div>
+  );
+}
 ```
 
-```tsx
-<Skeleton className="h-32 w-full rounded-lg" />
-<Skeleton className="h-4 w-3/4" />
-```
-
-`Skeleton` carries no shape of its own: every size and radius comes from the `className` you pass,
-matched to the content it stands in for.
+<Callout title="A skeleton has no shape of its own">
+  Every size and radius comes from `className`, so an unstyled `Skeleton` is an empty box. Copy the
+  dimensions of the content it replaces: a line is `h-4` and a width, an avatar is `size-10 rounded-full`.
+</Callout>
 
 ## Composition
 
 ```text
-Skeleton
+Skeleton     one pulsing block, composed into the shape of the content
 ```
 
-## Card
+## Examples
 
-A frame preview above two caption lines, sized to match the card it will become once its content
-arrives.
+### Card
+
+A preview above two caption lines. Use `aspect-video` or another ratio on media instead of a fixed
+height, so the placeholder scales with its container exactly as the image will.
 
 <Preview demo="skeleton/card">
   <Card client:load />
 </Preview>
 
-## Text
+### List rows
 
-A thumbnail beside two lines, standing in for a row of text and its avatar.
+An avatar beside two lines, repeated for a members list still loading. Show roughly as many rows as
+you expect, so the page does not grow or collapse when real data arrives.
 
 <Preview demo="skeleton/text">
   <Text client:load />
 </Preview>
+
+### Paragraph
+
+Text is a stack of lines, with the last one shorter. Give lines different widths and they read as
+prose, where a column of equal bars reads as a loading error.
+
+<Preview demo="skeleton/paragraph">
+  <Paragraph client:load />
+</Preview>
+
+### Table
+
+Keep real headings, since they are known, and put skeletons only in the cells that wait for data.
+The columns hold their widths, and the table does not jump when rows load.
+
+<Preview demo="skeleton/table">
+  <TableSkeleton client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Match the real layout: same height, width, radius and spacing as the content.",
+    "Mark the loading region with `aria-busy` so assistive technology knows it will change.",
+    "Show skeletons for content with a known shape, such as cards, rows and tables.",
+    "Vary line widths so text placeholders look like text.",
+  ]}
+  dont={[
+    "Don't use skeletons for a wait you can't shape; use a `Spinner`.",
+    "Don't animate a skeleton for content that failed to load; show an error or an empty state.",
+    "Don't show more placeholder rows than the page will realistically hold.",
+    "Don't leave a skeleton up with no timeout.",
+  ]}
+/>
+
+## Accessibility
+
+A `Skeleton` is a plain, silent `div`: it has no role and announces nothing, which is right for a
+decoration. Mark the region that is loading with `aria-busy="true"` and clear it when the content
+lands. The pulse is a CSS animation that collapses under `prefers-reduced-motion`.

@@ -1,37 +1,44 @@
 ---
 title: Switch
-description: A setting that applies the moment it is flipped. `role="switch"` with `aria-checked` — not a pressed button, which says something else.
+description: A setting that applies the moment it is flipped. `role="switch"` with `aria-checked`, not a pressed button, which says something else.
+related: [checkbox, toggle, radio-group]
 builtOn:
   - name: Radix Switch
     docsUrl: https://www.radix-ui.com/primitives/docs/components/switch
     apiUrl: https://www.radix-ui.com/primitives/docs/components/switch#api-reference
 ---
 
-import Default from "@/demos/switch/default";
+import Controlled from "@/demos/switch/controlled";
 import Disabled from "@/demos/switch/disabled";
+import InForm from "@/demos/switch/in-form";
 import Invalid from "@/demos/switch/invalid";
+import Overview from "@/demos/switch/overview";
 import Sizes from "@/demos/switch/sizes";
 
-<Preview demo="switch/default">
-  <Default client:load />
+<Preview demo="switch/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import { Label, Switch } from "@robomous/ui-core";
+
+export function TelemetryToggle() {
+  return (
+    <div className="flex items-center gap-2">
+      <Switch id="telemetry" defaultChecked />
+      <Label htmlFor="telemetry">Live telemetry</Label>
+    </div>
+  );
+}
 ```
 
-```tsx
-<div className="flex items-center gap-2">
-  <Switch id="auto-save" defaultChecked />
-  <Label htmlFor="auto-save">Auto-save annotations</Label>
-</div>
-```
-
-Use a switch when the change is immediate, such as a settings row or a per-project preference. A
-choice that waits for a Save button is a [Checkbox](/components/checkbox). A pressed/unpressed tool
-in a toolbar is a [Toggle](/components/toggle) (`aria-pressed`).
+<Callout title="Switch or Checkbox?">
+  Use a switch when the change is immediate: a settings row or a per-project preference. A choice
+  that waits for a Save button is a [Checkbox](/components/checkbox). A pressed or unpressed tool in
+  a toolbar is a [Toggle](/components/toggle), which carries `aria-pressed`.
+</Callout>
 
 ## Composition
 
@@ -39,22 +46,84 @@ in a toolbar is a [Toggle](/components/toggle) (`aria-pressed`).
 Switch
 ```
 
-## Sizes
+A switch has no text of its own. Put the label before it in a horizontal `Field`, or beside it with a
+`Label` and `htmlFor`.
 
-`size`: `default` and `sm`, carried as `data-size` so the thumb sizes to the track.
+## Examples
+
+### Controlled
+
+Use `checked` and `onCheckedChange` when something else on screen follows the switch, such as a
+status badge or a request. Here the badge states the result of the flip, so the reader never has to
+guess what "on" means.
+
+<Preview demo="switch/controlled">
+  <Controlled client:load />
+</Preview>
+
+### In a form
+
+Give the switch a `name` and Radix adds a hidden native input inside a `<form>`. It posts `on`
+when the switch is on and sends nothing when it is off, as a native checkbox does. Pass `value` to
+post something else.
+
+<Preview demo="switch/in-form">
+  <InForm client:load />
+</Preview>
+
+### Sizes
+
+`size` takes `default` or `sm`, carried as `data-size` so the thumb scales with the track. Use `sm`
+where the row is dense, such as a table cell or a sidebar list; the demo lists the same sensors at both sizes.
 
 <Preview demo="switch/sizes">
   <Sizes client:load />
 </Preview>
 
-## Disabled
+### Invalid
+
+`aria-invalid` paints the destructive ring, as on every other control; `data-invalid` on the `Field`
+colours its label. Use it when the switch cannot be turned on yet, and say what is missing.
+
+<Preview demo="switch/invalid">
+  <Invalid client:load />
+</Preview>
+
+### Disabled
+
+Disabled drops to half opacity and keeps the arrow cursor. Lead with the reason in the label, since
+a locked switch gives the reader nothing to act on.
 
 <Preview demo="switch/disabled">
   <Disabled client:load />
 </Preview>
 
-## Invalid
+## Guidelines
 
-<Preview demo="switch/invalid">
-  <Invalid client:load />
-</Preview>
+<Guidelines
+  do={[
+    'Name the setting, not the action: "Live telemetry", not "Turn on live telemetry".',
+    "Apply the change as soon as the switch moves, and confirm it where the reader is looking.",
+    "Add a description when the on state has side effects the label does not show.",
+    'Use `size="sm"` in dense rows, and keep one size within a list.',
+  ]}
+  dont={[
+    "Don't use a switch for a choice that needs a Save button; that is a `Checkbox`.",
+    "Don't use a switch for a tool in a toolbar; that is a `Toggle`.",
+    "Don't relabel the switch when it flips; the label stays and the position carries the state.",
+    "Don't use two switches to pick between exclusive options; use a `RadioGroup`.",
+  ]}
+/>
+
+## Accessibility
+
+A `button` with `role="switch"` and `aria-checked`, so a screen reader announces "on" or "off" rather
+than "pressed". The hit area extends past the small track, and a `Label` with `htmlFor` makes the text
+a target too.
+
+<Keyboard
+  keys={[
+    ["Space", "Toggles the switch."],
+    ["Tab", "Moves focus to the next control; a `disabled` switch is skipped."],
+  ]}
+/>

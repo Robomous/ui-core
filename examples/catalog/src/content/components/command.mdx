@@ -1,6 +1,7 @@
 ---
 title: Command
-description: A listbox driven from a search field the reader never leaves, inline or inside a dialog. `CommandDialog`'s title and description are `sr-only` inside the dialog — that names it, without a visible heading.
+description: A listbox driven from a search field the reader never leaves, inline or inside a dialog. `CommandDialog`'s title and description are `sr-only` inside the dialog, which is what names it without a visible heading.
+related: [combobox, search-input, dropdown-menu, dialog]
 builtOn:
   - name: cmdk
     docsUrl: https://github.com/pacocoursey/cmdk
@@ -11,9 +12,11 @@ builtOn:
 
 import Dialog from "@/demos/command/dialog";
 import Inline from "@/demos/command/inline";
+import InPopover from "@/demos/command/popover";
+import Overview from "@/demos/command/overview";
 
-<Preview demo="command/inline">
-  <Inline client:load />
+<Preview demo="command/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
@@ -27,22 +30,27 @@ import {
   CommandItem,
   CommandList,
 } from "@robomous/ui-core";
+
+export function QuickActions() {
+  return (
+    <Command>
+      <CommandInput placeholder="Search a command" aria-label="Search a command" />
+      <CommandList>
+        <CommandEmpty>Nothing matches.</CommandEmpty>
+        <CommandGroup heading="Datasets">
+          <CommandItem value="new dataset">New dataset</CommandItem>
+        </CommandGroup>
+      </CommandList>
+    </Command>
+  );
+}
 ```
 
-```tsx
-<Command>
-  <CommandInput placeholder="Search a command" />
-  <CommandList>
-    <CommandEmpty>Nothing matches.</CommandEmpty>
-    <CommandGroup heading="Ingest">
-      <CommandItem value="upload">Upload a batch</CommandItem>
-    </CommandGroup>
-  </CommandList>
-</Command>
-```
-
-`CommandItem`'s `value` drives the filter match; give it the words a reader might type, not
-necessarily the label shown.
+<Callout title="The value is what gets matched">
+  `CommandItem`'s `value` drives the filter, not the text you render. Give it the words a reader
+  might type, and add `keywords` for synonyms, such as a robot's site, that should match without
+  being part of the value.
+</Callout>
 
 ## Composition
 
@@ -62,21 +70,68 @@ CommandDialog
    └─ … (as above)
 ```
 
-## Inline
+## Examples
 
-The everyday shape: a field at the top, a scrolling list beneath it, nothing hidden behind a
-trigger.
+### Actions with icons and shortcuts
+
+The everyday shape: a field at the top, a scrolling list beneath it, nothing hidden behind a trigger.
+Lead each action with an icon, show its key with `CommandShortcut`, and mark an action the reader
+cannot take yet with `disabled`; it stays visible but is skipped by the arrows.
 
 <Preview demo="command/inline">
   <Inline client:load />
 </Preview>
 
-## Command palette
+### In a popover
 
-Opened from a button or from Cmd/Ctrl+K. `CommandDialog`'s `title` and `description` are `sr-only`
-inside the dialog — the reader never sees them, but they're what names the dialog for anyone using
-a screen reader, in place of a visible heading.
+Put a `Command` in a `Popover` for a searchable picker where a `Select` would be too long to scan.
+`data-checked` on a `CommandItem` draws the tick, so the current choice is visible when the list
+opens. Close the popover in `onSelect`.
+
+<Preview demo="command/popover">
+  <InPopover client:load />
+</Preview>
+
+### Command palette
+
+`CommandDialog` wraps a `Command` in a modal, and the app opens it from a button or Cmd/Ctrl+K.
+Its `title` and `description` are `sr-only`: nobody sees them, but they name the dialog for a
+screen reader in place of a visible heading. Close it in each item's `onSelect` once the command
+has run.
 
 <Preview demo="command/dialog">
   <Dialog client:load />
 </Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Group commands under short headings, and put the most-used group first.",
+    "Write `value` in the words people type, and use `keywords` for aliases.",
+    "Always render a `CommandEmpty`, so a search with no results says so.",
+    "Close the dialog or popover in `onSelect` once the command has run.",
+  ]}
+  dont={[
+    "Don't use a command list for a short, fixed choice; use a `Select` or `RadioGroup`.",
+    "Don't make the palette the only route to an action; it is a shortcut.",
+    "Don't put form fields in the list; items run or choose, they don't edit.",
+    "Don't hide `CommandInput`; the field is what the reader's focus lives in.",
+  ]}
+/>
+
+## Accessibility
+
+cmdk renders the field as a `combobox` and the list as a `listbox` of `option`s, and keeps focus in
+the field while the highlighted option moves through `aria-activedescendant`. `CommandDialog` is a
+Radix Dialog, so focus is trapped and restored on close.
+
+<Keyboard
+  keys={[
+    ["Arrow Down / Arrow Up", "Moves the highlight to the next or previous item."],
+    ["Home / End", "Jumps to the first or last item."],
+    ["Alt+Arrow Down / Alt+Arrow Up", "Jumps to the next or previous group."],
+    ["Enter", "Runs the highlighted item."],
+    ["Escape", "Closes the dialog or popover that holds the command list."],
+  ]}
+/>

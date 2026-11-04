@@ -1,6 +1,7 @@
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableFooter,
   TableHead,
@@ -8,32 +9,43 @@ import {
   TableRow,
 } from "@robomous/ui-core";
 
-/** `TableFooter` closes the table with a muted, bordered band for a total, not another data row. */
+/** `TableFooter` closes the table with a muted band for a total, and `TableCaption` names the table for assistive technology. */
 export default function Footer() {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Camera</TableHead>
-          <TableHead className="text-right">Frames</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        <TableRow>
-          <TableCell className="font-mono">cam-b07</TableCell>
-          <TableCell className="text-right tabular-nums">12,480</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell className="font-mono">cam-b08</TableCell>
-          <TableCell className="text-right tabular-nums">9,204</TableCell>
-        </TableRow>
-      </TableBody>
-      <TableFooter>
-        <TableRow>
-          <TableCell>Total</TableCell>
-          <TableCell className="text-right tabular-nums">21,684</TableCell>
-        </TableRow>
-      </TableFooter>
-    </Table>
+    <div className="w-full max-w-md">
+      <Table>
+        <TableCaption>Usage for November, billed to the Monterrey workspace.</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Resource</TableHead>
+            <TableHead className="text-right">Usage</TableHead>
+            <TableHead className="text-right">Cost</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell>GPU hours</TableCell>
+            <TableCell className="text-right tabular-nums">412 h</TableCell>
+            <TableCell className="text-right tabular-nums">$1,236.00</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>Storage</TableCell>
+            <TableCell className="text-right tabular-nums">1.8 TB</TableCell>
+            <TableCell className="text-right tabular-nums">$41.40</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>Inference requests</TableCell>
+            <TableCell className="text-right tabular-nums">2.4M</TableCell>
+            <TableCell className="text-right tabular-nums">$96.00</TableCell>
+          </TableRow>
+        </TableBody>
+        <TableFooter>
+          <TableRow>
+            <TableCell colSpan={2}>Total</TableCell>
+            <TableCell className="text-right tabular-nums">$1,373.40</TableCell>
+          </TableRow>
+        </TableFooter>
+      </Table>
+    </div>
   );
 }

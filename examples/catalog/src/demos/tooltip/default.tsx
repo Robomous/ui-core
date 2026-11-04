@@ -1,43 +1,62 @@
 import {
   Button,
   ButtonGroup,
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@robomous/ui-core";
-import { MaximizeIcon, ZoomInIcon, ZoomOutIcon } from "@robomous/ui-core/icons";
+import { BotIcon, HouseIcon, OctagonXIcon, PauseIcon } from "@robomous/ui-core/icons";
 
-/** TooltipProvider owns the shared delayDuration (0 by default) for every Tooltip beneath it. */
+/** One provider above the group; each control keeps its own `aria-label` and the tooltip repeats it. */
 export default function Default() {
   return (
     <TooltipProvider>
-      <ButtonGroup aria-label="Frame viewer">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="outline" size="icon" aria-label="Zoom out">
-              <ZoomOutIcon />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Zoom out</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="outline" size="icon" aria-label="Zoom in">
-              <ZoomInIcon />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Zoom in</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="outline" size="icon" aria-label="Fit to frame">
-              <MaximizeIcon />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Fit to frame</TooltipContent>
-        </Tooltip>
-      </ButtonGroup>
+      <Item variant="outline" className="w-full max-w-md">
+        <ItemMedia variant="icon">
+          <BotIcon />
+        </ItemMedia>
+        <ItemContent>
+          <ItemTitle>
+            <span className="font-mono">rb-07</span> Atlas
+          </ItemTitle>
+          <ItemDescription>Mission 0412 · 64%</ItemDescription>
+        </ItemContent>
+        <ItemActions>
+          <ButtonGroup aria-label="rb-07 controls">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="icon" aria-label="Pause mission">
+                  <PauseIcon />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Pause mission</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="icon" aria-label="Return to dock">
+                  <HouseIcon />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Return to dock</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="icon" aria-label="Emergency stop">
+                  <OctagonXIcon />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Emergency stop</TooltipContent>
+            </Tooltip>
+          </ButtonGroup>
+        </ItemActions>
+      </Item>
     </TooltipProvider>
   );
 }

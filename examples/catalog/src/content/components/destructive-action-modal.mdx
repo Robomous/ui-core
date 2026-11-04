@@ -1,0 +1,139 @@
+---
+title: DestructiveActionModal
+description: Confirms an action that ends something behind a type-to-confirm gate, with an optional band naming what cannot be undone.
+related: [dialog, alert, toast]
+builtOn:
+  - name: Radix Dialog
+    docsUrl: https://www.radix-ui.com/primitives/docs/components/dialog
+    apiUrl: https://www.radix-ui.com/primitives/docs/components/dialog#api-reference
+---
+
+import FromRow from "@/demos/destructive-action-modal/from-row";
+import Loading from "@/demos/destructive-action-modal/loading";
+import Overview from "@/demos/destructive-action-modal/overview";
+import Reversible from "@/demos/destructive-action-modal/reversible";
+import WithError from "@/demos/destructive-action-modal/with-error";
+
+<Preview demo="destructive-action-modal/overview" hero>
+  <Overview client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { Button, DestructiveActionModal } from "@robomous/ui-core";
+import { useState } from "react";
+
+export function DeleteDataset() {
+  const [open, setOpen] = useState(false);
+  return (
+    <DestructiveActionModal
+      open={open}
+      onOpenChange={setOpen}
+      trigger={<Button variant="destructive">Delete Dataset</Button>}
+      title="Delete Dataset"
+      description={
+        <>
+          <b>pallet-detection</b> and its frames will be permanently deleted.
+        </>
+      }
+      irreversibleDescription="Deleting pallet-detection cannot be undone."
+      verificationPhrase="pallet-detection"
+      verificationLabel="dataset name"
+      confirmLabel="Delete Dataset"
+      onConfirm={() => setOpen(false)}
+    />
+  );
+}
+```
+
+<Callout title="You close it, not the modal" tone="warning">
+  `onConfirm` only runs the action. Own `open` and set it to `false` once the request settles; a
+  modal left uncontrolled has no way to close itself after a confirm.
+</Callout>
+
+## Composition
+
+```text
+DestructiveActionModal            props, not children
+├─ trigger                        optional; wrapped in DialogTrigger
+└─ Dialog
+   └─ DialogContent
+      ├─ title + description
+      ├─ band                     only with irreversibleDescription
+      ├─ prompt + Input           submit unlocks when it matches verificationPhrase
+      └─ Cancel / confirm buttons
+```
+
+## Examples
+
+### From a row
+
+When every row in a list has its own destructive action, render one modal and drive it from state.
+Leave out `trigger`, remember which row was chosen, and let `verificationPhrase` follow it, so the
+reader types the name of the key in front of them.
+
+<Preview demo="destructive-action-modal/from-row">
+  <FromRow client:load />
+</Preview>
+
+### Reversible
+
+Leave out `irreversibleDescription` for an action that can be rolled back. The typed gate stays,
+because stopping a whole fleet still deserves a pause, but the red band goes. With no resource
+name to type, fall back to a lowercase verb phrase.
+
+<Preview demo="destructive-action-modal/reversible">
+  <Reversible client:load />
+</Preview>
+
+### Loading
+
+`loading` disables both buttons and spins on the primary while the request is in flight. Escape and
+an outside click wait too, so the reader cannot walk away from a commitment half made. Close the
+modal when the request settles.
+
+<Preview demo="destructive-action-modal/loading">
+  <Loading client:load />
+</Preview>
+
+### With an error
+
+`error` shows the failure verbatim under the input and keeps the modal open, so the reader can try
+again without retyping. Pass a string or an `Error`; clear it when the modal closes.
+
+<Preview demo="destructive-action-modal/with-error">
+  <WithError client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Use it for delete, revoke, rotate, disconnect or pause: actions serious enough to deserve a pause.",
+    "Write `title` as Title Case, Verb + Noun (`Delete Dataset`) and repeat it as `confirmLabel`.",
+    "Make the phrase the resource's own name, and bold that name in `description`.",
+    "End `irreversibleDescription` with \"cannot be undone.\" and name the action and the resource.",
+  ]}
+  dont={[
+    "Don't use it for routine confirmations like discarding a draft; a plain Dialog is enough.",
+    "Don't label the button `Confirm` or `OK`; it should say what will happen.",
+    "Don't phrase the title as a question (`Delete this dataset?`).",
+    "Don't add `irreversibleDescription` to an action that can be undone.",
+  ]}
+/>
+
+## Accessibility
+
+Built on Dialog, so it is labelled by its title and described by its description, traps focus and
+restores it to the trigger. The input takes focus on open and is labelled by the prompt, which
+along with the input is marked `translate="no"` so browser translation never rewrites the phrase to
+match.
+
+<Keyboard
+  keys={[
+    ["Enter", "Submits, but only once the typed text matches the phrase."],
+    ["Tab", "Moves between the input and the buttons."],
+    ["Escape", "Cancels and clears the input; ignored while `loading`."],
+  ]}
+/>

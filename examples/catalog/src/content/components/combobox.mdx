@@ -1,6 +1,7 @@
 ---
 title: Combobox
 description: A filterable list behind a text input. State lives in bare `data-open` / `data-highlighted` attributes; the visuals are ours.
+related: [select, command, input-group, search-input]
 builtOn:
   - name: Base UI Combobox
     docsUrl: https://base-ui.com/react/components/combobox
@@ -8,12 +9,15 @@ builtOn:
 ---
 
 import Clearable from "@/demos/combobox/clearable";
+import Controlled from "@/demos/combobox/controlled";
 import Disabled from "@/demos/combobox/disabled";
+import Grouped from "@/demos/combobox/grouped";
 import MultiSelect from "@/demos/combobox/multi-select";
+import Overview from "@/demos/combobox/overview";
 import SingleSelect from "@/demos/combobox/single-select";
 
-<Preview demo="combobox/single-select">
-  <SingleSelect client:load />
+<Preview demo="combobox/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
@@ -27,26 +31,33 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@robomous/ui-core";
+
+const CLASSES = ["vehicle", "pedestrian", "cyclist", "traffic-sign", "traffic-light"];
+
+export function ClassFilter() {
+  return (
+    <Combobox items={CLASSES}>
+      <ComboboxInput placeholder="Filter by class" aria-label="Class" />
+      <ComboboxContent>
+        <ComboboxEmpty>No matching classes</ComboboxEmpty>
+        <ComboboxList>
+          {(item: string) => (
+            <ComboboxItem key={item} value={item}>
+              {item}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  );
+}
 ```
 
-```tsx
-<Combobox items={CLASSES}>
-  <ComboboxInput placeholder="Filter by class" aria-label="Class" />
-  <ComboboxContent>
-    <ComboboxEmpty>No matching classes</ComboboxEmpty>
-    <ComboboxList>
-      {(item) => (
-        <ComboboxItem key={item} value={item}>
-          {item}
-        </ComboboxItem>
-      )}
-    </ComboboxList>
-  </ComboboxContent>
-</Combobox>
-```
-
-`ComboboxList` takes a function child, called once per item after filtering — there is no separate
-render prop. `ComboboxEmpty` shows itself once that list has nothing left to call it with.
+<Callout title="The list is a function">
+  Pass the data to `items` on `Combobox`, and give `ComboboxList` a function child, called once per
+  item after filtering. There is no separate render prop, and `ComboboxEmpty` shows itself once that
+  list has nothing left to call it with.
+</Callout>
 
 ## Composition
 
@@ -59,35 +70,102 @@ Combobox
 └─ ComboboxContent
    └─ ComboboxList
       ├─ ComboboxGroup
-      │  └─ ComboboxLabel
+      │  ├─ ComboboxLabel
+      │  └─ ComboboxCollection
+      │     └─ ComboboxItem
       ├─ ComboboxItem
       ├─ ComboboxSeparator
       └─ ComboboxEmpty
 ```
 
-## Clearable
+## Examples
 
-`showClear` on `ComboboxInput` swaps the trigger chevron for a clear button once a value is
-picked, so clearing the field doesn't need a trip to the keyboard.
+### Filter as you type
+
+The plain form: strings in, one string out. The reader types, the list narrows, and Enter or a click
+fills the input. Use it for a list long enough that scanning is slower than typing.
+
+<Preview demo="combobox/single-select">
+  <SingleSelect client:load />
+</Preview>
+
+### Clearable
+
+`showClear` on `ComboboxInput` swaps the trigger chevron for a clear button once a value is picked,
+so emptying the field does not need the keyboard. Use it where "none" is a valid answer.
 
 <Preview demo="combobox/clearable">
   <Clearable client:load />
 </Preview>
 
-## Multi-select
+### Groups
 
-Setting `multiple` collects values into an array. There is no input left to anchor the popup to,
-so a multi-select swaps `ComboboxInput` for `ComboboxChips`, and `useComboboxAnchor` gives
+For categorised data, make each item of `items` a group, `{ value, items }`, and render
+`ComboboxGroup` with a `ComboboxLabel` and a `ComboboxCollection` for the group's own items. A group
+whose items are all filtered out disappears with its label.
+
+<Preview demo="combobox/grouped">
+  <Grouped client:load />
+</Preview>
+
+### Multi-select
+
+Setting `multiple` collects values into an array. There is no input left to anchor the popup to, so
+a multi-select swaps `ComboboxInput` for `ComboboxChips`, and `useComboboxAnchor` gives
 `ComboboxContent` an element to position against instead.
 
 <Preview demo="combobox/multi-select">
   <MultiSelect client:load />
 </Preview>
 
-## Disabled
+### Controlled
 
-Locked while an ingest job holds the batch.
+`value` and `onValueChange` hand the selection to your state. It is `null` when nothing is chosen,
+so type the state as `string | null`. Here it filters the list beside the field, which is the usual
+reason to control it.
+
+<Preview demo="combobox/controlled">
+  <Controlled client:load />
+</Preview>
+
+### Disabled
+
+Disabled locks both the input and its trigger. Say why nearby, here because a training run holds
+the node.
 
 <Preview demo="combobox/disabled">
   <Disabled client:load />
 </Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Use a combobox when the list is long enough that typing beats scrolling.",
+    "Write a specific `ComboboxEmpty` message that names what was searched.",
+    "Pass objects with `value` and `label` when an item carries more than a string.",
+    "Give the input an `aria-label` or a `FieldLabel` pointing at its `id`.",
+  ]}
+  dont={[
+    "Don't use a combobox for five options or fewer; a `Select` is simpler.",
+    "Don't use it to run commands; that is a `Command`.",
+    "Don't use `ComboboxInput` with `multiple`; use `ComboboxChips`.",
+    "Don't let the reader type a value that is not in the list and expect it to stick.",
+  ]}
+/>
+
+## Accessibility
+
+The input is a `combobox` with `aria-expanded` and `aria-controls`, and the popup is a `listbox` of
+`option`s. Focus stays in the input while the highlighted option is announced through
+`aria-activedescendant`.
+
+<Keyboard
+  keys={[
+    ["Arrow Down", "Opens the list, then moves the highlight down."],
+    ["Arrow Up", "Moves the highlight up."],
+    ["Enter", "Chooses the highlighted item."],
+    ["Escape", "Closes the list."],
+    ["Backspace", "In a multi-select with an empty input, removes the last chip."],
+  ]}
+/>

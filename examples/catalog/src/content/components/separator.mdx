@@ -1,6 +1,7 @@
 ---
 title: Separator
-description: A rule between two blocks of content or two inline items, decorative by default so a screen reader skips straight over it.
+description: A one-pixel rule between two blocks of content or two inline items, decorative by default so a screen reader skips straight over it.
+related: [card, item, tabs, button-group]
 builtOn:
   - name: Radix Separator
     docsUrl: https://www.radix-ui.com/primitives/docs/components/separator
@@ -8,27 +9,37 @@ builtOn:
 ---
 
 import Horizontal from "@/demos/separator/horizontal";
+import Overview from "@/demos/separator/overview";
+import Semantic from "@/demos/separator/semantic";
+import Toolbar from "@/demos/separator/toolbar";
 import Vertical from "@/demos/separator/vertical";
+import WithLabel from "@/demos/separator/with-label";
 
-<Preview demo="separator/horizontal">
-  <Horizontal client:load />
+<Preview demo="separator/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import { Separator } from "@robomous/ui-core";
+
+export function SiteList() {
+  return (
+    <div className="flex flex-col gap-3">
+      <span>Monterrey DC-2</span>
+      <Separator />
+      <span>Querétaro DC-1</span>
+    </div>
+  );
+}
 ```
 
-```tsx
-<div>batch-0041</div>
-<Separator />
-<div>batch-0042</div>
-```
-
-`decorative` defaults to `true`, because most separators repeat a grouping the layout already
-shows; set it to `false` only when the rule is the only thing marking a real boundary for assistive
-tech.
+<Callout title="A vertical rule needs a row to stretch in">
+  `orientation="vertical"` is one pixel wide and `self-stretch` tall, so it takes the height of the
+  flex row it sits in. In a block context it collapses to nothing; put it in a `flex` container, or
+  give it an explicit `h-*`.
+</Callout>
 
 ## Composition
 
@@ -36,18 +47,74 @@ tech.
 Separator
 ```
 
-## Horizontal
+## Examples
 
-A horizontal separator dividing two stacked blocks of content.
+### Horizontal
+
+The default orientation: a full-width hairline that divides stacked blocks. Place one between each
+pair, not after the last item, so the list does not end on a stray rule.
 
 <Preview demo="separator/horizontal">
   <Horizontal client:load />
 </Preview>
 
-## Vertical
+### Vertical
 
-`orientation="vertical"` divides inline items instead, such as the entries in a toolbar.
+`orientation="vertical"` divides inline items instead, such as the facts in a status strip. It
+stretches to the row's height, so it always matches the tallest item beside it.
 
 <Preview demo="separator/vertical">
   <Vertical client:load />
 </Preview>
+
+### With a label
+
+A rule has no slot for text, so compose it: two `Separator`s that flex to fill, with the label
+between them. This is the "or" between two sign-in methods.
+
+<Preview demo="separator/with-label">
+  <WithLabel client:load />
+</Preview>
+
+### Grouping a toolbar
+
+In a dense toolbar a short vertical rule (`h-4 data-vertical:self-center`) splits tools into
+clusters. A fixed height opts out of the stretch, and `self-center`
+keeps the shorter rule on the row's middle line, so it stays lighter than the buttons around it.
+
+<Preview demo="separator/toolbar">
+  <Toolbar client:load />
+</Preview>
+
+### Semantic
+
+`decorative` is `true` by default: the rule renders with `role="none"` and assistive tech never
+meets it. Pass `decorative={false}` only when the rule is the sole marker of a boundary, and
+then it is announced as a `separator`; give it a label if the context is not obvious.
+
+<Preview demo="separator/semantic">
+  <Semantic client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Use a separator where the content changes topic and spacing alone is too weak a signal.",
+    "Put a vertical rule in a flex row so it can stretch to the row's height.",
+    "Leave `decorative` on when headings or layout already mark the boundary.",
+    "Shorten a vertical rule with `h-4 data-vertical:self-center` inside toolbars so it stays quieter than the controls.",
+  ]}
+  dont={[
+    "Don't put a rule between every row of a long list; whitespace or a `divide-y` does that cheaper.",
+    "Don't use a separator to add vertical space; use `gap-*` or margin.",
+    "Don't set `decorative={false}` on rules that repeat what the layout already says.",
+    "Don't draw a boxed card and a rule inside it for the same grouping; pick one.",
+  ]}
+/>
+
+## Accessibility
+
+Decorative separators render with `role="none"`, so a screen reader skips them. With
+`decorative={false}` the element becomes `role="separator"`, and a vertical one also carries
+`aria-orientation="vertical"`. A separator is never focusable.

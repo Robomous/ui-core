@@ -1,94 +1,146 @@
 ---
 title: Card
-description: A bounded surface for a header, a body and a footer band, all sharing one spacing scale that a single size prop tightens at once.
+description: A bounded surface for a header, a body and a footer, all sharing one spacing scale that a single `size` prop tightens at once.
+related: [item, empty, table]
 builtOn:
   - name: native HTML
     docsUrl: https://developer.mozilla.org/docs/Web/HTML/Element/div
 ---
 
-import Anatomy from "@/demos/card/anatomy";
 import Compact from "@/demos/card/compact";
+import CoverImage from "@/demos/card/cover-image";
+import Form from "@/demos/card/form";
+import Overview from "@/demos/card/overview";
 import StatTile from "@/demos/card/stat-tile";
 import WithAction from "@/demos/card/with-action";
 import WithTable from "@/demos/card/with-table";
 
-<Preview demo="card/anatomy">
-  <Anatomy client:load />
+<Preview demo="card/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@robomous/ui-core";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@robomous/ui-core";
+
+export function RunSummary() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Run 0418</CardTitle>
+        <CardDescription>detector-v3.2 on gpu-node-03, started 14 minutes ago.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <p className="text-muted-foreground">Epoch 38 of 60. Validation mAP@50 is 0.912.</p>
+      </CardContent>
+    </Card>
+  );
+}
 ```
 
-```tsx
-<Card>
-  <CardHeader>
-    <CardTitle>Warehouse cameras</CardTitle>
-    <CardDescription>Twelve feeds, sampled every four seconds.</CardDescription>
-  </CardHeader>
-  <CardContent>
-    <p className="text-sm text-muted-foreground">Frames land in the ingest bucket in order.</p>
-  </CardContent>
-</Card>
-```
-
-`--card-spacing` is one custom property the whole card reads from, so `size="sm"` tightens the
-header, content and footer padding together rather than each region needing its own override.
+<Callout title="One variable sets the rhythm">
+  The card reads `--card-spacing` for its padding, its gap and every region's inset, so `size="sm"`
+  tightens the whole card by changing one value. Override that variable, not each region's padding.
+</Callout>
 
 ## Composition
 
 ```text
 Card
+├─ <img />            optional, first child: bleeds to the edges
 ├─ CardHeader
 │  ├─ CardTitle
 │  ├─ CardDescription
-│  └─ CardAction
+│  └─ CardAction      optional: second column of the header
 ├─ CardContent
 └─ CardFooter
 ```
 
-## Anatomy
+## Examples
 
-Header, content and a footer band. The footer's muted surface and top rule mark it as a distinct
-region for actions, not another paragraph of content.
+### Header action
 
-<Preview demo="card/anatomy">
-  <Anatomy client:load />
-</Preview>
-
-## Action
-
-`CardAction` opens a second grid column in `CardHeader`, aligned to the title's row no matter how
-tall the description makes the header grow.
+`CardAction` opens a second column in `CardHeader` and pins itself to the title's row, however tall
+the description makes the header. Use it for one status badge or one menu trigger, not a row of
+buttons.
 
 <Preview demo="card/with-action">
   <WithAction client:load />
 </Preview>
 
-## Compact
+### Form
 
-`size="sm"` tightens `--card-spacing`, and `CardTitle` steps down to `text-sm` along with it.
+A card makes a good frame for a short form. Give the footer a `border-t`: the rule marks it as the
+place for actions, and the footer adds the matching top padding itself. Put the `form` inside the
+card with the same `gap-(--card-spacing)`, so the fields keep the card's rhythm.
+
+<Preview demo="card/form">
+  <Form client:load />
+</Preview>
+
+### Cover image
+
+An `<img>` as the first child bleeds to the card's edges: the top padding drops away and the image
+takes the card's rounded corners. Give it a fixed aspect ratio so a grid of cards lines up, and a
+footer can still carry the action below it.
+
+<Preview demo="card/cover-image">
+  <CoverImage client:load />
+</Preview>
+
+### Compact
+
+`size="sm"` tightens `--card-spacing` from 16px to 12px. Reach for it when cards repeat in a dense
+grid or a sidebar, where the default padding would crowd out the content.
 
 <Preview demo="card/compact">
   <Compact client:load />
 </Preview>
 
-## Stat tile
+### Stat tile
 
-A card with only a header is the grid unit a dashboard is laid out from: `CardDescription` above,
-`CardTitle` carrying the figure.
+A card with only a header is the unit a dashboard is laid out from: `CardDescription` above for the
+label, `CardTitle` below carrying the figure, and an optional `CardAction` for a status note. Add
+`tabular-nums` so changing values don't jitter.
 
 <Preview demo="card/stat-tile">
   <StatTile client:load />
 </Preview>
 
-## With a table
+### With a table
 
-`CardContent` is where a `Table` usually lives. The card's own padding stops at the content region,
-so it never doubles up with the table's cell padding.
+`CardContent` is where a `Table` often lives. The table brings its own bordered frame, so the card
+only supplies the header and the inset around it.
 
 <Preview demo="card/with-table">
   <WithTable client:load />
 </Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Give every card a `CardTitle` that says what it holds, so a scan of the page reads as a list.",
+    "Use `CardAction` for a single status or menu, kept in the header's second column.",
+    "Rule the footer with `border-t` when it carries actions.",
+    "Use `size=\"sm\"` for repeated cards in dense layouts.",
+  ]}
+  dont={[
+    "Don't nest a card inside a card; use a `border` or an `Item` for the inner group.",
+    "Don't override padding region by region; change `--card-spacing` instead.",
+    "Don't make the whole card clickable with an `onClick` on the `div`; wrap the title in a link.",
+    "Don't use a card for a single line of text; an `Alert` or plain paragraph is lighter.",
+  ]}
+/>
+
+## Accessibility
+
+Every part is a plain `div`, so a card carries no role of its own. `CardTitle` is a `div`, not a
+heading: when the card belongs in the page outline, put an `<h3>` inside it at the level that fits.

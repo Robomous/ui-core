@@ -1,6 +1,7 @@
 ---
 title: Spinner
-description: A spinning loading glyph that announces itself as Loading; there is no isPending prop on Button, so a Spinner is composed into it directly.
+description: A spinning loading glyph that announces itself as Loading. There is no `isPending` prop on Button, so a Spinner is composed into it directly.
+related: [loading-dots, progress, skeleton, button]
 builtOn:
   - name: native HTML
     docsUrl: https://developer.mozilla.org/docs/Web/Accessibility/ARIA/Roles/status_role
@@ -8,43 +9,98 @@ builtOn:
 
 import Default from "@/demos/spinner/default";
 import InButton from "@/demos/spinner/in-button";
+import Overview from "@/demos/spinner/overview";
+import Panel from "@/demos/spinner/panel";
+import Sizes from "@/demos/spinner/sizes";
 
-<Preview demo="spinner/in-button">
-  <InButton client:load />
+<Preview demo="spinner/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import { Spinner } from "@robomous/ui-core";
+
+export function SyncStatus() {
+  return (
+    <p className="flex items-center gap-2 text-muted-foreground">
+      <Spinner />
+      Syncing telemetry from rb-07
+    </p>
+  );
+}
 ```
 
-```tsx
-<Spinner />
-```
-
-`Spinner` is a lucide glyph with `role="status"` and `aria-label="Loading"` already set: nothing
-else needs announcing.
+<Callout title="Say what is loading when there is more than one">
+  Each `Spinner` is a `role="status"` region labelled "Loading". Pass your own `aria-label`, such as
+  `Loading detections`, so a page with several spinners does not repeat the same word.
+</Callout>
 
 ## Composition
 
 ```text
-Spinner
+Spinner      a lucide glyph with role="status"
 ```
 
-## Alone
+## Examples
 
-A bare `Spinner`, sized like an icon and spinning on its own.
+### With text
+
+The most common use: a short line that names the work, with the spinner in front. The text carries
+the meaning for everyone; the spinner only shows the wait is not over.
 
 <Preview demo="spinner/default">
   <Default client:load />
 </Preview>
 
-## In a Button
+### In a button
 
-There is no `isPending` prop on `Button`: compose a `Spinner` into it with `data-icon="inline-start"`
-and disable the button yourself, so a press cannot fire twice.
+`Button` has no `isPending` prop. Compose a `Spinner` into it with `data-icon="inline-start"` and
+disable the button yourself, so a press cannot fire twice. Change the label to say what is happening.
 
 <Preview demo="spinner/in-button">
   <InButton client:load />
 </Preview>
+
+### Sizes and colour
+
+The default is `size-4`. Use `className` to resize it with a `size-*` utility; it takes the text
+colour, so a muted or primary tone is a plain colour utility. Match the size to the type beside it.
+
+<Preview demo="spinner/sizes">
+  <Sizes client:load />
+</Preview>
+
+### In a panel
+
+When a region has nothing to show yet, centre a spinner in the space the content will fill, so
+nothing shifts when it arrives. When you know the shape of the content, prefer a `Skeleton`.
+
+<Preview demo="spinner/panel">
+  <Panel client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Pair it with words that name the work: \"Syncing telemetry\", \"Exporting COCO\".",
+    "Disable the control that started the work while the spinner runs.",
+    "Pass an `aria-label` when more than one spinner can be on screen.",
+    "Reserve the space the result will take so the layout doesn't jump.",
+  ]}
+  dont={[
+    "Don't use it when you know the progress; show a `Progress` bar.",
+    "Don't leave a spinner running with no timeout and no way out.",
+    "Don't show one for work shorter than a moment; it will only flicker.",
+    "Don't use it as the only sign of a state; add text.",
+  ]}
+/>
+
+## Accessibility
+
+`Spinner` renders the lucide `Loader2` glyph with `role="status"` and `aria-label="Loading"` already
+set, so mounting one is announced politely. Override `aria-label` to name what is loading. The
+spin is plain CSS animation, which the stylesheet collapses under `prefers-reduced-motion`, so the
+text beside it should always say what is going on.

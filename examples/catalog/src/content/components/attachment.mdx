@@ -1,109 +1,171 @@
 ---
 title: Attachment
 description: An uploaded file as a card. `state` drives every part's styling, from a dashed idle drop target through a shimmering upload to a settled `done`.
+related: [item, card, progress]
 builtOn:
   - name: Radix Slot
     docsUrl: https://www.radix-ui.com/primitives/docs/utilities/slot
     apiUrl: https://www.radix-ui.com/primitives/docs/utilities/slot#api-reference
 ---
 
-import States from "@/demos/attachment/states";
-import Sizes from "@/demos/attachment/sizes";
-import Orientation from "@/demos/attachment/orientation";
-import ImageMedia from "@/demos/attachment/image-media";
-import Trigger from "@/demos/attachment/trigger";
+import Actions from "@/demos/attachment/actions";
 import Group from "@/demos/attachment/group";
+import ImageMedia from "@/demos/attachment/image-media";
+import Orientation from "@/demos/attachment/orientation";
+import Overview from "@/demos/attachment/overview";
+import Sizes from "@/demos/attachment/sizes";
+import States from "@/demos/attachment/states";
+import Trigger from "@/demos/attachment/trigger";
 
-<Preview demo="attachment/states">
-  <States client:load />
+<Preview demo="attachment/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
-import { Attachment, AttachmentContent, AttachmentMedia, AttachmentTitle } from "@robomous/ui-core";
+import {
+  Attachment,
+  AttachmentContent,
+  AttachmentDescription,
+  AttachmentMedia,
+  AttachmentTitle,
+} from "@robomous/ui-core";
+import { FileArchiveIcon } from "@robomous/ui-core/icons";
+
+export function BatchFile() {
+  return (
+    <Attachment state="done">
+      <AttachmentMedia>
+        <FileArchiveIcon />
+      </AttachmentMedia>
+      <AttachmentContent>
+        <AttachmentTitle>batch-0041.zip</AttachmentTitle>
+        <AttachmentDescription>311.9 MB</AttachmentDescription>
+      </AttachmentContent>
+    </Attachment>
+  );
+}
 ```
 
-```tsx
-<Attachment state="uploading">
-  <AttachmentMedia variant="icon">
-    <Spinner />
-  </AttachmentMedia>
-  <AttachmentContent>
-    <AttachmentTitle>frames-03.tar</AttachmentTitle>
-  </AttachmentContent>
-</Attachment>
-```
-
-`state` is the one prop every part reads from: give it the value the upload is actually in, and the
-border, the media and the title all follow.
+<Callout title="Set state to the truth">
+  `state` is the one prop every part reads: pass the value the file is actually in, and the border,
+  the media tint and the title follow. `Attachment` only styles the state; showing a `Spinner` while
+  `uploading` is yours to render in the media slot.
+</Callout>
 
 ## Composition
 
 ```text
 Attachment
-├─ AttachmentMedia
+├─ AttachmentMedia          icon or image
 ├─ AttachmentContent
 │  ├─ AttachmentTitle
 │  └─ AttachmentDescription
 ├─ AttachmentActions
 │  └─ AttachmentAction
-└─ AttachmentTrigger
+└─ AttachmentTrigger        optional: covers the whole card
 
-AttachmentGroup
+AttachmentGroup             a scrolling row of Attachments
 ```
 
-## States
+## Examples
 
-Every part styles off `state`: dashed and quiet while idle, a spinner mid-upload, a shimmering
-title while processing, and a plain settled `done`.
+### States
+
+`idle` is a dashed drop target; `uploading` and `processing` shimmer the title; `error` tints the
+border, media and description in the destructive colour; `done` is the settled default. Use
+`processing` for work that continues after the bytes arrive, like extracting a zip.
 
 <Preview demo="attachment/states">
   <States client:load />
 </Preview>
 
-## Sizes
+### Actions
 
-`default`, `sm` and `xs` step the padding and text down together; `xs` also tightens the corner
-radius.
+`AttachmentActions` holds the card's own controls in a ghost, icon-sized `AttachmentAction`. They sit
+above the trigger layer, so each stays its own hit target. Name every one with an `aria-label`,
+including the file, since several cards will repeat the same icon.
+
+<Preview demo="attachment/actions">
+  <Actions client:load />
+</Preview>
+
+### Sizes
+
+`default`, `sm` and `xs` step the padding and the media tile down together; `xs` also tightens the
+corner radius. Use `xs` for chips in a message composer and `default` in a form.
 
 <Preview demo="attachment/sizes">
   <Sizes client:load />
 </Preview>
 
-## Orientation
+### Orientation
 
-`vertical` stacks the media above the content and floats `AttachmentActions` over its corner, the
-shape a thumbnail grid wants; `horizontal` is the default row.
+`horizontal` is the default row. `vertical` stacks the media above the content and floats
+`AttachmentActions` over the media's corner, the shape a grid of files wants.
 
 <Preview demo="attachment/orientation">
   <Orientation client:load />
 </Preview>
 
-## Image media
+### Image media
 
-`variant="image"` fills the media slot with the attachment's own thumbnail instead of an icon; it
-dims until the upload settles into `idle` or `done`.
+`variant="image"` fills the media slot with a thumbnail instead of an icon, cropped to a square. It
+renders dimmed while the state is `uploading` or `processing`, and at full strength once it is
+`idle` or `done`. Over a thumbnail, give the remove button a surface with `variant="secondary"` so it
+stays legible on any image.
 
 <Preview demo="attachment/image-media">
   <ImageMedia client:load />
 </Preview>
 
-## Trigger
+### Trigger
 
-`AttachmentTrigger` covers the whole card and renders `type="button"`, so the card itself is the
-hit target without any part of it becoming a link. `asChild` hands that behaviour to another
-element instead, the same pattern `Button` uses.
+`AttachmentTrigger` is an invisible button laid over the whole card, with `type="button"` by default,
+so the card is one hit target and the actions still sit above it. Give it a name with `sr-only` text.
+`asChild` hands the behaviour to another element, such as a link, the way `Button` does.
 
 <Preview demo="attachment/trigger">
   <Trigger client:load />
 </Preview>
 
-## Group
+### Group
 
-`AttachmentGroup` lays a batch of uploads out as a horizontally scrolling, snapping row instead of
-wrapping them.
+`AttachmentGroup` lays a batch out as one horizontally scrolling, snapping row instead of wrapping
+it, with the edge fading where more files wait. Use it where height is scarce, like above a
+composer.
 
 <Preview demo="attachment/group">
   <Group client:load />
 </Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Put the file size or the failure reason in `AttachmentDescription`, so the state has words.",
+    "Show a `Spinner` in the media slot while `uploading`, and offer a retry on `error`.",
+    "Label every `AttachmentAction` with the verb and the file name.",
+    "Use `AttachmentTrigger` when the whole card selects or opens the file.",
+  ]}
+  dont={[
+    "Don't rely on the border or colour alone to convey `error`; say it in the description.",
+    "Don't put a link or button inside `AttachmentContent`; use `AttachmentActions`.",
+    "Don't use `idle` for a file that exists; it is for the empty drop target.",
+    "Don't mix `AttachmentTrigger` with another full-card handler.",
+  ]}
+/>
+
+## Accessibility
+
+`Attachment` is a `div` with no role: the state is visual, so write it into the description
+("Upload failed") for everyone. `AttachmentTrigger` and `AttachmentAction` are real buttons with a
+focus ring on `:focus-visible`, and the card shows a ring while one of them has focus.
+
+<Keyboard
+  keys={[
+    ["Tab", "Moves between the trigger and each action in the card."],
+    ["Enter / Space", "Activates the focused trigger or action."],
+  ]}
+/>

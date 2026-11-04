@@ -7,7 +7,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@robomous/ui-core";
-import { InboxIcon, PlusIcon } from "@robomous/ui-core/icons";
+import { PlusIcon, TimerIcon } from "@robomous/ui-core/icons";
 
 /** `EmptyMedia` `variant="icon"` sets the icon in a muted square; `EmptyContent` holds the one action that resolves the panel. */
 export default function Icon() {
@@ -15,17 +15,17 @@ export default function Icon() {
     <Empty className="w-full max-w-md border border-dashed">
       <EmptyHeader>
         <EmptyMedia variant="icon">
-          <InboxIcon />
+          <TimerIcon />
         </EmptyMedia>
-        <EmptyTitle>No batches yet</EmptyTitle>
+        <EmptyTitle>No training runs yet</EmptyTitle>
         <EmptyDescription>
-          Upload a batch to start labelling. Nothing is lost while you wait.
+          Start a run to fine-tune detector-v3.2 on your latest batch.
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
         <Button>
           <PlusIcon data-icon="inline-start" />
-          Upload a batch
+          Start a run
         </Button>
       </EmptyContent>
     </Empty>

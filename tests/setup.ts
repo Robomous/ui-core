@@ -30,7 +30,7 @@ afterEach(async () => {
 /**
  * Sonner's toast store is module-global and outlives `cleanup()`, and a freshly
  * mounted `<Toaster />` replays every toast still in it. `dismiss()` with no id
- * marks every active toast dismissed synchronously. `tests/components/sonner.test.tsx`
+ * marks every active toast dismissed synchronously. `tests/components/toast.test.tsx`
  * fires a toast in each of its tests and would otherwise see the previous one.
  */
 afterEach(() => toast.dismiss());

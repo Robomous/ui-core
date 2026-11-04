@@ -6,10 +6,16 @@ interface Props {
   /** Path under src/demos/, without extension: "button/variants". */
   demo: string;
   align?: "center" | "start" | "stretch";
+  /** The page's opening showcase: a taller stage, the demo centred in it. */
+  hero?: boolean;
   class?: string;
 }
 
-const { demo, align = "center", class: className } = Astro.props;
+// Every demo sits centred on its stage, as one composed object with even
+// room on all sides; `start` and `stretch` remain for the rare demo that
+// reads as part of a page rather than an object on its own. The hero gets
+// a taller stage, being the composition the page opens on.
+const { demo, align = "center", hero = false, class: className } = Astro.props;
 const code = demoSource(demo);
 const alignment = {
   center: "items-center justify-center",
@@ -18,13 +24,21 @@ const alignment = {
 }[align];
 ---
 
+<!-- A demo is a card on the page: a hairline, a small radius, the demo on the
+     page's own surface, and the code behind one bar underneath. The stage sets
+     the components' own type size, so a demo's plain text sits beside them
+     instead of at the docs' reading size. -->
 <figure
-  class:list={["my-6 overflow-hidden rounded-xl ring-1 ring-foreground/10", className]}
+  class:list={["my-6 overflow-hidden rounded-md border bg-background", hero && "mt-0", className]}
   data-demo={demo}
 >
-  <!-- The height follows the demo; the floor only keeps a lone button from
-       looking stranded. -->
-  <div class:list={["flex min-h-40 flex-wrap gap-3 px-6 py-10 md:px-10 md:py-12", alignment]}>
+  <div
+    class:list={[
+      "flex flex-wrap gap-4 text-xs/relaxed",
+      hero ? "min-h-80 px-6 py-10 sm:p-12" : "min-h-48 px-6 py-10 sm:px-10",
+      alignment,
+    ]}
+  >
     <slot />
   </div>
   <CodePanel code={code} />

@@ -25,7 +25,7 @@ const code = html
 <div class="relative">
   <!-- pr-12 keeps a long first line from running under the button. -->
   <pre {...attributes} class:list={[className, "pr-12"]} set:html={html}></pre>
-  <div class="absolute top-2 right-2">
+  <div class="absolute top-4 right-3">
     <CopyButton client:visible code={code} />
   </div>
 </div>

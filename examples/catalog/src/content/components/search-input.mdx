@@ -1,0 +1,147 @@
+---
+title: SearchInput
+description: A search field with the magnifier ahead, a clear button once there is text, Escape to clear, an optional ⌘K shortcut and a loading state.
+related: [input, input-group, command, combobox]
+builtOn:
+  - name: native HTML
+    docsUrl: https://developer.mozilla.org/docs/Web/HTML/Element/input/search
+---
+
+import CustomIcon from "@/demos/search-input/custom-icon";
+import Default from "@/demos/search-input/default";
+import Disabled from "@/demos/search-input/disabled";
+import Loading from "@/demos/search-input/loading";
+import Overview from "@/demos/search-input/overview";
+import Shortcut from "@/demos/search-input/shortcut";
+import WithResults from "@/demos/search-input/with-results";
+
+<Preview demo="search-input/overview" hero>
+  <Overview client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { SearchInput } from "@robomous/ui-core";
+import { useState } from "react";
+
+export function DatasetSearch() {
+  const [query, setQuery] = useState("");
+
+  return (
+    <SearchInput
+      value={query}
+      onValueChange={setQuery}
+      aria-label="Search datasets"
+      placeholder="Search datasets…"
+    />
+  );
+}
+```
+
+<Callout title="Controlled or not, your choice" tone="note">
+  It keeps its own value until you pass `value`. Use `onValueChange` to receive the text as a string
+  rather than an event, and `onClear` to react after the clear button or Escape empties the field.
+</Callout>
+
+## Composition
+
+```text
+SearchInput
+└─ InputGroup
+   ├─ InputGroupAddon (magnifier · spinner · icon)
+   ├─ InputGroupInput (type="search")
+   └─ InputGroupAddon (clear button · ⌘K hint)
+```
+
+## Examples
+
+### Clear and Escape
+
+Once there is text, a clear button appears at the end; Escape does the same from the keyboard, then
+returns focus to the field so the reader can type again. The browser's own clear glyph is hidden,
+so there is only one.
+
+<Preview demo="search-input/default">
+  <Default client:load />
+</Preview>
+
+### With a shortcut
+
+`shortcut` binds ⌘K (Ctrl+K elsewhere) to focus the field and shows the keys while it is empty.
+The hint gives way to the clear button as soon as there is text. Bind it on the page's main search
+only.
+
+<Preview demo="search-input/shortcut">
+  <Shortcut client:load />
+</Preview>
+
+### Filtering a list
+
+Own the query with `value` and `onValueChange`, then derive the list from it. Announce the count
+with `role="status"` so a screen reader hears the result of each keystroke, and say what an empty
+result means.
+
+<Preview demo="search-input/with-results">
+  <WithResults client:load />
+</Preview>
+
+### Loading
+
+`loading` swaps the magnifier for a spinner and sets `aria-busy` while results are on their way,
+which is the right feedback for a search that calls the server. Debounce the request, not the
+typing.
+
+<Preview demo="search-input/loading">
+  <Loading client:load />
+</Preview>
+
+### Custom icon
+
+`icon` replaces the magnifier for a search that works differently: a scope, a filter, an assistant
+that takes a question instead of keywords. Change the placeholder to match, and offer a few
+suggestions, since a blank prompt is harder to start than a keyword box.
+
+<Preview demo="search-input/custom-icon">
+  <CustomIcon client:load />
+</Preview>
+
+### Disabled
+
+Disabled while there is nothing to search yet, like a dataset that is still importing. The field
+dims, drops the clear button, and the shortcut is not bound. Say when it will open, as the progress
+line does here.
+
+<Preview demo="search-input/disabled">
+  <Disabled client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Say what is searched in the placeholder: \"Search robots…\", not \"Search…\".",
+    "Name the field with `aria-label` when there is no visible label.",
+    "Bind `shortcut` on one field per page at most.",
+    "Use `Command` when the results are actions to run rather than a list to narrow.",
+  ]}
+  dont={[
+    "Don't bind `shortcut` on several fields; they would all fight for ⌘K.",
+    "Don't fire a request on every keystroke without debouncing it.",
+    "Don't leave an empty result blank; say that nothing matched.",
+    "Don't add your own clear button; there is one already.",
+  ]}
+/>
+
+## Accessibility
+
+An `<input type="search">` inside an `InputGroup`, so it is exposed as a search box. The icon
+addons are decorative, the clear button is labelled "Clear search", and `loading` sets `aria-busy`.
+
+<Keyboard
+  keys={[
+    ["Cmd+K / Ctrl+K", "Focuses the field when `shortcut` is on."],
+    ["Escape", "Clears the text and keeps focus in the field; does nothing when it is empty."],
+    ["Tab", "Moves from the field to the clear button when it is shown."],
+  ]}
+/>

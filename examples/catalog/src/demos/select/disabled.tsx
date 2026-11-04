@@ -1,16 +1,44 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@robomous/ui-core";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Field,
+  FieldDescription,
+  FieldLabel,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@robomous/ui-core";
 
-/** Locked while an ingest job holds the batch; the trigger keeps the arrow cursor. */
+/** Locked while an export is running; the trigger keeps the arrow cursor. */
 export default function Disabled() {
   return (
-    <Select defaultValue="front-left" disabled>
-      <SelectTrigger className="w-56" aria-label="Camera">
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="front-left">front-left</SelectItem>
-        <SelectItem value="front-right">front-right</SelectItem>
-      </SelectContent>
-    </Select>
+    <Card className="w-full max-w-sm">
+      <CardHeader>
+        <CardTitle>Export in progress</CardTitle>
+        <CardDescription>7,640 of 18,204 frames written.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Field data-disabled>
+          <FieldLabel htmlFor="dataset-format">Dataset format</FieldLabel>
+          <Select defaultValue="coco" disabled>
+            <SelectTrigger id="dataset-format" className="w-full" aria-describedby="format-hint">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="coco">COCO JSON</SelectItem>
+              <SelectItem value="yolo">YOLO TXT</SelectItem>
+            </SelectContent>
+          </Select>
+          <FieldDescription id="format-hint">
+            The format is fixed until this export finishes.
+          </FieldDescription>
+        </Field>
+      </CardContent>
+    </Card>
   );
 }

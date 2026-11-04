@@ -7,39 +7,31 @@ import {
   AttachmentTitle,
   Spinner,
 } from "@robomous/ui-core";
-import { FileIcon } from "@robomous/ui-core/icons";
+import { FileSpreadsheetIcon } from "@robomous/ui-core/icons";
 
-/** `AttachmentGroup` lays a batch of uploads out as a horizontally scrolling, snapping row instead of wrapping them. */
+const files = [
+  { name: "rb-07-telemetry.csv", note: "4.2 MB", state: "done" },
+  { name: "rb-12-telemetry.csv", note: "9.8 MB", state: "uploading" },
+  { name: "rb-03-telemetry.csv", note: "Upload failed", state: "error" },
+  { name: "rb-15-telemetry.csv", note: "6.1 MB", state: "done" },
+  { name: "rb-21-telemetry.csv", note: "3.7 MB", state: "done" },
+] as const;
+
+/** `AttachmentGroup` lays a batch out as one scrolling, snapping row instead of wrapping it, with a fade at the edge that still has more. */
 export default function Group() {
   return (
     <AttachmentGroup className="w-full max-w-md">
-      <Attachment state="done">
-        <AttachmentMedia variant="icon">
-          <FileIcon />
-        </AttachmentMedia>
-        <AttachmentContent>
-          <AttachmentTitle>batch-0041.zip</AttachmentTitle>
-          <AttachmentDescription>311.9 MB</AttachmentDescription>
-        </AttachmentContent>
-      </Attachment>
-      <Attachment state="uploading">
-        <AttachmentMedia variant="icon">
-          <Spinner />
-        </AttachmentMedia>
-        <AttachmentContent>
-          <AttachmentTitle>batch-0042.zip</AttachmentTitle>
-          <AttachmentDescription>1.1 GB</AttachmentDescription>
-        </AttachmentContent>
-      </Attachment>
-      <Attachment state="error">
-        <AttachmentMedia variant="icon">
-          <FileIcon />
-        </AttachmentMedia>
-        <AttachmentContent>
-          <AttachmentTitle>batch-0043.zip</AttachmentTitle>
-          <AttachmentDescription>Upload failed</AttachmentDescription>
-        </AttachmentContent>
-      </Attachment>
+      {files.map((file) => (
+        <Attachment key={file.name} state={file.state}>
+          <AttachmentMedia>
+            {file.state === "uploading" ? <Spinner /> : <FileSpreadsheetIcon />}
+          </AttachmentMedia>
+          <AttachmentContent>
+            <AttachmentTitle>{file.name}</AttachmentTitle>
+            <AttachmentDescription>{file.note}</AttachmentDescription>
+          </AttachmentContent>
+        </Attachment>
+      ))}
     </AttachmentGroup>
   );
 }

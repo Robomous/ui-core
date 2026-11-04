@@ -1,44 +1,243 @@
 ---
-import { buttonVariants } from "@robomous/ui-core";
-import { Code } from "astro:components";
+import {
+  Badge,
+  Button,
+  ButtonGroup,
+  ButtonGroupText,
+  Input,
+  Kbd,
+  KbdGroup,
+} from "@robomous/ui-core";
+import {
+  BellIcon,
+  BoxIcon,
+  BracesIcon,
+  ChartBarIcon,
+  ClockIcon,
+  CommandIcon,
+  DatabaseIcon,
+  FileTextIcon,
+  FlagIcon,
+  GitBranchIcon,
+  GlobeIcon,
+  InboxIcon,
+  KeyRoundIcon,
+  LayoutGridIcon,
+  ListIcon,
+  PaperclipIcon,
+  PencilLineIcon,
+  ShieldIcon,
+  SlidersHorizontalIcon,
+  UsersIcon,
+} from "@robomous/ui-core/icons";
 
-import Header from "@/components/Header.astro";
-import Base from "@/layouts/Base.astro";
+import CopyButton from "@/components/CopyButton";
+import Docs from "@/layouts/Docs.astro";
 import { buildNav } from "@/lib/nav";
 import { SITE } from "@/lib/site";
 
+const install = `pnpm add ${SITE.name}`;
+const icons = [
+  LayoutGridIcon,
+  ChartBarIcon,
+  ClockIcon,
+  GlobeIcon,
+  FlagIcon,
+  BellIcon,
+  BoxIcon,
+  ShieldIcon,
+  InboxIcon,
+  PencilLineIcon,
+  FileTextIcon,
+  PaperclipIcon,
+  BracesIcon,
+  KeyRoundIcon,
+  GitBranchIcon,
+  CommandIcon,
+  SlidersHorizontalIcon,
+  DatabaseIcon,
+];
+// Three materials at their own lift: in place, floating, and modal.
+const materials = [
+  "bg-card rounded-lg ring-1 ring-foreground/10",
+  "bg-popover rounded-lg shadow-md ring-1 ring-foreground/10",
+  "bg-popover rounded-xl shadow-lg ring-1 ring-foreground/10",
+];
+const hues = [
+  "bg-neutral-500",
+  "bg-blue-500",
+  "bg-violet-500",
+  "bg-pink-500",
+  "bg-red-500",
+  "bg-amber-500",
+  "bg-green-500",
+  "bg-teal-500",
+];
 const nav = await buildNav();
+// A cell is a doorway. The title carries the link and stretches over the whole
+// cell, so the picture is part of the target without being a link itself; the
+// one live control (copy) sits above the stretch.
+const cell =
+  "relative flex flex-col gap-6 p-8 transition-colors has-[a:focus-visible]:bg-muted/30 hover:bg-muted/30 md:p-10";
+const title = "font-medium after:absolute after:inset-0 focus-visible:outline-none";
 ---
 
-<Base title="ui-core" description="Robomous design system, built on top of shadcn/ui.">
-  <Header nav={nav} current="/" />
-  <main class="mx-auto flex w-full max-w-3xl flex-col gap-8 px-6 py-24">
-    <p class="font-mono text-sm text-muted-foreground">
-      {SITE.name} · {SITE.version}
-    </p>
-    <h1 class="text-4xl font-medium tracking-tight text-balance">
-      Robomous design system, built on top of shadcn/ui.
+<Docs title="ui-core" description="Robomous design system, built on top of shadcn/ui.">
+  <header class="flex flex-col gap-3 px-(--gutter) py-10">
+    <h1 class="text-3xl font-semibold tracking-tight text-balance md:text-4xl">
+      Robomous design system
     </h1>
-    <p class="max-w-prose text-lg text-muted-foreground">
-      Forty-five owned React components over Radix, Base UI, cmdk and vaul, and the one stylesheet
-      they resolve through. Every colour is a role; every component ships in light and dark.
+    <p class="max-w-prose text-lg/relaxed text-pretty text-muted-foreground">
+      {nav.components.length} owned React components over Radix, Base UI, cmdk and vaul, built on
+      top of shadcn/ui, and the one stylesheet they resolve through.
     </p>
-    <div class="flex flex-wrap gap-3">
-      <a href="/docs/introduction" class={buttonVariants()}>
-        Get started
-      </a>
-      <a href="/components" class={buttonVariants({ variant: "outline" })}>
-        Browse components
-      </a>
-    </div>
-    <div class="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
-      <Code
-        code={`pnpm add ${SITE.name}`}
-        lang="bash"
-        themes={{ light: "github-light", dark: "github-dark" }}
-        defaultColor={false}
-        class="p-4 text-sm"
-      />
-    </div>
-  </main>
-</Base>
+  </header>
+
+  <!-- Six cells on a hairline grid: a picture made of the real thing, then
+       where it leads. -->
+  <div class="grid border-t sm:grid-cols-2">
+    <section class:list={[cell, "border-b sm:border-r"]}>
+      <div class="flex min-h-40 flex-col items-start justify-center gap-3">
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="relative z-10 flex h-8 items-center gap-3 rounded-lg border bg-background pr-1 pl-3 font-mono text-xs">
+            <span class="text-muted-foreground select-none">$</span>
+            <span>{install}</span>
+            <CopyButton client:visible code={install} />
+          </div>
+          <Button variant="outline">
+            <UsersIcon data-icon="inline-start" />
+            Collaborate
+          </Button>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+          <ButtonGroup>
+            <Button variant="outline" size="icon" aria-label="Grid view">
+              <LayoutGridIcon />
+            </Button>
+            <Button variant="outline" size="icon" aria-label="List view">
+              <ListIcon />
+            </Button>
+          </ButtonGroup>
+          <ButtonGroup>
+            <ButtonGroupText>Label</ButtonGroupText>
+            <Input placeholder="Value" aria-label="Value" className="w-40" />
+          </ButtonGroup>
+          <KbdGroup>
+            <Kbd>⌘</Kbd>
+            <Kbd>K</Kbd>
+          </KbdGroup>
+        </div>
+      </div>
+      <div class="flex flex-col gap-1">
+        <a href="/components" class={title}>
+          Components
+        </a>
+        <span class="text-sm text-muted-foreground">Building blocks for React applications.</span>
+      </div>
+    </section>
+
+    <section class:list={[cell, "border-b"]}>
+      <div class="flex min-h-40 items-center justify-center gap-3">
+        {hues.map((hue) => (
+          <span class="flex h-24 w-6 items-end rounded-full border bg-background p-1">
+            <span class:list={["block h-full w-full rounded-full", hue]}></span>
+          </span>
+        ))}
+      </div>
+      <div class="flex flex-col gap-1">
+        <a href="/docs/colors" class={title}>
+          Colours
+        </a>
+        <span class="text-sm text-muted-foreground">
+          Tailwind's palette trimmed to eighteen scales, under a vocabulary of roles.
+        </span>
+      </div>
+    </section>
+
+    <section class:list={[cell, "border-b sm:border-r"]}>
+      <div class="flex min-h-40 items-center justify-center gap-5">
+        {materials.map((material) => (
+          <span class:list={["block h-20 w-28", material]}></span>
+        ))}
+      </div>
+      <div class="flex flex-col gap-1">
+        <a href="/docs/materials" class={title}>
+          Materials
+        </a>
+        <span class="text-sm text-muted-foreground">
+          Presets for radii, fills, strokes and shadows, on the page and above it.
+        </span>
+      </div>
+    </section>
+
+    <section class:list={[cell, "border-b"]}>
+      <div class="flex min-h-40 flex-col items-center justify-center gap-3">
+        <div class="flex flex-wrap items-center justify-center gap-2">
+          <Button>Save changes</Button>
+          <Button variant="outline">Cancel</Button>
+          <Button variant="destructive">Delete</Button>
+          <Button disabled>Disabled</Button>
+        </div>
+        <div class="flex flex-wrap items-center justify-center gap-2">
+          <Badge variant="success">Deployed</Badge>
+          <Badge variant="warning">Pending</Badge>
+          <Badge variant="info">Preview</Badge>
+          <Badge variant="destructive">Failed</Badge>
+          <Input
+            aria-invalid
+            aria-label="Invalid value"
+            defaultValue="not-an-email"
+            className="w-36"
+          />
+        </div>
+      </div>
+      <div class="flex flex-col gap-1">
+        <a href="/docs/states" class={title}>
+          States
+        </a>
+        <span class="text-sm text-muted-foreground">
+          Disabled, invalid and status are read from an attribute, not a class.
+        </span>
+      </div>
+    </section>
+
+    <section class:list={[cell, "border-b sm:border-r sm:border-b-0"]}>
+      <div class="flex min-h-40 items-center justify-center">
+        <div class="grid w-full max-w-sm grid-cols-2 overflow-hidden rounded-md border border-dashed">
+          <span class="flex items-center justify-center border-r border-dashed py-8 text-2xl text-muted-foreground">
+            Inter
+          </span>
+          <span class="flex items-center justify-center py-8 font-mono text-2xl text-muted-foreground">
+            Geist Mono
+          </span>
+        </div>
+      </div>
+      <div class="flex flex-col gap-1">
+        <a href="/docs/typography" class={title}>
+          Typeface
+        </a>
+        <span class="text-sm text-muted-foreground">
+          One face for prose, one for machine-shaped content, both bundled offline.
+        </span>
+      </div>
+    </section>
+
+    <section class={cell}>
+      <div class="flex min-h-40 items-center justify-center">
+        <div class="grid grid-cols-6 gap-x-8 gap-y-6 text-foreground">
+          {icons.map((Icon) => (
+            <Icon className="size-4" />
+          ))}
+        </div>
+      </div>
+      <div class="flex flex-col gap-1">
+        <a href="/docs/installation#icons" class={title}>
+          Icons
+        </a>
+        <span class="text-sm text-muted-foreground">
+          lucide, re-exported whole, so an app's icons and the components' come from one set.
+        </span>
+      </div>
+    </section>
+  </div>
+</Docs>

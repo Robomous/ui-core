@@ -1,6 +1,7 @@
 ---
 title: Sheet
-description: A panel that slides in from an edge of the viewport, sharing Dialog's overlay, focus trap and exit animation. `side` picks the edge it opens from — right by default — and `showCloseButton` toggles its corner close affordance.
+description: A panel that slides in from an edge of the viewport, sharing Dialog's overlay, focus trap and exit animation. `side` picks the edge, right by default, for work that needs more room than a dialog.
+related: [dialog, drawer, popover]
 builtOn:
   - name: Radix Dialog
     docsUrl: https://www.radix-ui.com/primitives/docs/components/dialog
@@ -9,10 +10,12 @@ builtOn:
 
 import Filters from "@/demos/sheet/filters";
 import NoCloseButton from "@/demos/sheet/no-close-button";
+import Overview from "@/demos/sheet/overview";
+import Scrolling from "@/demos/sheet/scrolling";
 import Sides from "@/demos/sheet/sides";
 
-<Preview demo="sheet/sides">
-  <Sides client:load />
+<Preview demo="sheet/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
@@ -21,67 +24,125 @@ import Sides from "@/demos/sheet/sides";
 import {
   Button,
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "@robomous/ui-core";
+
+export function RunFilters() {
+  return (
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button variant="outline">Filters</Button>
+      </SheetTrigger>
+      <SheetContent>
+        <SheetHeader>
+          <SheetTitle>Filters</SheetTitle>
+          <SheetDescription>Narrow the training runs shown.</SheetDescription>
+        </SheetHeader>
+        <SheetFooter className="flex-row justify-end border-t">
+          <SheetClose asChild>
+            <Button>Apply</Button>
+          </SheetClose>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+  );
+}
 ```
 
-```tsx
-<Sheet>
-  <SheetTrigger asChild>
-    <Button variant="outline">Filters</Button>
-  </SheetTrigger>
-  <SheetContent side="left">
-    <SheetHeader>
-      <SheetTitle>Filters</SheetTitle>
-      <SheetDescription>Narrow the list to what you are looking for.</SheetDescription>
-    </SheetHeader>
-  </SheetContent>
-</Sheet>
-```
-
-`side` defaults to `right`; pass `top`, `bottom` or `left` to anchor the panel to another edge.
+<Callout title="The body has no padding of its own">
+  `SheetHeader` and `SheetFooter` carry `p-6`, but whatever you put between them does not. Give
+  your body `px-6` so it lines up with the header, and `flex-1 overflow-y-auto` if it can grow.
+</Callout>
 
 ## Composition
 
 ```text
 Sheet
 ├─ SheetTrigger
-└─ SheetContent
+└─ SheetContent               portals itself with its overlay; side="right" by default
    ├─ SheetHeader
    │  ├─ SheetTitle
    │  └─ SheetDescription
-   ├─ SheetClose
-   └─ SheetFooter
+   ├─ …your body
+   ├─ SheetFooter
+   │  └─ SheetClose
+   └─ (corner close button)   showCloseButton, on by default
 ```
 
-## Sides
+## Examples
 
-`side` picks which edge the panel slides from. `top` and `bottom` span the full width; `left`
-and `right` run the full height at `w-3/4` up to `sm:max-w-[520px]`, each with a border on its inner
-edge.
+### Sides
+
+`side` picks the edge the panel slides from. `top` and `bottom` span the full width and size to
+their content; `left` and `right` run the full height at three quarters of the viewport, capped at
+`sm:max-w-sm`. Right suits details about something in view, left suits navigation, the others
+suit short, transient input.
 
 <Preview demo="sheet/sides">
   <Sides client:load />
 </Preview>
 
-## Filters
+### Filters
 
-`SheetHeader` and `SheetFooter` frame the panel; the body between them, like this filter field,
-is free-form.
+Use a sheet for a form that is too big for a popover but should leave the page in view behind it.
+`SheetClose` on Apply dismisses it, while Reset leaves it open so the reader can start over.
 
 <Preview demo="sheet/filters">
   <Filters client:load />
 </Preview>
 
-## No close button
+### Long content
 
-`showCloseButton={false}` removes the corner close affordance, for when the call site owns
-dismissal through its own footer actions instead.
+The panel is a full-height flex column, so a body with `flex-1 overflow-y-auto` scrolls on its own
+between a header and footer that stay put. Reach for it when the content is a log, a list or a
+long form.
+
+<Preview demo="sheet/scrolling">
+  <Scrolling client:load />
+</Preview>
+
+### Without the corner button
+
+`showCloseButton={false}` removes the corner X when the footer already says how to leave, as in an
+export with Cancel and Export. Escape and a click on the overlay still dismiss it.
 
 <Preview demo="sheet/no-close-button">
   <NoCloseButton client:load />
 </Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Use `right` for details about a row or object the reader can still see behind it.",
+    "Pair a scrolling body with a fixed `SheetFooter` so the primary action never scrolls away.",
+    "Give every sheet a `SheetTitle`; it is the panel's accessible name.",
+    "Close the sheet from the footer action when the work is done, with `SheetClose`.",
+  ]}
+  dont={[
+    "Don't use a sheet for a short yes/no question; that is a Dialog.",
+    "Don't stack sheets or open a dialog from one for the same decision.",
+    "Don't put the page's primary navigation in a `right` sheet; keep it on the left.",
+    "Don't forget `px-6` on the body; unpadded content sits against the edge.",
+  ]}
+/>
+
+## Accessibility
+
+It is a Radix Dialog underneath: `role="dialog"`, labelled by `SheetTitle` and described by
+`SheetDescription`, with focus trapped inside and returned to the trigger on close.
+
+<Keyboard
+  keys={[
+    ["Enter / Space", "Opens the sheet from its trigger."],
+    ["Tab", "Moves focus to the next control, wrapping at the end."],
+    ["Shift+Tab", "Moves focus to the previous control."],
+    ["Escape", "Closes the sheet and returns focus to the trigger."],
+  ]}
+/>

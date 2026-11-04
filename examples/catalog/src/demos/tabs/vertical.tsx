@@ -1,23 +1,55 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@robomous/ui-core";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Badge,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@robomous/ui-core";
 
-/** `orientation="vertical"` places the list beside its panels; triggers stretch to the list's width and left-align their label. */
+/** `orientation="vertical"` puts the list beside its panels; triggers fill the list's width and align left. */
 export default function Vertical() {
   return (
-    <Tabs defaultValue="cameras" orientation="vertical" className="w-full">
-      <TabsList aria-label="Review sections">
-        <TabsTrigger value="cameras">Cameras</TabsTrigger>
-        <TabsTrigger value="models">Models</TabsTrigger>
-        <TabsTrigger value="alerts">Alerts</TabsTrigger>
-      </TabsList>
-      <TabsContent value="cameras" className="text-muted-foreground">
-        14 cameras online, 1 unreachable.
-      </TabsContent>
-      <TabsContent value="models" className="text-muted-foreground">
-        org/model-base is serving inference.
-      </TabsContent>
-      <TabsContent value="alerts" className="text-muted-foreground">
-        No open alerts.
-      </TabsContent>
-    </Tabs>
+    <div className="w-full max-w-md rounded-lg border p-4">
+      <Tabs defaultValue="telemetry" orientation="vertical" className="gap-6">
+        <TabsList aria-label="Robot sections" className="w-32 shrink-0">
+          <TabsTrigger value="telemetry">Telemetry</TabsTrigger>
+          <TabsTrigger value="missions">Missions</TabsTrigger>
+          <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
+        </TabsList>
+        <TabsContent value="telemetry" className="flex items-start gap-3">
+          <img
+            src="/assets/robots/atlas.svg"
+            alt=""
+            className="size-12 shrink-0 rounded-lg object-cover outline outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10"
+          />
+          <div className="flex flex-col gap-1">
+            <span className="font-medium">rb-07 Atlas</span>
+            <span className="text-muted-foreground tabular-nums">
+              Reports every 2 seconds. Battery 82%, no faults.
+            </span>
+          </div>
+        </TabsContent>
+        <TabsContent value="missions" className="flex flex-col gap-1">
+          <span className="font-medium">Next mission</span>
+          <span className="text-muted-foreground tabular-nums">Aisle 14 sweep at 06:30.</span>
+        </TabsContent>
+        <TabsContent value="maintenance" className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <span className="font-medium">Firmware 2.4.1</span>
+            <Badge variant="success">Up to date</Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <Avatar size="sm">
+              <AvatarImage src="/assets/people/tom-becker.svg" alt="" />
+              <AvatarFallback>TB</AvatarFallback>
+            </Avatar>
+            <span className="text-muted-foreground">Service window Friday with Tom Becker.</span>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }

@@ -2,7 +2,7 @@
 
 ## Purpose and ownership
 
-`@robomous/ui-core` is forty-five React components this repository owns outright, over behaviour from
+`@robomous/ui-core` is fifty-four React components this repository owns outright, over behaviour from
 Radix UI and Base UI — plus cmdk under `Command` and vaul under `Drawer` — and the one stylesheet
 they resolve through. The package is **built on top of shadcn/ui**: a component starts as an item
 of the shadcn registry, installed through `components.json`, and from that moment it is ordinary
@@ -167,12 +167,14 @@ site. After this migration application code does not know that success happens t
 knows the word.
 
 **Colour is never the only signal.** Every status carries a redundant channel — a word, an icon, a
-shape — and status is never a stroke on a container: a status `Badge` and a destructive `Alert`
-keep `border-transparent` and say it with the surface and the ink.
+shape — and status is never a stroke on a container: a status `Badge` keeps `border-transparent`
+and says it with the surface and the ink.
 
 Every component with a status state wears the same pair: the Badge's status variants, the
-destructive `Button` and `Alert`, a destructive menu item under focus, a failed `Attachment`'s
-media, and the Toaster's typed toasts (`toast.success`, `toast.error`…).
+destructive `Button`, a destructive menu item under focus, a failed `Attachment`'s media, and the Toaster's typed toasts (`toast.success`, `toast.error`…).
+
+The `Alert` is the exception, because it is panel-sized: it wears no surface at all. A neutral
+hairline, the title in the foreground, the description muted, and the status ink on the icon only.
 
 ### The Badge's status variants
 
@@ -200,7 +202,8 @@ reports itself with a toast or a Badge while its button stays `default`.
 
 - **Badge** — a state belonging to a row, a card or a heading, that stays on screen.
 - **Alert** — a condition about the surface the reader is looking at, in place. A plain
-  `default` plus four tonal variants (`info`, `success`, `warning`, `destructive`).
+  `default` plus four status variants (`info`, `success`, `warning`, `destructive`) that colour
+  only the icon.
 - **Toaster** and `toast` — the outcome of something the reader just did.
 - **Progress** — how much of a known quantity is done. No polarity, no variant; it forwards its
   `value` to the Radix root so `aria-valuenow` is announced with nothing asked of the caller.
@@ -220,8 +223,8 @@ once. `tests/theme/tokens.test.ts` asserts that absence.
 
 ## Typography
 
-One family for prose, Geist, through `--font-sans`, bundled offline through
-`@fontsource-variable/geist`. `font-heading` resolves to the same face and survives as a hook on
+One family for prose, Inter, through `--font-sans`, bundled offline through
+`@fontsource-variable/inter`. `font-heading` resolves to the same face and survives as a hook on
 `h1`–`h4`.
 
 `font-mono` is Geist Mono, declared as `--font-mono: "Geist Mono Variable", monospace` and bundled

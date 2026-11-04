@@ -1,23 +1,41 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@robomous/ui-core";
+import {
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@robomous/ui-core";
+import { CalendarPlusIcon } from "@robomous/ui-core/icons";
 
 /** An empty result set stays inside the table: one row, spanning every column, carries the message. */
 export default function EmptyState() {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Batch</TableHead>
-          <TableHead>Frames</TableHead>
-          <TableHead>State</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        <TableRow>
-          <TableCell colSpan={3} className="py-6 text-center text-muted-foreground">
-            No batches match this filter.
-          </TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
+    <div className="w-full max-w-lg">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Mission</TableHead>
+            <TableHead>Robot</TableHead>
+            <TableHead>Zone</TableHead>
+            <TableHead>Starts</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell colSpan={4} className="py-8 text-center">
+              <div className="flex flex-col items-center gap-3">
+                <p className="text-muted-foreground">No missions are scheduled for this site.</p>
+                <Button variant="outline" size="sm">
+                  <CalendarPlusIcon data-icon="inline-start" />
+                  Schedule a mission
+                </Button>
+              </div>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </div>
   );
 }

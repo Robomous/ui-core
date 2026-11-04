@@ -1,4 +1,7 @@
 import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -20,47 +23,42 @@ import {
   SidebarSeparator,
 } from "@robomous/ui-core";
 import {
-  FolderIcon,
-  InboxIcon,
+  BotIcon,
+  ChevronsUpDownIcon,
   MoreHorizontalIcon,
   PlusIcon,
-  SettingsIcon,
-  UserIcon,
+  RouteIcon,
+  WrenchIcon,
 } from "@robomous/ui-core/icons";
 
-/**
- * `useSidebar` throws outside a `SidebarProvider`, so every composition starts there.
- * `collapsible="none"` and a fixed height keep the panel inline instead of pinned to
- * the viewport, which is what `offcanvas` and `icon` do — the Collapsing section shows
- * that mode instead, contained a different way.
- */
+/** Header input, a group with an action, an active item with a badge, a hover action with a sub-menu, and the signed-in person in the footer. */
 export default function Anatomy() {
   return (
-    <SidebarProvider className="min-h-0 w-auto">
-      <Sidebar collapsible="none" className="h-[26rem] w-56 rounded-lg ring-1 ring-sidebar-border">
+    <SidebarProvider persist={false} keyboardShortcut={false} className="min-h-0 w-auto">
+      <Sidebar collapsible="none" className="h-[26rem] w-64 rounded-lg ring-1 ring-sidebar-border">
         <SidebarHeader>
-          <SidebarInput placeholder="Search" aria-label="Search" />
+          <SidebarInput placeholder="Search robots, e.g. rb-07" aria-label="Search robots" />
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Workspace</SidebarGroupLabel>
-            <SidebarGroupAction title="Add dataset">
+            <SidebarGroupLabel>Fleet</SidebarGroupLabel>
+            <SidebarGroupAction title="Add robot">
               <PlusIcon />
-              <span className="sr-only">Add dataset</span>
+              <span className="sr-only">Add robot</span>
             </SidebarGroupAction>
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton isActive>
-                    <InboxIcon />
-                    <span>Review queue</span>
+                    <RouteIcon />
+                    <span>Missions</span>
                   </SidebarMenuButton>
                   <SidebarMenuBadge>12</SidebarMenuBadge>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton>
-                    <FolderIcon />
-                    <span>Datasets</span>
+                    <BotIcon />
+                    <span>Robots</span>
                   </SidebarMenuButton>
                   <SidebarMenuAction showOnHover title="More">
                     <MoreHorizontalIcon />
@@ -68,19 +66,19 @@ export default function Anatomy() {
                   </SidebarMenuAction>
                   <SidebarMenuSub>
                     <SidebarMenuSubItem>
-                      <SidebarMenuSubButton href="#training" isActive>
-                        Training
+                      <SidebarMenuSubButton href="#on-mission" isActive>
+                        On mission · 9
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                     <SidebarMenuSubItem>
-                      <SidebarMenuSubButton href="#validation">Validation</SidebarMenuSubButton>
+                      <SidebarMenuSubButton href="#charging">Charging · 3</SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                   </SidebarMenuSub>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton>
-                    <SettingsIcon />
-                    <span>Settings</span>
+                    <WrenchIcon />
+                    <span>Maintenance</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
@@ -92,8 +90,15 @@ export default function Anatomy() {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton size="lg">
-                <UserIcon />
-                <span>Signed in</span>
+                <Avatar>
+                  <AvatarImage src="/assets/people/sofia-brennan.svg" alt="" />
+                  <AvatarFallback>SB</AvatarFallback>
+                </Avatar>
+                <div className="grid flex-1 text-left leading-tight">
+                  <span className="truncate font-medium">Sofia Brennan</span>
+                  <span className="truncate text-sidebar-foreground/70">Ops lead · Monterrey</span>
+                </div>
+                <ChevronsUpDownIcon className="ml-auto" />
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

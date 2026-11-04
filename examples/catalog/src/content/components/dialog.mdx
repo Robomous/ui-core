@@ -1,6 +1,7 @@
 ---
 title: Dialog
-description: A modal surface that blocks the page behind it, labelled by its title and described by its description through Radix's own ids. It keeps its exit animation, because its trigger cannot be pressed again until it leaves.
+description: A modal surface that blocks the page behind it until the reader answers. Radix wires the title and description as its accessible name, and the exit animation stays because nothing is waiting on the trigger.
+related: [destructive-action-modal, sheet, drawer, popover]
 builtOn:
   - name: Radix Dialog
     docsUrl: https://www.radix-ui.com/primitives/docs/components/dialog
@@ -10,10 +11,12 @@ builtOn:
 import Confirm from "@/demos/dialog/confirm";
 import Default from "@/demos/dialog/default";
 import Form from "@/demos/dialog/form";
+import FromMenu from "@/demos/dialog/from-menu";
 import NoCloseButton from "@/demos/dialog/no-close-button";
+import Overview from "@/demos/dialog/overview";
 
-<Preview demo="dialog/default">
-  <Default client:load />
+<Preview demo="dialog/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
@@ -22,6 +25,7 @@ import NoCloseButton from "@/demos/dialog/no-close-button";
 import {
   Button,
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -29,75 +33,132 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@robomous/ui-core";
+
+export function NewDataset() {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline">New dataset</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>New dataset</DialogTitle>
+          <DialogDescription>Frames are grouped into batches as they arrive.</DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <Button>Create</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 ```
 
-```tsx
-<Dialog>
-  <DialogTrigger asChild>
-    <Button variant="outline">New dataset</Button>
-  </DialogTrigger>
-  <DialogContent>
-    <DialogHeader>
-      <DialogTitle>New dataset</DialogTitle>
-      <DialogDescription>Frames are grouped into batches as they arrive.</DialogDescription>
-    </DialogHeader>
-    <DialogFooter>
-      <Button variant="outline">Cancel</Button>
-      <Button>Create</Button>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>
-```
-
-`DialogContent` portals itself and paints `DialogOverlay` behind it; `DialogHeader` and
-`DialogFooter` are layout, not required wiring — the title and description are what Radix reads.
+<Callout title="Buttons in the footer don't close it" tone="warning">
+  A plain `Button` inside `DialogFooter` is only a button. Wrap the ones that should dismiss in
+  `DialogClose asChild`, or close from your own handler. `DialogTitle` is required too: Radix
+  warns when a dialog has no name.
+</Callout>
 
 ## Composition
 
 ```text
 Dialog
 ├─ DialogTrigger
-└─ DialogContent
+└─ DialogContent            portals itself and paints DialogOverlay behind it
    ├─ DialogHeader
    │  ├─ DialogTitle
    │  └─ DialogDescription
-   ├─ DialogClose
-   └─ DialogFooter
+   ├─ …your content
+   ├─ DialogFooter
+   │  └─ DialogClose
+   └─ (corner close button)  showCloseButton, on by default
 ```
 
-## Header and footer
+## Examples
 
-`DialogFooter` is a `-mx-4 -mb-4` band that breaks out of the content padding and rounds the
-bottom corners. Below `sm:` it stacks full-width and reverses order, so the primary action sits
-first in the DOM and on top visually; at `sm:` and above it becomes a right-aligned row.
+### Header, body and footer
+
+`DialogHeader` stacks the title over the description and `DialogFooter` is the action row, drawn as
+a muted band across the bottom of the surface under a hairline: stacked with the primary action on
+top below `sm`, a right-aligned row from `sm` up. Everything between is
+free-form, so a field, a summary or a form drops straight in.
 
 <Preview demo="dialog/default">
   <Default client:load />
 </Preview>
 
-## Form
+### A form
 
-A dialog that collects something composes `Field` anatomy directly inside `DialogContent`, the
-same as anywhere else it appears.
+A dialog that collects something wraps its content in a `<form>` so Enter submits, and owns `open`
+so it can close itself once the work succeeds. Cancel is a `DialogClose`; the submit button is the
+only thing that sends.
 
 <Preview demo="dialog/form">
   <Form client:load />
 </Preview>
 
-## Destructive confirmation
+### Opened from a menu
 
-`showCloseButton` on `DialogFooter` adds a plain Close action ahead of the call site's own
-buttons — here, beside a `destructive` one that ends something.
+A menu item can't hold a `DialogTrigger`, because the item disappears the moment it is chosen.
+Keep `open` in state, render the `Dialog` beside the menu rather than inside it, and let the
+item's `onSelect` set the state.
+
+<Preview demo="dialog/from-menu">
+  <FromMenu client:load />
+</Preview>
+
+### Confirming a removal
+
+`showCloseButton` on `DialogFooter` adds a plain Close action ahead of your own buttons, so the
+`destructive` one keeps the trailing edge. Use this for a quick, recoverable-enough confirmation;
+reach for [DestructiveActionModal](/components/destructive-action-modal) when the reader should
+have to type before it goes.
 
 <Preview demo="dialog/confirm">
   <Confirm client:load />
 </Preview>
 
-## No close button
+### Without the corner button
 
-`showCloseButton={false}` on `DialogContent` removes the corner close affordance entirely, for
-when the call site owns dismissal elsewhere, such as its own footer actions.
+`showCloseButton={false}` on `DialogContent` removes the corner X for a short acknowledgement that
+has its own footer action. Escape and a click on the overlay still dismiss it.
 
 <Preview demo="dialog/no-close-button">
   <NoCloseButton client:load />
 </Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Title the dialog with a verb and its object (\"Invite a member\"), and describe the consequence in one line.",
+    "Put the primary action last in the footer; the stack reverses on small screens so it stays on top.",
+    "Wrap form content in a `<form>` so Enter submits and the browser validates.",
+    "Keep `open` in state when something other than a `DialogTrigger` opens it.",
+  ]}
+  dont={[
+    "Don't open a dialog for something a popover can do in place, like renaming one field.",
+    "Don't nest a dialog inside another; replace the content or move to a page.",
+    "Don't skip `DialogTitle`, even visually hidden; it is the dialog's accessible name.",
+    "Don't use a dialog for a long scrolling task; a Sheet or a page has room for it.",
+  ]}
+/>
+
+## Accessibility
+
+Radix gives the content `role="dialog"`, labels it from `DialogTitle` and describes it from
+`DialogDescription`. While it is open, focus is trapped inside, the page behind is inert and focus
+returns to the trigger on close.
+
+<Keyboard
+  keys={[
+    ["Enter / Space", "Opens the dialog from its trigger."],
+    ["Tab", "Moves focus to the next control, wrapping from the last back to the first."],
+    ["Shift+Tab", "Moves focus to the previous control."],
+    ["Escape", "Closes the dialog and returns focus to the trigger."],
+  ]}
+/>

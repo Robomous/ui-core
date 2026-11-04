@@ -1,5 +1,4 @@
 ---
-import { buttonVariants, cn } from "@robomous/ui-core";
 import { Code } from "astro:components";
 
 import CopyButton from "@/components/CopyButton";
@@ -9,19 +8,23 @@ interface Props {
   lang?: "tsx" | "ts" | "bash" | "css" | "json" | "text";
   open?: boolean;
   label?: string;
+  openLabel?: string;
 }
 
-const { code, lang = "tsx", open = false, label = "View Code" } = Astro.props;
+const {
+  code,
+  lang = "tsx",
+  open = false,
+  label = "Show code",
+  openLabel = "Hide code",
+} = Astro.props;
 ---
 
 <details class="group/code border-t" open={open}>
-  <summary
-    class={cn(
-      buttonVariants({ variant: "ghost", size: "sm" }),
-      "m-2 cursor-pointer list-none select-none [&::-webkit-details-marker]:hidden",
-    )}
-  >
-    {label}
+  <!-- One bar, a shade below the page, that says what the click will do. The
+       chevron points at the code: to the right while it is folded, down once
+       it is open. -->
+  <summary class="flex cursor-pointer list-none items-center gap-2.5 bg-muted/40 px-4 py-2.5 text-sm transition-colors select-none hover:bg-muted/70 focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:ring-inset focus-visible:outline-none [&::-webkit-details-marker]:hidden">
     <svg
       viewBox="0 0 24 24"
       aria-hidden="true"
@@ -30,13 +33,15 @@ const { code, lang = "tsx", open = false, label = "View Code" } = Astro.props;
       stroke-width="2"
       stroke-linecap="round"
       stroke-linejoin="round"
-      class="size-4 transition-transform group-open/code:rotate-90"
+      class="size-3.5 text-muted-foreground transition-transform duration-150 ease-out group-open/code:rotate-90"
     >
       <path d="m9 18 6-6-6-6"></path>
     </svg>
+    <span class="group-open/code:hidden">{label}</span>
+    <span class="hidden group-open/code:inline">{openLabel}</span>
   </summary>
-  <div class="relative border-t">
-    <div class="absolute top-2 right-2">
+  <div class="code-lines relative border-t">
+    <div class="absolute top-4 right-3">
       <CopyButton client:visible code={code} />
     </div>
     <Code
@@ -44,7 +49,7 @@ const { code, lang = "tsx", open = false, label = "View Code" } = Astro.props;
       lang={lang}
       themes={{ light: "github-light", dark: "github-dark" }}
       defaultColor={false}
-      class="max-h-[32rem] overflow-auto p-4 text-sm leading-6"
+      class="max-h-[32rem] overflow-auto py-4 pr-12 pl-3 text-[13px] leading-6"
     />
   </div>
 </details>

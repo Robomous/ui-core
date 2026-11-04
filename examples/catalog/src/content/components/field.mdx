@@ -1,98 +1,153 @@
 ---
 title: Field
-description: Gives a control its structure — label, description, error and layout — while the accessible wiring stays with the call site that knows the ids.
+description: Gives a control its structure (label, description, error and layout) while the accessible wiring stays with the call site that knows the ids.
+related: [label, input, radio-group, input-group]
 builtOn:
   - name: native HTML
     docsUrl: https://developer.mozilla.org/docs/Web/HTML/Element/div
 ---
 
 import Default from "@/demos/field/default";
-import Invalid from "@/demos/field/invalid";
-import Horizontal from "@/demos/field/horizontal";
-import Responsive from "@/demos/field/responsive";
+import Errors from "@/demos/field/errors";
 import FieldSetComposition from "@/demos/field/field-set";
+import Horizontal from "@/demos/field/horizontal";
+import Invalid from "@/demos/field/invalid";
+import Overview from "@/demos/field/overview";
+import Responsive from "@/demos/field/responsive";
 
-<Preview demo="field/default">
-  <Default client:load />
+<Preview demo="field/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
-import { Field, FieldLabel, FieldDescription, FieldError, Input } from "@robomous/ui-core";
+import { Field, FieldDescription, FieldError, FieldLabel, Input } from "@robomous/ui-core";
+
+export function EndpointName({ error }: { error?: string }) {
+  return (
+    <Field data-invalid={!!error}>
+      <FieldLabel htmlFor="endpoint">Endpoint name</FieldLabel>
+      <Input
+        id="endpoint"
+        aria-invalid={!!error}
+        aria-describedby={error ? "endpoint-error" : "endpoint-hint"}
+      />
+      {error ? (
+        <FieldError id="endpoint-error">{error}</FieldError>
+      ) : (
+        <FieldDescription id="endpoint-hint">Appears in the inference URL.</FieldDescription>
+      )}
+    </Field>
+  );
+}
 ```
 
-```tsx
-<Field data-invalid={hasError}>
-  <FieldLabel htmlFor="name">Name</FieldLabel>
-  <Input id="name" aria-describedby="name-hint name-error" aria-invalid={hasError} />
-  <FieldDescription id="name-hint">Shown on your profile.</FieldDescription>
-  {hasError && <FieldError id="name-error">Required</FieldError>}
-</Field>
-```
-
-`Field` is anatomy, not wiring: nothing generates `aria-describedby` or `aria-invalid` for you, so
-the call site that owns the ids writes them explicitly (see DESIGN.md's *Accessibility* section).
-`FieldError` renders `role="alert"`; `Field` renders `role="group"` and styles `data-invalid`.
+<Callout title="Anatomy, not wiring" tone="warning">
+  Nothing generates `htmlFor`, `id`, `aria-describedby` or `aria-invalid` for you. The call site
+  owns the ids, so it writes them, and sets `data-invalid` on the `Field` together with
+  `aria-invalid` on the control.
+</Callout>
 
 ## Composition
 
 ```text
-FieldSet
-├─ FieldLegend
-└─ FieldGroup
-   └─ Field
-      ├─ FieldLabel
-      ├─ FieldContent
-      ├─ FieldTitle
-      ├─ FieldDescription
-      ├─ FieldError
-      └─ FieldSeparator
+FieldSet                       a real <fieldset>
+├─ FieldLegend                 its <legend>
+└─ FieldGroup                  spaces fields; the container for "responsive"
+   ├─ Field                    role="group", orientation, data-invalid
+   │  ├─ FieldLabel
+   │  ├─ <control>
+   │  ├─ FieldContent          label + description as one block, beside a control
+   │  │  ├─ FieldLabel · FieldTitle
+   │  │  └─ FieldDescription
+   │  └─ FieldError            role="alert"
+   └─ FieldSeparator
 ```
 
-## A complete field
+## Examples
 
-Label, control and description, with `htmlFor`/`id`/`aria-describedby` written out at the call
-site — `Field` supplies only the layout and the grouping role.
+### Label, control and description
+
+The basic field. The label is tied to the control with `htmlFor` and `id`, and the description is
+tied to it with `aria-describedby`, so a screen reader reads it when the control gets focus.
+Put the rule here, before the reader meets it as an error.
 
 <Preview demo="field/default">
   <Default client:load />
 </Preview>
 
-## Invalid
+### Invalid
 
-`data-invalid` on `Field`, `aria-invalid` on the control, and `FieldError` in place of the
-description: three attributes the call site sets together, none of them inferred from the others.
+Three attributes the call site sets together: `data-invalid` on the `Field` tints the label,
+`aria-invalid` on the control draws the ring, and the `FieldError` takes the place of the
+description. The error is announced when it appears because it has `role="alert"`. Fields beside
+it are untouched.
 
 <Preview demo="field/invalid">
   <Invalid client:load />
 </Preview>
 
-## Horizontal
+### Several errors
 
-`orientation="horizontal"` places the label beside the control instead of above it, from
-`fieldVariants` in `field.tsx`.
+Pass `errors` and `FieldError` does the formatting: a single message renders as text, several as a
+list, and duplicates are dropped. It accepts any `{ message }` objects, which is what most form
+libraries produce. `children` win over `errors` when both are given.
+
+<Preview demo="field/errors">
+  <Errors client:load />
+</Preview>
+
+### Horizontal
+
+`orientation="horizontal"` puts the label beside the control. Use it for short values like a speed
+or a number, and for checkboxes and switches. When there is a description too, wrap label and
+description in `FieldContent` so the control stays aligned with the first line.
 
 <Preview demo="field/horizontal">
   <Horizontal client:load />
 </Preview>
 
-## Responsive
+### Responsive
 
 `orientation="responsive"` stacks the label above the control while its `FieldGroup` is narrow,
-then sets it beside the control once the group crosses a container breakpoint — a container query
-against the group's own width, not the viewport's.
+then sets it beside the control once the group is wide enough. It is a container query against the
+group's width, not the viewport's, so the same form works in a sidebar, a dialog and a full page.
+The dashed boxes mark the two groups; the field inside each is identical.
 
 <Preview demo="field/responsive">
   <Responsive client:load />
 </Preview>
 
-## FieldSet, FieldLegend and FieldGroup
+### Fieldset, legend and separator
 
-`FieldSet` and `FieldLegend` give a group of fields a real `<fieldset>`/`<legend>` pair; `FieldGroup`
-only spaces the fields inside it and provides the container the responsive orientation measures
-against.
+A `FieldSet` and `FieldLegend` give a set of fields a real `<fieldset>` and `<legend>`, which a
+screen reader announces as a group. `FieldGroup` spaces the fields inside, and `FieldSeparator`
+splits them into parts, with a label when the parts need a name.
 
 <Preview demo="field/field-set">
   <FieldSetComposition client:load />
 </Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Wire `htmlFor`, `id` and `aria-describedby` at the call site, where the ids are known.",
+    "Replace the description with the error while a field is invalid, and clear it when it isn't.",
+    "Wrap related fields, like a radio group, in a `FieldSet` with a `FieldLegend`.",
+    "Use `responsive` inside a `FieldGroup` that is reused at different widths.",
+  ]}
+  dont={[
+    "Don't set `data-invalid` without `aria-invalid` on the control; one is only a style.",
+    "Don't use `FieldDescription` for text the reader must see; it is supporting copy.",
+    "Don't use a `FieldTitle` where a real `FieldLabel` and control are paired.",
+    "Don't nest a `Field` in a `Field`, except a card-style choice inside a `FieldLabel`.",
+  ]}
+/>
+
+## Accessibility
+
+`Field` renders `role="group"` and `FieldSet` a native `<fieldset>`, so related controls are
+announced together. `FieldError` has `role="alert"`, so a new error is read out as it appears.
+Field adds no keyboard behaviour of its own; focus stays with the controls inside it.

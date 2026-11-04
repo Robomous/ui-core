@@ -1,6 +1,7 @@
 ---
 title: Tooltip
-description: A short label that appears near its trigger on hover or focus. `TooltipProvider` owns the shared `delayDuration`, which defaults to `0`, and the content paints `bg-foreground text-background` so it inverts with the page.
+description: A short label that appears near its trigger on hover or focus. `TooltipProvider` owns the shared `delayDuration`, which defaults to `0` here, and the content inverts with the page.
+related: [hover-card, popover, kbd]
 builtOn:
   - name: Radix Tooltip
     docsUrl: https://www.radix-ui.com/primitives/docs/components/tooltip
@@ -8,64 +9,129 @@ builtOn:
 ---
 
 import Default from "@/demos/tooltip/default";
+import Disabled from "@/demos/tooltip/disabled";
+import Overview from "@/demos/tooltip/overview";
 import Side from "@/demos/tooltip/side";
+import Truncated from "@/demos/tooltip/truncated";
 import WithKbd from "@/demos/tooltip/with-kbd";
 
-<Preview demo="tooltip/default">
-  <Default client:load />
+<Preview demo="tooltip/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@robomous/ui-core";
+import { ZoomInIcon } from "@robomous/ui-core/icons";
+
+export function ZoomControl() {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="ghost" size="icon" aria-label="Zoom in">
+            <ZoomInIcon />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Zoom in</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
 ```
 
-```tsx
-<TooltipProvider>
-  <Tooltip>
-    <TooltipTrigger asChild>
-      <Button variant="ghost">Hover me</Button>
-    </TooltipTrigger>
-    <TooltipContent>Saves the current view</TooltipContent>
-  </Tooltip>
-</TooltipProvider>
-```
-
-Mount one `TooltipProvider` near the root of the app; every `Tooltip` beneath it shares its
-`delayDuration`, which defaults to `0` rather than the usual pause before showing.
+<Callout title="A tooltip describes; it does not name">
+  The tooltip is announced as the trigger's description. An icon-only button still needs its own
+  `aria-label`, and anything the reader must know to proceed belongs in the page, not in a tooltip.
+</Callout>
 
 ## Composition
 
 ```text
-TooltipProvider
+TooltipProvider                shared delayDuration, 0 by default; mount once near the root
 └─ Tooltip
    ├─ TooltipTrigger
-   └─ TooltipContent
+   └─ TooltipContent           inverted surface with an arrow; a Kbd inside restyles itself
 ```
 
-## Default
+## Examples
 
-`TooltipContent` paints `bg-foreground text-background`, so it inverts with the page instead of
-carrying a fixed colour of its own.
+### Naming icon buttons
+
+The most common use. Wrap the group in one `TooltipProvider`, give each button its `aria-label`
+and repeat it as the tooltip text. Because `delayDuration` is `0`, moving along the row shows
+each name at once.
 
 <Preview demo="tooltip/default">
   <Default client:load />
 </Preview>
 
-## Side
+### Placement
 
-`side` picks which edge the content opens from; the arrow and the slide-in direction follow it.
+`side` picks the edge the tooltip opens from, and the arrow and slide-in direction follow it. A
+vertical tool palette opens to the `right`, away from the canvas it controls.
 
 <Preview demo="tooltip/side">
   <Side client:load />
 </Preview>
 
-## With a shortcut
+### Keyboard shortcuts
 
-A `Kbd` placed inside `TooltipContent` restyles itself onto the painted background — no prop to
-set, the selector reads `data-slot="tooltip-content"` on its parent.
+Put a `Kbd` after the label to teach the shortcut where the reader is already looking. It
+restyles itself onto the tooltip's surface, so there is nothing to configure.
 
 <Preview demo="tooltip/with-kbd">
   <WithKbd client:load />
 </Preview>
+
+### Explaining a disabled button
+
+A disabled button fires no pointer or focus events, so a tooltip on it never opens. Wrap it in a
+focusable element and put the trigger on the wrapper, so the reader learns why the action is
+unavailable.
+
+<Preview demo="tooltip/disabled">
+  <Disabled client:load />
+</Preview>
+
+### Truncated text
+
+A tooltip can reveal the full value behind an ellipsis. Raise `delayDuration` on the provider for
+this, so a pointer crossing text does not make tooltips flash, and give the trigger `tabIndex={0}`
+so keyboard users can reach it.
+
+<Preview demo="tooltip/truncated">
+  <Truncated client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Keep it to a few words; a tooltip is a label, not a paragraph.",
+    "Pair an icon-only button's `aria-label` with the same text in the tooltip.",
+    "Add a `Kbd` when the action has a shortcut worth learning.",
+    "Wrap a disabled control in a focusable element so the reason can be shown.",
+  ]}
+  dont={[
+    "Don't put links, buttons or any interactive content inside; use a Popover.",
+    "Don't hide required information in one; touch users never see it.",
+    "Don't repeat a visible label; a button that already says \"Save\" needs no tooltip.",
+    "Don't nest multiple `TooltipProvider` components unless you need a different delay.",
+  ]}
+/>
+
+## Accessibility
+
+Radix links the content to the trigger through `aria-describedby` and renders it with
+`role="tooltip"`. It opens on hover and on keyboard focus, and it stays open while the pointer
+moves onto its content.
+
+<Keyboard
+  keys={[
+    ["Tab", "Focuses the trigger and shows the tooltip."],
+    ["Shift+Tab", "Moves focus away and hides the tooltip."],
+    ["Escape", "Dismisses the tooltip while the trigger keeps focus."],
+  ]}
+/>

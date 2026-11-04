@@ -95,7 +95,7 @@ describe("extract-api: declaration styles", () => {
   });
 
   it("treats an arrow-function component as a part (Toaster)", () => {
-    expect(part("sonner", "Toaster").extends).toEqual(["ToasterProps"]);
+    expect(part("toast", "Toaster").extends).toEqual(["ToasterProps"]);
   });
 
   it("lists className once and never children", () => {

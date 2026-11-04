@@ -1,60 +1,126 @@
 ---
 title: Alert
-description: An in-page notice with a plain `default` and four tonal variants, `info`, `success`, `warning` and `destructive`, where a variant paints the alert's surface and ink and never its border.
+description: An in-page notice with a plain `default` and four tonal variants, `info`, `success`, `warning` and `destructive`. A variant colours only the icon, with no fill and no tinted border.
+related: [error, toast, badge, empty]
 builtOn:
   - name: native HTML
     docsUrl: https://developer.mozilla.org/docs/Web/Accessibility/ARIA/Roles/alert_role
 ---
 
+import Action from "@/demos/alert/action";
+import Details from "@/demos/alert/details";
+import Dismissible from "@/demos/alert/dismissible";
+import Overview from "@/demos/alert/overview";
+import TitleOnly from "@/demos/alert/title-only";
 import Variants from "@/demos/alert/variants";
-import WithAction from "@/demos/alert/with-action";
 
-<Preview demo="alert/variants">
-  <Variants client:load />
+<Preview demo="alert/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
-import { Alert, AlertTitle, AlertDescription } from "@robomous/ui-core";
+import { Alert, AlertDescription, AlertTitle } from "@robomous/ui-core";
+import { TriangleAlertIcon } from "@robomous/ui-core/icons";
+
+export function IngestNotice() {
+  return (
+    <Alert variant="warning">
+      <TriangleAlertIcon />
+      <AlertTitle>Ingest paused</AlertTitle>
+      <AlertDescription>The bucket is unreachable. Retrying in a minute.</AlertDescription>
+    </Alert>
+  );
+}
 ```
 
-```tsx
-<Alert>
-  <AlertTitle>Ingest paused</AlertTitle>
-  <AlertDescription>The bucket is unreachable. Retrying in a minute.</AlertDescription>
-</Alert>
-```
-
-`default`, `warning` and `destructive` render `role="alert"`, which announces the mount itself;
-`info` and `success` render `role="status"`, announced politely. There is no live-region prop to set
-and nothing else to wire up.
+<Callout title="The variant also picks how it is announced">
+  `default`, `warning` and `destructive` render `role="alert"` and are read out the moment they
+  mount; `info` and `success` render `role="status"` and wait for a pause. Pick the variant for
+  what the notice means, not for how it looks.
+</Callout>
 
 ## Composition
 
 ```text
 Alert
-├─ <TriangleAlertIcon />
+├─ <Icon />            optional, takes the first column
 ├─ AlertTitle
 ├─ AlertDescription
-└─ AlertAction
+└─ AlertAction         optional, its own column on the right
 ```
 
-## Variants
+## Examples
 
-`default` is a plain notice on the card surface. `info`, `success`, `warning` and `destructive` are
-tonal: the status's surface role under its ink role, with the icon and description in that same ink.
-No variant recolours the border around it — status is never a stroke.
+### Variants
+
+Every variant is the same quiet box: no fill, a neutral hairline, the title in the foreground and
+the description muted. The variant colours the icon and nothing else, since that is the one mark
+that has to be read at a glance; the title says the rest in words. `default` keeps a muted icon.
 
 <Preview demo="alert/variants">
   <Variants client:load />
 </Preview>
 
-## Action
+### With an action
 
-`AlertAction` sits absolute at the top right; the alert detects it (`has-data-[slot=alert-action]`)
-and pads its content clear on its own, so the title and description never run under it.
+`AlertAction` takes a column of its own on the right, so the title and description wrap before it
+instead of running underneath. Its box is one title line tall, which lines a small button or an
+icon button up with the first line of text. Use it for the one thing that resolves the notice.
 
-<Preview demo="alert/with-action">
-  <WithAction client:load />
+<Preview demo="alert/action">
+  <Action client:load />
 </Preview>
+
+### Dismissible
+
+An `Alert` does not manage its own visibility. For a notice the reader can put away, hold the state
+yourself and put a ghost icon button in `AlertAction`. Reserve this for information; a warning that
+still applies should stay on the page.
+
+<Preview demo="alert/dismissible">
+  <Dismissible client:load />
+</Preview>
+
+### Parts are optional
+
+A title alone is enough for a one-line fact, and a description alone reads as a plain note. Without
+an icon the content simply takes the full width.
+
+<Preview demo="alert/title-only">
+  <TitleOnly client:load />
+</Preview>
+
+### Longer descriptions
+
+The description takes paragraphs and links. Paragraphs get spacing between them and links are
+underlined, so a notice can point to the next step without extra markup.
+
+<Preview demo="alert/details">
+  <Details client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Lead with a title that states the condition, and use the description for cause and next step.",
+    "Match the variant to the severity: `warning` for what needs attention, `destructive` for what failed.",
+    "Put the one resolving action in `AlertAction` instead of burying it in the description.",
+    "Place an alert next to the content it concerns, not at the top of an unrelated page.",
+  ]}
+  dont={[
+    "Don't use an alert for a result of something the reader just did; that is a toast.",
+    "Don't stack several alerts on one view; merge them or keep the most severe.",
+    "Don't rely on colour alone. The title must say what is wrong.",
+    "Don't use `destructive` for a field-level problem; use an inline `ErrorMessage`.",
+  ]}
+/>
+
+## Accessibility
+
+The root is a plain `div` with a role chosen from the variant: `alert` for `default`, `warning` and
+`destructive`, `status` for `info` and `success`. There is no live-region prop and nothing to wire
+up. Keep an icon decorative; the title already carries the meaning. An `AlertAction` button is a
+normal button in the tab order, so an icon-only one needs an `aria-label`.

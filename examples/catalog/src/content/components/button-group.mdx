@@ -1,70 +1,140 @@
 ---
 title: ButtonGroup
 description: Buttons, text, inputs and separators welded into one control. Every segment carries a `data-slot`, which is what rounds the first and the last of them.
+related: [split-button, toggle-group, input-group, button]
 builtOn:
   - name: Radix Slot
     docsUrl: https://www.radix-ui.com/primitives/docs/utilities/slot
     apiUrl: https://www.radix-ui.com/primitives/docs/utilities/slot#api-reference
 ---
 
-import TextInput from "@/demos/button-group/text-input";
+import Nested from "@/demos/button-group/nested";
+import Overview from "@/demos/button-group/overview";
+import Sizes from "@/demos/button-group/sizes";
 import Split from "@/demos/button-group/split";
+import TextInput from "@/demos/button-group/text-input";
 import Vertical from "@/demos/button-group/vertical";
 
-<Preview demo="button-group/text-input">
-  <TextInput client:load />
+<Preview demo="button-group/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
-import { Button, ButtonGroup, ButtonGroupSeparator } from "@robomous/ui-core";
+import { Button, ButtonGroup, ButtonGroupText } from "@robomous/ui-core";
+
+export function FrameStepper({ frame, total }: { frame: number; total: number }) {
+  return (
+    <ButtonGroup>
+      <Button variant="outline" size="icon" aria-label="Previous frame">
+        <ChevronLeftIcon />
+      </Button>
+      <ButtonGroupText>
+        Frame {frame} / {total}
+      </ButtonGroupText>
+      <Button variant="outline" size="icon" aria-label="Next frame">
+        <ChevronRightIcon />
+      </Button>
+    </ButtonGroup>
+  );
+}
 ```
 
-```tsx
-<ButtonGroup>
-  <Button variant="outline">Publish</Button>
-  <ButtonGroupSeparator />
-  <Button variant="outline" size="icon" aria-label="More publish options">
-    <ChevronDownIcon />
-  </Button>
-</ButtonGroup>
-```
-
-Only a child carrying a `data-slot` gets rounded, so a plain `<div>` dropped in the middle leaves
-the corners to its neighbours instead of breaking the shape.
+<Callout title="Filled buttons need a seam" tone="warning">
+  The group removes the shared border between neighbours, which is what welds `outline` buttons.
+  `default` and `secondary` have no border, so two of them would blur together: put a
+  `ButtonGroupSeparator` between them.
+</Callout>
 
 ## Composition
 
 ```text
 ButtonGroup
+├─ ButtonGroup               optional, for a group of groups
 ├─ ButtonGroupText
 ├─ ButtonGroupSeparator
 └─ Button / Input / ...
 ```
 
-## Text and input
+## Examples
 
-Every segment carries a `data-slot`, which is what the group reads to round only the first and the
-last child.
+### Text and input
+
+`ButtonGroupText` is a muted, bordered label that takes a segment's place: a protocol, a unit, a
+count. Beside an `Input` it reads as a prefix, and the input grows to fill what the text and the
+button leave. Pass `asChild` to render the text as a `<label>` instead of a `div`.
 
 <Preview demo="button-group/text-input">
   <TextInput client:load />
 </Preview>
 
-## Split
+### Separator
 
-`ButtonGroupSeparator` is a `Separator` underneath: it inherits its orientation from the group
-instead of setting one of its own.
+A `ButtonGroupSeparator` is a `Separator` underneath: it takes its orientation from the group, and
+it is what keeps two filled buttons from running together. Use it for a main action welded to a
+chevron that opens its options. For a ready-made version with the menu wired up, reach for
+[SplitButton](/components/split-button).
 
 <Preview demo="button-group/split">
   <Split client:load />
 </Preview>
 
-## Vertical
+### Vertical
 
-`orientation="vertical"` stacks the segments and rounds the top and bottom instead of the ends.
+`orientation="vertical"` stacks the segments and rounds the top and the bottom instead of the
+ends. Use it for a short list of peer actions in a narrow panel; left-align the labels when the
+group is wider than its content.
 
 <Preview demo="button-group/vertical">
   <Vertical client:load />
 </Preview>
+
+### Nested groups
+
+A group that contains other groups spaces them apart instead of welding them. Each inner group
+stays one control, so related actions cluster and the clusters stay distinct: navigation on one
+side, a decision on the other.
+
+<Preview demo="button-group/nested">
+  <Nested client:load />
+</Preview>
+
+### Sizes
+
+`ButtonGroup` has no `size` prop. Each segment takes its own `size`, so use the matching text and
+icon pair (`sm` with `icon-sm`, `lg` with `icon-lg`) to keep the group one height.
+
+<Preview demo="button-group/sizes">
+  <Sizes client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Group actions that are siblings: steps in one direction, or one subject with its modifiers.",
+    "Match sizes across segments so the group reads as one control.",
+    "Put a `ButtonGroupSeparator` between filled buttons.",
+    "Give icon-only segments an `aria-label`, and the group a name when its purpose is not obvious.",
+  ]}
+  dont={[
+    "Don't weld unrelated actions; a gap says they are separate.",
+    "Don't put more than four or five segments in a group; use a menu instead.",
+    "Don't mix a `default` button with outline neighbours; only one segment should win attention.",
+    "Don't use it for a single selection that must stay on; that is a `ToggleGroup`.",
+  ]}
+/>
+
+## Accessibility
+
+`ButtonGroup` renders a `div` with `role="group"`, so assistive tech announces its segments as one
+set. Add an `aria-label` or `aria-labelledby` when the group's purpose is not clear from the
+buttons alone. Each segment keeps its own semantics and tab stop.
+
+<Keyboard
+  keys={[
+    ["Tab", "Moves focus through the group's segments one by one."],
+    ["Enter / Space", "Activates the focused button."],
+  ]}
+/>

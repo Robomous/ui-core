@@ -1,17 +1,21 @@
 ---
 title: Pagination
-description: A page-by-page control built from real anchors, not buttons, so every step keeps working without JavaScript. `isActive` marks the current page for the eye and for assistive tech together.
+description: A page-by-page control built from real anchors, not buttons, so every step works without JavaScript. `isActive` marks the current page for the eye and for assistive tech together.
+related: [table, show-more, breadcrumb, tabs]
 builtOn:
   - name: Radix Slot
     docsUrl: https://www.radix-ui.com/primitives/docs/utilities/slot
     apiUrl: https://www.radix-ui.com/primitives/docs/utilities/slot#api-reference
 ---
 
-import Default from "@/demos/pagination/default";
 import AtTheStart from "@/demos/pagination/at-the-start";
+import Default from "@/demos/pagination/default";
+import Overview from "@/demos/pagination/overview";
+import PrevNext from "@/demos/pagination/prev-next";
+import Sizes from "@/demos/pagination/sizes";
 
-<Preview demo="pagination/default">
-  <Default client:load />
+<Preview demo="pagination/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
@@ -25,55 +29,118 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@robomous/ui-core";
+
+export function RunsPagination() {
+  return (
+    <Pagination>
+      <PaginationContent>
+        <PaginationItem>
+          <PaginationPrevious href="?page=1" />
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationLink href="?page=2" isActive>
+            2
+          </PaginationLink>
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationNext href="?page=3" />
+        </PaginationItem>
+      </PaginationContent>
+    </Pagination>
+  );
+}
 ```
 
-```tsx
-<Pagination>
-  <PaginationContent>
-    <PaginationItem>
-      <PaginationPrevious href="?page=1" />
-    </PaginationItem>
-    <PaginationItem>
-      <PaginationLink href="?page=2" isActive>
-        2
-      </PaginationLink>
-    </PaginationItem>
-    <PaginationItem>
-      <PaginationNext href="?page=3" />
-    </PaginationItem>
-  </PaginationContent>
-</Pagination>
-```
-
-`PaginationLink` renders a `Button` under the hood, but `asChild` hands its classes to the `<a>` you
-give it, so the page still navigates like a link.
+<Callout title="Links, not buttons" tone="warning">
+  Every control renders an `<a>`, so each one needs an `href` that goes to a real page, such as
+  `?page=3`. The component only draws the links and marks the current one: you work out which pages to
+  show, the ellipses and where the list starts and ends.
+</Callout>
 
 ## Composition
 
 ```text
 Pagination
 └─ PaginationContent
-   ├─ PaginationItem
-   │  ├─ PaginationLink
-   │  ├─ PaginationPrevious
-   │  └─ PaginationNext
-   └─ PaginationEllipsis
+   └─ PaginationItem
+      ├─ PaginationPrevious
+      ├─ PaginationLink
+      ├─ PaginationEllipsis
+      └─ PaginationNext
 ```
 
-## Default
+## Examples
 
-Every step, including the numbers, is a real anchor: middle-click and open-in-new-tab both work,
-which a `<button onClick>` page control can't offer.
+### Numbered pages
+
+Number links with an ellipsis for the span between, ending on the last page. Every step, the numbers
+included, is a real anchor, so middle-click and open in a new tab both work, which a
+`<button onClick>` page control can't offer. `isActive` draws the current page as outlined and
+adds `aria-current="page"`.
 
 <Preview demo="pagination/default">
   <Default client:load />
 </Preview>
 
-## At the start
+### First and last pages
 
-An anchor has no `disabled` attribute, so the first page mutes Previous by hand: `aria-disabled`
-plus a dimmed, inert class.
+An anchor has no `disabled` attribute, so on the first page mute Previous by hand: `aria-disabled`, a dimmed
+`opacity-50` and `pointer-events-none` so it can't be pressed, and `tabIndex={-1}` to take it out of
+the tab order. Do the same to Next on the last page.
 
 <Preview demo="pagination/at-the-start">
   <AtTheStart client:load />
 </Preview>
+
+### Previous and next only
+
+When the total is unknown, as with a log or a cursor-based API, drop the numbers and keep the two
+directions. `text` renames the labels, here to the direction in time that each one moves, and the
+words hide on a narrow screen, leaving the chevrons.
+
+<Preview demo="pagination/prev-next">
+  <PrevNext client:load />
+</Preview>
+
+### Sizes
+
+`size` is passed to the underlying `Button`. The default is a square `icon` for the numbers; use
+`icon-sm` for them and `sm` for Previous and Next in a dense table footer. Compared here, the small
+row is the one that fits under a compact table.
+
+<Preview demo="pagination/sizes">
+  <Sizes client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Always show the first and last pages and the current one with its neighbours.",
+    "Give every link a real `href`, so the page can be opened, shared and reloaded.",
+    'Show the range and total beside it, such as "Showing 11–20 of 118".',
+    "Mute Previous on the first page and Next on the last instead of hiding them.",
+  ]}
+  dont={[
+    "Don't render all page numbers for a long list; fold the span into an ellipsis.",
+    "Don't use it for a short list that fits on one screen.",
+    "Don't use `onClick` alone with an empty `href`; a link that goes nowhere breaks the back button.",
+    "Don't replace it with endless scrolling when readers need to find their place again.",
+  ]}
+/>
+
+## Accessibility
+
+`Pagination` is a `<nav aria-label="pagination">` landmark around a list of links. The current page
+carries `aria-current="page"`, Previous and Next have explicit `aria-label`s that keep their names when
+the words hide on small screens, and the ellipsis is `aria-hidden`, so it is skipped.
+
+<Keyboard
+  keys={[
+    [
+      "Tab / Shift+Tab",
+      "Moves between the page links; a muted link with `tabIndex={-1}` is skipped.",
+    ],
+    ["Enter", "Follows the focused link."],
+  ]}
+/>

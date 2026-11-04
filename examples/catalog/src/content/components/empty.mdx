@@ -1,77 +1,140 @@
 ---
 title: Empty
 description: The panel that says what is missing and what to do about it, in place of a blank list.
+related: [item, card, table, alert]
 builtOn:
   - name: native HTML
     docsUrl: https://developer.mozilla.org/docs/Web/HTML/Element/div
 ---
 
+import Actions from "@/demos/empty/actions";
+import Compact from "@/demos/empty/compact";
 import DefaultMedia from "@/demos/empty/default-media";
 import Icon from "@/demos/empty/icon";
 import NoResults from "@/demos/empty/no-results";
+import Overview from "@/demos/empty/overview";
 
-<Preview demo="empty/icon">
-  <Icon client:load />
+<Preview demo="empty/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@robomous/ui-core";
+import {
+  Button,
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@robomous/ui-core";
+import { TimerIcon } from "@robomous/ui-core/icons";
+
+export function NoRuns() {
+  return (
+    <Empty className="border">
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <TimerIcon />
+        </EmptyMedia>
+        <EmptyTitle>No training runs yet</EmptyTitle>
+        <EmptyDescription>Start a run to fine-tune detector-v3.2.</EmptyDescription>
+      </EmptyHeader>
+      <EmptyContent>
+        <Button>Start a run</Button>
+      </EmptyContent>
+    </Empty>
+  );
+}
 ```
 
-```tsx
-<Empty className="border border-dashed">
-  <EmptyHeader>
-    <EmptyMedia variant="icon">
-      <InboxIcon />
-    </EmptyMedia>
-    <EmptyTitle>No batches yet</EmptyTitle>
-    <EmptyDescription>Upload a batch to start labelling.</EmptyDescription>
-  </EmptyHeader>
-  <EmptyContent>
-    <Button>Upload a batch</Button>
-  </EmptyContent>
-</Empty>
-```
-
-`Empty` sets no border of its own, so a dashed one is opt-in through `className` for the cases
-where the panel needs to read as an empty container rather than a plain message.
+<Callout title="The dashed border is opt-in">
+  `Empty` sets `border-dashed` but no border width, so by itself it draws no edge. Add `border` to
+  make it read as an empty container, and leave it off when the panel already sits inside a card
+  or a bordered list.
+</Callout>
 
 ## Composition
 
 ```text
 Empty
 ├─ EmptyHeader
-│  ├─ EmptyMedia
+│  ├─ EmptyMedia            variant="default" | "icon"
 │  ├─ EmptyTitle
 │  └─ EmptyDescription
-└─ EmptyContent
+└─ EmptyContent             optional, the action or actions
 ```
 
-## Icon media
+## Examples
 
-`EmptyMedia` `variant="icon"` sets the icon inside a muted square. `EmptyContent` holds the single
-action that resolves the panel — never a second, competing button.
+### Icon media
+
+`EmptyMedia` with `variant="icon"` sets the icon in a muted square, the usual mark for a first-run
+state. `EmptyContent` holds the action that resolves the panel, so the way forward is the last thing
+the reader sees.
 
 <Preview demo="empty/icon">
   <Icon client:load />
 </Preview>
 
-## Default media
+### Default media
 
 `variant="default"` leaves the icon unstyled, for a larger mark that carries the panel on its own
-rather than sitting inside a chip.
+rather than sitting in a chip. Size and colour come from the icon's own `className`.
 
 <Preview demo="empty/default-media">
   <DefaultMedia client:load />
 </Preview>
 
-## Without an action
+### More than one way in
 
-Not every empty panel has something to do: a filtered list can just say why it's empty and how to
-change the filter, with no `EmptyContent` at all.
+When there are two real routes forward, put both in `EmptyContent`. Make the first the primary
+action and the second an `outline` button, so the choice has an obvious default.
+
+<Preview demo="empty/actions">
+  <Actions client:load />
+</Preview>
+
+### No results
+
+A filtered list that matches nothing is not an error. Say why it is empty and offer to undo the
+cause, here a `Clear filters` button. A panel with nothing to do can leave `EmptyContent` out.
 
 <Preview demo="empty/no-results">
   <NoResults client:load />
 </Preview>
+
+### Compact
+
+`Empty` is generous by default, with `py-16`. Inside a popover, a sidebar or a small card, override
+the padding with `className` and shrink the title to match the surface around it.
+
+<Preview demo="empty/compact">
+  <Compact client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Name what is missing in the title: \"No training runs yet\".",
+    "Use the description to say why it matters or how to fill it, in one sentence.",
+    "Offer one primary action that creates the first item.",
+    "Explain a filtered-empty list differently from a never-filled one.",
+  ]}
+  dont={[
+    "Don't leave a list blank with no explanation.",
+    "Don't use an empty state to report a failure; use `ErrorMessage` or an `Alert`.",
+    "Don't put several competing buttons of the same weight in `EmptyContent`.",
+    "Don't write \"Nothing here\"; tell the reader what would be here.",
+  ]}
+/>
+
+## Accessibility
+
+`Empty` is a set of plain `div`s, with no role of its own: the title and description are read as
+ordinary text in the document flow. That makes the copy do the work, so it should make sense without
+the icon. The icon inside `EmptyMedia` is decorative, and any action in `EmptyContent` is a normal
+button or link in the tab order.

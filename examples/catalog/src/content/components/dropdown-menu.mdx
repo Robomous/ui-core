@@ -1,6 +1,7 @@
 ---
 title: DropdownMenu
-description: A menu opened from a trigger, sized to its items rather than the trigger — `min-w-32` is only a floor. Neither the menu nor a submenu plays an exit animation, so the trigger can open the next one on the very next frame.
+description: A menu of actions opened from a trigger, sized to its items rather than the trigger. Neither the menu nor a submenu plays an exit animation, so the trigger can open the next one on the very next frame.
+related: [context-menu, split-button, popover, select]
 builtOn:
   - name: Radix DropdownMenu
     docsUrl: https://www.radix-ui.com/primitives/docs/components/dropdown-menu
@@ -11,110 +12,158 @@ import Basic from "@/demos/dropdown-menu/basic";
 import CheckboxItems from "@/demos/dropdown-menu/checkbox-items";
 import Destructive from "@/demos/dropdown-menu/destructive";
 import Inset from "@/demos/dropdown-menu/inset";
+import Overview from "@/demos/dropdown-menu/overview";
 import RadioGroup from "@/demos/dropdown-menu/radio-group";
 import Submenu from "@/demos/dropdown-menu/submenu";
 
-<Preview demo="dropdown-menu/basic">
-  <Basic client:load />
+<Preview demo="dropdown-menu/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import {
+  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@robomous/ui-core";
+import { EllipsisIcon } from "@robomous/ui-core/icons";
+
+export function RowActions() {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" aria-label="Row actions">
+          <EllipsisIcon />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem>Rename</DropdownMenuItem>
+        <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 ```
 
-```tsx
-<DropdownMenu>
-  <DropdownMenuTrigger asChild>
-    <Button variant="outline">Actions</Button>
-  </DropdownMenuTrigger>
-  <DropdownMenuContent>
-    <DropdownMenuItem>Rename</DropdownMenuItem>
-    <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
-  </DropdownMenuContent>
-</DropdownMenu>
-```
-
-The menu stays closed on the server render; it opens only once its trigger is pressed, and Radix
-owns focus, typeahead and outside-dismiss from there.
+<Callout title="Choosing an item closes the menu">
+  Every item closes the menu on select. To keep it open, as for a set of checkboxes, call
+  `event.preventDefault()` in `onSelect`. To open a dialog from an item, keep the dialog's `open`
+  in state outside the menu and set it from `onSelect`.
+</Callout>
 
 ## Composition
 
 ```text
 DropdownMenu
 ├─ DropdownMenuTrigger
-└─ DropdownMenuPortal
-   └─ DropdownMenuContent
-      ├─ DropdownMenuLabel
-      ├─ DropdownMenuGroup
-      │  └─ DropdownMenuItem
-      │     └─ DropdownMenuShortcut
-      ├─ DropdownMenuCheckboxItem
-      ├─ DropdownMenuRadioGroup
-      │  └─ DropdownMenuRadioItem
-      ├─ DropdownMenuSeparator
-      └─ DropdownMenuSub
-         ├─ DropdownMenuSubTrigger
-         └─ DropdownMenuSubContent
-            └─ DropdownMenuItem
+└─ DropdownMenuContent          portals itself; min-w-32 is a floor, not the trigger's width
+   ├─ DropdownMenuLabel
+   ├─ DropdownMenuGroup
+   │  └─ DropdownMenuItem
+   │     └─ DropdownMenuShortcut
+   ├─ DropdownMenuCheckboxItem
+   ├─ DropdownMenuRadioGroup
+   │  └─ DropdownMenuRadioItem
+   ├─ DropdownMenuSeparator
+   └─ DropdownMenuSub
+      ├─ DropdownMenuSubTrigger
+      └─ DropdownMenuSubContent
+         └─ DropdownMenuItem
 ```
 
-## Basic
+## Examples
 
-A label over a group, a separator, and a shortcut hint next to a plain item — the anatomy most
-menus reach for first.
+### An account menu
+
+A label naming who is signed in, a group of destinations, a separator and a sign-out. Icons and
+`DropdownMenuShortcut` hints are optional per row. In a header the trigger sits on the trailing edge,
+so `align="end"` lines the menu up with its right edge.
 
 <Preview demo="dropdown-menu/basic">
   <Basic client:load />
 </Preview>
 
-## Checkbox items
+### Checkbox items
 
-Checked, unchecked, and indeterminate sit on the same axis. The indeterminate state wears a dash,
-not the tick that would claim every one of them.
+Independent toggles that the reader flips in one visit, such as table columns. Prevent the default
+on `onSelect` so the menu stays open between clicks. The `All columns` row shows the third state:
+checked, unchecked, or a dash when only some are on.
 
 <Preview demo="dropdown-menu/checkbox-items">
   <CheckboxItems client:load />
 </Preview>
 
-## Radio group
+### Radio group
 
-One tab stop; the arrow keys move the selection inside the group, exactly as they do for a
-standalone `RadioGroup`.
+One choice from a short list, with the check marking the current value. The group is one tab stop
+and the arrow keys move between its rows, as they do in a standalone `RadioGroup`.
 
 <Preview demo="dropdown-menu/radio-group">
   <RadioGroup client:load />
 </Preview>
 
-## Submenu
+### Submenu
 
-A submenu opens on hover or the right arrow key. It follows the same rule as its parent: no exit
-animation, so the row that opens the next menu is never swallowed by the one still closing.
+Group related actions behind one row so the top level stays short. A submenu opens on hover or the
+right arrow, and follows the same no-exit-animation rule as its parent.
 
 <Preview demo="dropdown-menu/submenu">
   <Submenu client:load />
 </Preview>
 
-## Destructive item
+### Destructive item
 
-`variant="destructive"` recolours an item's text and icon before focus even lands on it — the only
-item variant that wears a status colour, because it ends something.
+`variant="destructive"` colours a row's text and icon before focus lands, and it is the only item
+variant that carries a status colour. Put it last behind a separator, and have it open a
+[DestructiveActionModal](/components/destructive-action-modal) rather than act on select.
 
 <Preview demo="dropdown-menu/destructive">
   <Destructive client:load />
 </Preview>
 
-## Inset items
+### Inset items
 
-`inset` lines a label's or an item's leading edge up with the icons in the rows around it, so a
-menu that mixes icon and plain rows still reads as one column.
+`inset` pads a label or an item to the icon column, so a menu that mixes iconed and plain rows
+still reads as one aligned column.
 
 <Preview demo="dropdown-menu/inset">
   <Inset client:load />
 </Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Use it for actions on one object, and give an icon-only trigger an `aria-label`.",
+    "Order items by frequency, with destructive ones last behind a separator.",
+    "Open a confirmation from a destructive item instead of acting immediately.",
+    "Use `align=\"end\"` for triggers at the trailing edge of a row or toolbar.",
+  ]}
+  dont={[
+    "Don't use it to choose a form value; a Select is built for that.",
+    "Don't put forms or long content inside; use a Popover.",
+    "Don't nest submenus more than one level deep.",
+    "Don't hide the only way to do something in a menu a reader may never open.",
+  ]}
+/>
+
+## Accessibility
+
+Radix gives the trigger `aria-haspopup="menu"` and `aria-expanded`, the surface `role="menu"` and
+its items `menuitem`, `menuitemcheckbox` or `menuitemradio`. Focus moves into the menu on open,
+and typing a letter jumps to the next matching item.
+
+<Keyboard
+  keys={[
+    ["Enter / Space / ArrowDown", "Opens the menu from its trigger."],
+    ["ArrowDown / ArrowUp", "Moves focus to the next or previous item."],
+    ["ArrowRight", "Opens a submenu from its trigger row."],
+    ["ArrowLeft", "Closes a submenu and returns to its trigger row."],
+    ["Enter / Space", "Selects the focused item."],
+    ["Escape", "Closes the menu and returns focus to the trigger."],
+  ]}
+/>

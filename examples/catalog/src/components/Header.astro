@@ -1,53 +1,80 @@
 ---
-import { buttonVariants, cn } from "@robomous/ui-core";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  buttonVariants,
+} from "@robomous/ui-core";
+import { HouseIcon } from "@robomous/ui-core/icons";
 
 import MobileNav from "@/components/MobileNav";
 import SearchCommand from "@/components/SearchCommand";
 import ThemeToggle from "@/components/ThemeToggle";
-import type { Nav } from "@/lib/nav";
+import type { Crumb, Nav } from "@/lib/nav";
 import { SITE } from "@/lib/site";
 
 interface Props {
   nav: Nav;
   current: string;
+  crumbs: Crumb[];
 }
 
-const { nav, current } = Astro.props;
-
-const links = [
-  { title: "Home", href: "/", match: (path: string) => path === "/" },
-  { title: "Docs", href: "/docs/introduction", match: (path: string) => path.startsWith("/docs") },
-  {
-    title: "Components",
-    href: "/components",
-    match: (path: string) => path.startsWith("/components"),
-  },
-];
+const { nav, current, crumbs } = Astro.props;
 ---
 
-<header class="sticky top-0 z-40 border-b bg-background/90 backdrop-blur-sm">
-  <!-- md:px-5 puts the wordmark on the sidebar's label edge (px-3 + the label's px-2). -->
-  <div class="mx-auto flex h-14 w-full max-w-[90rem] items-center gap-2 px-4 md:px-5">
+<!-- The header shares the page's two columns: the wordmark sits over the
+     navigation; over the content, where the page sits on the left, then the
+     search and the controls on the right. It wears the frame's tone, and its
+     parts are cells divided by full-height hairlines, the same rules that
+     divide the page below. -->
+<header class="sticky top-0 z-40 flex h-16 border-b bg-(--frame)/90 backdrop-blur-sm md:grid md:grid-cols-[16rem_minmax(0,1fr)]">
+  <div class="flex items-center gap-2 pr-2 pl-4 md:border-r md:px-5">
     <MobileNav client:load nav={nav} current={current} />
-    <a href="/" class="mr-2 font-heading text-sm font-medium">
+    <a href="/" class="flex items-center gap-2.5 text-sm font-medium">
+      <!-- Robomous orange is identity only: the wordmark is the one place it paints. -->
+      <span aria-hidden="true" class="size-4 rounded-[5px] bg-(--brand)"></span>
       {SITE.short}
     </a>
-    <nav class="hidden items-center gap-1 md:flex" aria-label="Primary">
-      {links.map((link) => (
-        <a
-          href={link.href}
-          aria-current={link.match(current) ? "page" : undefined}
-          class={cn(
-            buttonVariants({ variant: "ghost", size: "sm" }),
-            "text-muted-foreground aria-[current=page]:text-foreground",
-          )}
-        >
-          {link.title}
-        </a>
-      ))}
-    </nav>
-    <div class="ml-auto flex items-center gap-1">
+  </div>
+  <div class="flex min-w-0 flex-1 items-stretch">
+    <!-- The page's place in the docs. The separator is a slash, the way a
+         path reads, and only the last crumb is in the foreground. -->
+    <Breadcrumb className="hidden min-w-0 flex-1 items-center px-10 md:flex">
+      <BreadcrumbList className="flex-nowrap gap-2 text-sm">
+        <BreadcrumbItem>
+          <BreadcrumbLink
+            href="/"
+            aria-label="Home"
+            className="flex items-center hover:no-underline"
+          >
+            <HouseIcon className="size-4" strokeWidth={1.75} />
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        {crumbs.map((crumb, index) => (
+          <>
+            <BreadcrumbSeparator className="w-auto text-muted-foreground/50">/</BreadcrumbSeparator>
+            <BreadcrumbItem className="min-w-0">
+              {index === crumbs.length - 1 ? (
+                <BreadcrumbPage className="truncate">{crumb.label}</BreadcrumbPage>
+              ) : crumb.href ? (
+                <BreadcrumbLink href={crumb.href} className="truncate hover:no-underline">
+                  {crumb.label}
+                </BreadcrumbLink>
+              ) : (
+                <span class="truncate">{crumb.label}</span>
+              )}
+            </BreadcrumbItem>
+          </>
+        ))}
+      </BreadcrumbList>
+    </Breadcrumb>
+    <div class="ml-auto flex items-center px-3 sm:border-l sm:px-4">
       <SearchCommand client:idle />
+    </div>
+    <div class="flex items-center gap-1 border-l px-3">
       <a
         href={SITE.repo}
         class={buttonVariants({ variant: "ghost", size: "icon-sm" })}

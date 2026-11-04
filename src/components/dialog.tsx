@@ -29,7 +29,7 @@ function DialogOverlay({
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
       className={cn(
-        "fixed inset-0 isolate z-50 bg-overlay duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+        "fixed inset-0 isolate z-50 bg-overlay duration-200 ease-out supports-backdrop-filter:backdrop-blur-[2px] data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 data-closed:duration-150",
         className,
       )}
       {...props}
@@ -37,6 +37,11 @@ function DialogOverlay({
   );
 }
 
+// The surface lifts off a lighter scrim with a layered shadow rather than a
+// hard ring: a hairline of shadow for its edge, a tight one for contact and a
+// long soft one for height. It arrives from a few pixels below at 97%, and
+// leaves faster and smaller in its movement than it came, toward the same
+// place. Under reduced motion it only fades.
 function DialogContent({
   className,
   children,
@@ -51,7 +56,7 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground shadow-lg ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-2xl bg-popover p-5 text-xs/relaxed text-popover-foreground shadow-[0_0_0_1px_oklch(0_0_0/0.06),0_1px_2px_oklch(0_0_0/0.04),0_16px_40px_-12px_oklch(0_0_0/0.25)] duration-200 ease-out outline-none sm:max-w-md data-open:animate-in data-open:fade-in-0 data-open:zoom-in-[0.97] data-open:slide-in-from-bottom-2 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-[0.98] data-closed:duration-150 motion-reduce:data-open:zoom-in-100 motion-reduce:data-open:slide-in-from-bottom-0 dark:shadow-[0_0_0_1px_oklch(1_0_0/0.1),0_16px_40px_-12px_oklch(0_0_0/0.7)]",
           className,
         )}
         {...props}
@@ -59,7 +64,11 @@ function DialogContent({
         {children}
         {showCloseButton && (
           <DialogPrimitive.Close data-slot="dialog-close" asChild>
-            <Button variant="ghost" className="absolute top-2 right-2" size="icon-sm">
+            <Button
+              variant="ghost"
+              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground"
+              size="icon-sm"
+            >
               <XIcon />
               <span className="sr-only">Close</span>
             </Button>
@@ -72,10 +81,18 @@ function DialogContent({
 
 function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <div data-slot="dialog-header" className={cn("flex flex-col gap-2", className)} {...props} />
+    <div
+      data-slot="dialog-header"
+      className={cn("flex flex-col gap-1.5 pr-6", className)}
+      {...props}
+    />
   );
 }
 
+// The footer is a band across the bottom of the surface: bled to its edges,
+// on a muted tint under a hairline, so the actions read as the end of the
+// dialog rather than as more of its content. DestructiveActionModal draws the
+// same band.
 function DialogFooter({
   className,
   showCloseButton = false,
@@ -88,7 +105,7 @@ function DialogFooter({
     <div
       data-slot="dialog-footer"
       className={cn(
-        "-mx-4 -mb-4 flex flex-col-reverse gap-2 rounded-b-xl border-t bg-muted p-4 sm:flex-row sm:justify-end",
+        "-mx-5 -mb-5 flex flex-col-reverse gap-2 rounded-b-2xl border-t bg-muted/50 px-5 py-3 sm:flex-row sm:justify-end",
         className,
       )}
       {...props}
@@ -109,7 +126,7 @@ function DialogTitle({ className, ...props }: React.ComponentProps<typeof Dialog
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn("font-heading text-base leading-none font-medium", className)}
+      className={cn("font-heading text-base font-semibold tracking-tight text-balance", className)}
       {...props}
     />
   );
@@ -123,7 +140,7 @@ function DialogDescription({
     <DialogPrimitive.Description
       data-slot="dialog-description"
       className={cn(
-        "text-sm text-muted-foreground *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
+        "text-xs/relaxed text-pretty text-muted-foreground *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
         className,
       )}
       {...props}

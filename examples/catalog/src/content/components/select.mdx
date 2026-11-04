@@ -1,42 +1,50 @@
 ---
 title: Select
 description: A listbox behind a button, with two trigger heights and a `multiline` mode for a value too long to clamp to one line.
+related: [combobox, radio-group, dropdown-menu, command]
 builtOn:
   - name: Radix Select
     docsUrl: https://www.radix-ui.com/primitives/docs/components/select
     apiUrl: https://www.radix-ui.com/primitives/docs/components/select#api-reference
 ---
 
-import Default from "@/demos/select/default";
+import Controlled from "@/demos/select/controlled";
 import Disabled from "@/demos/select/disabled";
 import Groups from "@/demos/select/groups";
 import Multiline from "@/demos/select/multiline";
+import Overview from "@/demos/select/overview";
+import Position from "@/demos/select/position";
 import Sizes from "@/demos/select/sizes";
+import WithIcons from "@/demos/select/with-icons";
 
-<Preview demo="select/default">
-  <Default client:load />
+<Preview demo="select/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@robomous/ui-core";
+
+export function ModelVersion() {
+  return (
+    <Select defaultValue="v3.2">
+      <SelectTrigger aria-label="Model version">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="v3.2">detector-v3.2 (production)</SelectItem>
+        <SelectItem value="v3.1">detector-v3.1 (previous)</SelectItem>
+      </SelectContent>
+    </Select>
+  );
+}
 ```
 
-```tsx
-<Select defaultValue="base">
-  <SelectTrigger aria-label="Model">
-    <SelectValue />
-  </SelectTrigger>
-  <SelectContent>
-    <SelectItem value="tiny">org/detector-tiny</SelectItem>
-    <SelectItem value="base">org/detector-base</SelectItem>
-  </SelectContent>
-</Select>
-```
-
-`SelectTrigger` carries no visible label of its own, so give it an `aria-label` or pair it with a
-`Label` through `htmlFor`.
+<Callout title="Give the trigger a name">
+  `SelectTrigger` shows the chosen value but not a label. Name it with `aria-label`, or put it in a
+  `Field` and point a `FieldLabel` at it with `htmlFor` and the trigger's `id`.
+</Callout>
 
 ## Composition
 
@@ -53,38 +61,105 @@ Select
    └─ SelectScrollDownButton
 ```
 
-## Sizes
+## Examples
 
-Two trigger heights: `default` for a form, `sm` for a dense toolbar. Both keep the same radius
-scale as the rest of the field controls.
+### Controlled
 
-<Preview demo="select/sizes">
-  <Sizes client:load />
+Use `value` and `onValueChange` when something else follows the choice. Here the hint under the
+field updates with the format. Mark an option you cannot offer yet with `disabled` on its
+`SelectItem`; it stays visible but cannot be chosen.
+
+<Preview demo="select/controlled">
+  <Controlled client:load />
 </Preview>
 
-## Multiline
-
-The trigger is `whitespace-nowrap` by default, so a long value clips. `multiline` lifts that and
-lets the closed trigger wrap and grow to its value instead — `line-clamp-none` on its own would
-leave the value on one line, overflowing the box, so the prop does both jobs together.
-
-<Preview demo="select/multiline">
-  <Multiline client:load />
-</Preview>
-
-## Groups
+### Groups
 
 `SelectGroup` and `SelectLabel` split a long list into named sections, with `SelectSeparator`
-between them.
+between them. Reach for groups once a list passes about seven items and has a natural category.
 
 <Preview demo="select/groups">
   <Groups client:load />
 </Preview>
 
-## Disabled
+### With icons
 
-Disabled keeps the arrow cursor: nothing will respond to a press.
+An icon placed inside a `SelectItem` is part of its text, so the closed trigger repeats it. Use
+icons when the options differ in kind, such as sensors or file types, and skip them when they
+would be the same on every row.
+
+<Preview demo="select/with-icons">
+  <WithIcons client:load />
+</Preview>
+
+### Sizes
+
+Two trigger heights: `default` for a form, `sm` for a dense toolbar or table header. Both keep the
+same radius scale as the rest of the field controls.
+
+<Preview demo="select/sizes">
+  <Sizes client:load />
+</Preview>
+
+### Multiline
+
+The trigger is `whitespace-nowrap` by default, so a long value clips. `multiline` lets the closed
+trigger wrap and grow to its value instead; the demo sets the two side by side. `line-clamp-none` on its own would leave the value on
+one line, overflowing the box, so the prop does both jobs together.
+
+<Preview demo="select/multiline">
+  <Multiline client:load />
+</Preview>
+
+### Position
+
+`SelectContent` defaults to `position="item-aligned"`, which lays the list over the trigger so the
+selected option sits where the value was, as a native select does. `position="popper"` opens below
+the trigger like a menu and matches its width. Use it in toolbars, where covering the trigger
+would hide the context.
+
+<Preview demo="select/position">
+  <Position client:load />
+</Preview>
+
+### Disabled
+
+Disabled keeps the arrow cursor and drops to half opacity: nothing will respond to a press. Say
+nearby why the choice is locked.
 
 <Preview demo="select/disabled">
   <Disabled client:load />
 </Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Use a select for four or more options, or when space is tight.",
+    "Preselect the common choice with `defaultValue`, or give `SelectValue` a placeholder.",
+    "Group long lists with `SelectGroup` and `SelectLabel`.",
+    "Make the trigger full width inside a form so its edge lines up with the inputs around it.",
+  ]}
+  dont={[
+    "Don't use a select for two or three options the reader should compare; use a `RadioGroup`.",
+    "Don't hide an action in a select; commands belong in a `DropdownMenu`.",
+    "Don't put long lists with search needs in a select; use a `Combobox`.",
+    "Don't leave the trigger without a label or an `aria-label`.",
+  ]}
+/>
+
+## Accessibility
+
+Radix renders the trigger as a `button` with `role="combobox"` and `aria-expanded`, and the open list
+as a `listbox` of `option`s, so a screen reader announces the value and the position in the list.
+Inside a `<form>`, pass `name` and Radix adds a hidden native `<select>` so the value posts.
+
+<Keyboard
+  keys={[
+    ["Space / Enter / Arrow Down", "Opens the list from the trigger."],
+    ["Arrow Up / Arrow Down", "Moves the highlight between options."],
+    ["Enter / Space", "Chooses the highlighted option and closes."],
+    ["Escape", "Closes the list without changing the value."],
+    ["Type a letter", "Jumps to the option that starts with it."],
+  ]}
+/>

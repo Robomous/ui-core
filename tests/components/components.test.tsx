@@ -181,12 +181,12 @@ describe("Select", () => {
   it("grows rather than clipping when multiline, and clamps otherwise", () => {
     render(pickOne());
     const trigger = screen.getByTestId("model");
-    // `min-h-8` keeps a one-line control at the usual height and lets a
+    // `min-h-7` keeps a one-line control at the usual height and lets a
     // two-line one grow; the merge has to *replace* the fixed height and the
     // value clamp rather than stack beside them.
-    expect(trigger.className).toContain("min-h-8");
+    expect(trigger.className).toContain("min-h-7");
     expect(trigger.className).toContain("line-clamp-none");
-    expect(trigger.className).not.toContain("data-[size=default]:h-8");
+    expect(trigger.className).not.toContain("data-[size=default]:h-7");
     expect(trigger.className).not.toContain("line-clamp-1");
     // Room to grow is only half of it, and the half that used to be missing: the
     // trigger is `whitespace-nowrap` by default, so lifting the clamp alone left a

@@ -4,12 +4,15 @@ import { getCollection, render } from "astro:content";
 
 import ApiReference from "@/components/ApiReference";
 import BuiltOn from "@/components/BuiltOn";
-import Lede from "@/components/Lede.astro";
+import Callout from "@/components/Callout.astro";
 import CodeBlock from "@/components/CodeBlock.astro";
+import Guidelines from "@/components/Guidelines.astro";
+import Keyboard from "@/components/Keyboard.astro";
+import PageHeader from "@/components/PageHeader.astro";
 import Preview from "@/components/Preview.astro";
 import Docs from "@/layouts/Docs.astro";
 import { componentApi } from "@/lib/api";
-import { groupFor, plain } from "@/lib/nav";
+import { plain } from "@/lib/nav";
 
 export async function getStaticPaths() {
   const entries = await getCollection("components");
@@ -23,30 +26,59 @@ interface Props {
 const { entry } = Astro.props;
 const { Content, headings } = await render(entry);
 const api = componentApi(entry.id);
-const group = groupFor(entry.id);
-const toc = [...headings, { depth: 2, slug: "api-reference", text: "API Reference" }];
+const all = await getCollection("components");
+const related = entry.data.related.map((id) => {
+  const page = all.find((candidate) => candidate.id === id);
+  if (!page) throw new Error(`"${entry.id}" lists an unknown related component "${id}".`);
+  return page;
+});
+// The sections the page writes itself, not the MDX, join the outline here.
+const outline = [
+  ...headings,
+  { depth: 2, slug: "api-reference", text: "API Reference" },
+  ...(related.length > 0 ? [{ depth: 2, slug: "related", text: "Related" }] : []),
+];
 ---
 
-<Docs title={entry.data.title} description={plain(entry.data.description)} headings={toc}>
-  <header class="mb-8 flex flex-col gap-3">
-    {group ? (
-      <p class="text-xs font-medium tracking-widest text-muted-foreground uppercase">
-        <a href="/components" class="transition-colors hover:text-foreground">
-          Components
-        </a>
-        <span aria-hidden="true" class="px-1.5">
-          /
-        </span>
-        {group}
-      </p>
-    ) : null}
-    <h1 class="text-3xl font-medium tracking-tight text-balance md:text-4xl">{entry.data.title}</h1>
-    <Lede text={entry.data.description} />
-  </header>
-  <BuiltOn builtOn={entry.data.builtOn} />
-  <div class="docs-prose">
-    <Content components={{ Preview, pre: CodeBlock }} />
+<Docs
+  title={entry.data.title}
+  description={plain(entry.data.description)}
+  headings={outline}
+  file={`examples/catalog/src/content/components/${entry.id}.mdx`}
+  source={api.source}
+>
+  <PageHeader title={entry.data.title} description={entry.data.description} headings={outline}>
+    <BuiltOn builtOn={entry.data.builtOn} />
+  </PageHeader>
+  <div class="docs-prose px-(--gutter)">
+    <Content components={{ Preview, Callout, Guidelines, Keyboard, pre: CodeBlock }} />
     <h2 id="api-reference">API Reference</h2>
   </div>
-  <ApiReference api={api} />
+  <div class="px-(--gutter) pb-12">
+    <ApiReference api={api} />
+  </div>
+  {related.length > 0 && (
+    <section aria-labelledby="related" class="border-t px-(--gutter) pt-10 pb-12">
+      <h2 id="related" class="docs-anchor mb-4 scroll-mt-16 text-xl font-semibold tracking-tight">
+        Related
+      </h2>
+      <!-- The components a reader weighs this one against, on the same hairline
+           grid as the Components index. -->
+      <ul class="grid overflow-hidden rounded-md border-t border-l sm:grid-cols-2 lg:grid-cols-3">
+        {related.map((page) => (
+          <li class="border-r border-b">
+            <a
+              href={`/components/${page.id}`}
+              class="flex h-full flex-col gap-1 p-4 transition-colors hover:bg-muted/40 focus-visible:bg-muted/40 focus-visible:outline-none"
+            >
+              <span class="text-sm font-medium">{page.data.title}</span>
+              <span class="line-clamp-2 text-sm text-pretty text-muted-foreground">
+                {plain(page.data.description)}
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
 </Docs>

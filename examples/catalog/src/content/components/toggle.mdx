@@ -1,76 +1,127 @@
 ---
 title: Toggle
-description: A single pressable button whose state lives in `aria-pressed`, not a separate label change. Two variants, three sizes.
+description: A single pressable button whose state lives in `aria-pressed`, not in a changing label. Two variants, three sizes.
+related: [toggle-group, switch, checkbox, button]
 builtOn:
   - name: Radix Toggle
     docsUrl: https://www.radix-ui.com/primitives/docs/components/toggle
     apiUrl: https://www.radix-ui.com/primitives/docs/components/toggle#api-reference
 ---
 
+import Controlled from "@/demos/toggle/controlled";
 import Disabled from "@/demos/toggle/disabled";
+import Overview from "@/demos/toggle/overview";
 import Sizes from "@/demos/toggle/sizes";
 import Variants from "@/demos/toggle/variants";
 import WithALabel from "@/demos/toggle/with-a-label";
 
-<Preview demo="toggle/variants">
-  <Variants client:load />
+<Preview demo="toggle/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import { Toggle } from "@robomous/ui-core";
+import { BellIcon } from "@robomous/ui-core/icons";
+
+export function WatchRun() {
+  return (
+    <Toggle variant="outline" defaultPressed>
+      <BellIcon data-icon="inline-start" />
+      Watch
+    </Toggle>
+  );
+}
 ```
 
-```tsx
-<Toggle aria-label="Bold">
-  <BoldIcon />
-</Toggle>
-<Toggle variant="outline" defaultPressed aria-label="Italic">
-  <ItalicIcon />
-</Toggle>
-```
-
-A bare-icon `Toggle` carries no visible label, so give it an `aria-label` describing what it turns
-on.
+<Callout title="The label never changes">
+  A pressed `Toggle` is announced as "pressed" because of `aria-pressed`, so keep the same label in
+  both states. Swapping "Watch" for "Unwatch" would read as "Unwatch, pressed", which says nothing
+  useful.
+</Callout>
 
 ## Composition
 
 ```text
 Toggle
-└─ <StarIcon data-icon="inline-start" />
+└─ <Icon data-icon="inline-start" | "inline-end" />   optional, beside the label
 ```
 
-## Variants
+## Examples
 
-Two variants: `default` sits flush until pressed, `outline` keeps a border so a toolbar with no
-surrounding track still reads as a set of controls.
+### Variants
+
+`default` sits flush on the surface until it is pressed, which suits a dense toolbar that already
+has a track around it. `outline` keeps a border in both states, so a lone toggle still reads as a
+control.
 
 <Preview demo="toggle/variants">
   <Variants client:load />
 </Preview>
 
-## Sizes
+### Sizes
 
-Three heights, matched to the buttons and inputs a Toggle sits beside.
+Three heights, `sm`, `default` and `lg`, matched to the buttons and inputs a `Toggle` sits beside.
+There is no separate square size: a bare icon already fits the minimum width.
 
 <Preview demo="toggle/sizes">
   <Sizes client:load />
 </Preview>
 
-## With a label
+### With a label
 
-An icon and a word together read as one control; `data-icon="inline-start"` pads the icon the
-same way it does on a Button.
+An icon and a word together read as one control, and the text makes the on state obvious without
+relying on the fill alone. `data-icon="inline-start"` trims the padding on that side, as it does
+on a `Button`.
 
 <Preview demo="toggle/with-a-label">
   <WithALabel client:load />
 </Preview>
 
-## Disabled
+### Controlled
 
-Disabled keeps the arrow cursor: nothing will respond to a press.
+Use `pressed` and `onPressedChange` when the toggle drives something else, here a live reading that
+starts and stops. For a plain preference with no side effect, `defaultPressed` is enough.
+
+<Preview demo="toggle/controlled">
+  <Controlled client:load />
+</Preview>
+
+### Disabled
+
+A disabled `Toggle` keeps the state it had, on or off, and drops to half opacity. Explain nearby
+why it cannot be changed rather than leaving the reader to guess.
 
 <Preview demo="toggle/disabled">
   <Disabled client:load />
 </Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Use it for an option that stays on until turned off, such as a view setting or a subscription.",
+    "Keep one label for both states and let the pressed fill show the change.",
+    "Give an icon-only `Toggle` an `aria-label` that names what it turns on.",
+    "Use `ToggleGroup` when several toggles belong to one set.",
+  ]}
+  dont={[
+    "Don't use it for a one-shot action; that is a `Button`.",
+    "Don't use it for a setting inside a form that is saved later; a `Switch` or `Checkbox` fits better.",
+    "Don't swap the label or icon between states; the pressed state already says it.",
+    "Don't rely on the fill alone to show state in a row of identical icons; add text or a tooltip.",
+  ]}
+/>
+
+## Accessibility
+
+A native `<button>` with `aria-pressed` set to `true` or `false` and `data-state` of `on` or `off`,
+so assistive tech announces it as a toggle button. The focus ring shows on keyboard focus only.
+
+<Keyboard
+  keys={[
+    ["Enter / Space", "Flips the pressed state."],
+    ["Tab", "Moves to the next control; a `disabled` toggle is skipped."],
+  ]}
+/>

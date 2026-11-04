@@ -1,59 +1,121 @@
 ---
 title: HoverCard
-description: A preview that appears when the pointer rests on its trigger. It is pointer-only, so it must never be the sole route to whatever it shows, and it keeps its exit animation because nothing is waiting on the frame after it leaves.
+description: A preview that appears when the pointer rests on its trigger. It is a pointer enhancement, so it must never be the only route to what it shows.
+related: [tooltip, popover, dropdown-menu]
 builtOn:
   - name: Radix HoverCard
     docsUrl: https://www.radix-ui.com/primitives/docs/components/hover-card
     apiUrl: https://www.radix-ui.com/primitives/docs/components/hover-card#api-reference
 ---
 
-import Profile from "@/demos/hover-card/profile";
+import Frame from "@/demos/hover-card/frame";
+import Overview from "@/demos/hover-card/overview";
+import Run from "@/demos/hover-card/run";
 import Status from "@/demos/hover-card/status";
+import Timing from "@/demos/hover-card/timing";
 
-<Preview demo="hover-card/profile">
-  <Profile client:load />
+<Preview demo="hover-card/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import { Button, HoverCard, HoverCardContent, HoverCardTrigger } from "@robomous/ui-core";
+
+export function Reviewer() {
+  return (
+    <HoverCard>
+      <HoverCardTrigger asChild>
+        <Button variant="link">@aisha.bello</Button>
+      </HoverCardTrigger>
+      <HoverCardContent>Owns the review queue for Monterrey DC-2.</HoverCardContent>
+    </HoverCard>
+  );
+}
 ```
 
-```tsx
-<HoverCard>
-  <HoverCardTrigger asChild>
-    <Button variant="link">@robomous</Button>
-  </HoverCardTrigger>
-  <HoverCardContent>Vision tooling. Joined 2026.</HoverCardContent>
-</HoverCard>
-```
-
-The trigger must stay reachable and useful on its own — a link that still navigates, a button
-that still does something — because touch and keyboard users may never see the card.
+<Callout title="The trigger has to work on its own" tone="warning">
+  Touch screens never open a hover card, and screen readers do not announce its content. Make
+  the trigger a link or button that is useful alone, and treat the card as extra context.
+</Callout>
 
 ## Composition
 
 ```text
-HoverCard
+HoverCard                    openDelay 700ms, closeDelay 300ms by default
 ├─ HoverCardTrigger
-└─ HoverCardContent
+└─ HoverCardContent          w-72 by default; portals itself
 ```
 
-## Profile
+## Examples
 
-A pointer-only preview, additive to a trigger that already does something on its own — here, a
-real, focusable `Button`.
+### A resource in a sentence
 
-<Preview demo="hover-card/profile">
-  <Profile client:load />
-</Preview>
-
-## Status preview
-
-Any focusable control can open a hover card. Content is free-form: this one previews a camera's
-live status rather than a profile.
+Any focusable control can open a card, and the content is free-form. Here a model name inside a
+sentence previews the live endpoint it points to, without a trip to the registry. The same pattern
+works for a person in a feed, as in the hero above.
 
 <Preview demo="hover-card/status">
   <Status client:load />
 </Preview>
+
+### A preview beside a list
+
+`side` and `align` place the card against the trigger. For a list, `side="right"` with
+`align="start"` keeps the preview off the neighbouring rows, so moving down the list never
+crosses it.
+
+<Preview demo="hover-card/frame">
+  <Frame client:load />
+</Preview>
+
+### A row in a table
+
+When a row is already full, keep the identifier as the trigger and move the detail into the card.
+A ghost `Button` makes the id a real control, and `align="start"` anchors the card to its left edge
+instead of centring it over the narrow id.
+
+<Preview demo="hover-card/run">
+  <Run client:load />
+</Preview>
+
+### Timing
+
+`openDelay` defaults to 700 ms and `closeDelay` to 300 ms, tuned so a passing pointer does not
+trigger the card. For a tight row of faces, shorten both on the `HoverCard` so the preview keeps
+up with the reader.
+
+<Preview demo="hover-card/timing">
+  <Timing client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Make the trigger a link or button that is useful on its own, with the card as a bonus.",
+    "Keep the content to a glanceable summary: a name, a role, two numbers.",
+    "Shorten `openDelay` for dense rows and leave the defaults for isolated triggers.",
+    "Use `side` so the card opens away from the content the reader will move to next.",
+  ]}
+  dont={[
+    "Don't put the only copy of important information or an action inside a card.",
+    "Don't put interactive forms in one; the card closes when the pointer leaves it.",
+    "Don't use it for a short label; a Tooltip is lighter and works on focus.",
+    "Don't rely on it for touch users; it will not open for them.",
+  ]}
+/>
+
+## Accessibility
+
+Radix opens the card on pointer hover and on keyboard focus, and closes it on blur. Touch input
+never opens it, and the content is not announced to screen readers, so anything essential must
+live elsewhere on the page.
+
+<Keyboard
+  keys={[
+    ["Tab", "Focuses the trigger, which opens the card; moving away closes it."],
+    ["Escape", "Closes the card."],
+  ]}
+/>

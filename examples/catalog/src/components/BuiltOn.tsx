@@ -1,4 +1,3 @@
-import { Badge, Button } from "@robomous/ui-core";
 import { ExternalLinkIcon } from "@robomous/ui-core/icons";
 
 export interface BuiltOnEntry {
@@ -9,28 +8,36 @@ export interface BuiltOnEntry {
 
 /** Where the component's behaviour comes from, with the upstream docs one click away. */
 export default function BuiltOn({ builtOn }: { builtOn: BuiltOnEntry[] }) {
-  const names = builtOn.map((entry) => entry.name);
-  const sentence =
-    names.length === 1 ? names[0] : `${names.slice(0, -1).join(", ")} and ${names.at(-1)}`;
   const primary = builtOn[0];
+  if (!primary) return null;
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-xl bg-muted/40 px-4 py-2 text-sm ring-1 ring-foreground/10">
-      {builtOn.map((entry) => (
-        <Badge key={entry.name} variant="secondary">
-          {entry.name}
-        </Badge>
-      ))}
-      <span className="text-muted-foreground">This component uses {sentence}.</span>
-      {primary ? (
-        <Button asChild variant="link" className="ml-auto h-auto p-0">
-          {/* One way out of the page: the upstream API, or its docs where there is no
-              separate API page (cmdk, a native element). */}
-          <a href={primary.apiUrl ?? primary.docsUrl} target="_blank" rel="noreferrer">
-            API Reference
-            <ExternalLinkIcon data-icon="inline-end" />
+    <p className="flex flex-wrap items-center gap-x-1.5 text-sm text-muted-foreground">
+      Built on
+      {builtOn.map((entry, index) => (
+        <span key={entry.name}>
+          {index > 0 ? (index === builtOn.length - 1 ? " and " : ", ") : null}
+          <a
+            href={entry.docsUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="font-medium text-foreground underline-offset-4 hover:underline"
+          >
+            {entry.name}
           </a>
-        </Button>
-      ) : null}
-    </div>
+        </span>
+      ))}
+      <span aria-hidden="true">·</span>
+      {/* One way out of the page: the upstream API, or its docs where there is no
+          separate API page (cmdk, a native element). */}
+      <a
+        href={primary.apiUrl ?? primary.docsUrl}
+        target="_blank"
+        rel="noreferrer"
+        className="inline-flex items-center gap-1 underline-offset-4 hover:text-foreground hover:underline"
+      >
+        API reference
+        <ExternalLinkIcon className="size-3.5" />
+      </a>
+    </p>
   );
 }
