@@ -9,13 +9,16 @@ const builtOn = z.object({
   apiUrl: z.url().optional(),
 });
 
-// Prose pages: introduction, installation, theming, states. `order` is their
-// place in the sidebar; the Components index follows them.
+// Prose pages. `group` is the sidebar heading they sit under — the two
+// pages that get a reader started, then the foundations every component
+// resolves through — and `order` their place across both groups, which is
+// also the reading order the previous/next links follow.
 const sections = defineCollection({
   loader: glob({ pattern: "*.mdx", base: "./src/content/sections" }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
+    group: z.enum(["Getting started", "Foundations"]),
     order: z.number().int(),
   }),
 });

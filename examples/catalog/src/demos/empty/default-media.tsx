@@ -9,10 +9,8 @@ export default function DefaultMedia() {
         <EmptyMedia>
           <CameraIcon className="size-10 text-muted-foreground" />
         </EmptyMedia>
-        <EmptyTitle>No cameras connected</EmptyTitle>
-        <EmptyDescription>
-          Connect a camera to start streaming frames into this dataset.
-        </EmptyDescription>
+        <EmptyTitle>No camera feeds at Monterrey DC-2</EmptyTitle>
+        <EmptyDescription>Connect a camera to start streaming into this site.</EmptyDescription>
       </EmptyHeader>
     </Empty>
   );

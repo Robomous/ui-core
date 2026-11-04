@@ -5,39 +5,26 @@ import {
   AttachmentMedia,
   AttachmentTitle,
 } from "@robomous/ui-core";
-import { FileIcon } from "@robomous/ui-core/icons";
+import { BoxIcon } from "@robomous/ui-core/icons";
 
-/** `default`, `sm` and `xs` step the padding and text down together; `xs` also tightens the corner radius. */
+/** `default`, `sm` and `xs` step the padding, media and corner radius down together, for one card in a form, a list and a composer. */
 export default function Sizes() {
   return (
-    <div className="flex flex-wrap items-start gap-3">
-      <Attachment size="default">
-        <AttachmentMedia variant="icon">
-          <FileIcon />
-        </AttachmentMedia>
-        <AttachmentContent>
-          <AttachmentTitle>batch-0041.zip</AttachmentTitle>
-          <AttachmentDescription>311.9 MB</AttachmentDescription>
-        </AttachmentContent>
-      </Attachment>
-      <Attachment size="sm">
-        <AttachmentMedia variant="icon">
-          <FileIcon />
-        </AttachmentMedia>
-        <AttachmentContent>
-          <AttachmentTitle>batch-0041.zip</AttachmentTitle>
-          <AttachmentDescription>311.9 MB</AttachmentDescription>
-        </AttachmentContent>
-      </Attachment>
-      <Attachment size="xs">
-        <AttachmentMedia variant="icon">
-          <FileIcon />
-        </AttachmentMedia>
-        <AttachmentContent>
-          <AttachmentTitle>batch-0041.zip</AttachmentTitle>
-          <AttachmentDescription>311.9 MB</AttachmentDescription>
-        </AttachmentContent>
-      </Attachment>
+    <div className="grid w-full max-w-md grid-cols-[4.5rem_1fr] items-center gap-x-4 gap-y-4">
+      {(["default", "sm", "xs"] as const).map((size) => (
+        <div key={size} className="contents">
+          <span className="font-mono text-xs text-muted-foreground">{size}</span>
+          <Attachment size={size}>
+            <AttachmentMedia>
+              <BoxIcon />
+            </AttachmentMedia>
+            <AttachmentContent>
+              <AttachmentTitle>detector-v3.2.pt</AttachmentTitle>
+              <AttachmentDescription>86.4 MB</AttachmentDescription>
+            </AttachmentContent>
+          </Attachment>
+        </div>
+      ))}
     </div>
   );
 }

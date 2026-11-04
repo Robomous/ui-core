@@ -1,38 +1,51 @@
 ---
 title: Tabs
 description: Switches between panels that share one region, one visible at a time. Two `TabsList` looks and either orientation.
+related: [toggle-group, accordion, sidebar, breadcrumb]
 builtOn:
   - name: Radix Tabs
     docsUrl: https://www.radix-ui.com/primitives/docs/components/tabs
     apiUrl: https://www.radix-ui.com/primitives/docs/components/tabs#api-reference
 ---
 
+import Controlled from "@/demos/tabs/controlled";
 import Disabled from "@/demos/tabs/disabled";
+import Manual from "@/demos/tabs/manual";
+import Overview from "@/demos/tabs/overview";
 import Variants from "@/demos/tabs/variants";
 import Vertical from "@/demos/tabs/vertical";
+import WithIcons from "@/demos/tabs/with-icons";
 
-<Preview demo="tabs/variants">
-  <Variants client:load />
+<Preview demo="tabs/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@robomous/ui-core";
+
+export function DatasetSections() {
+  return (
+    <Tabs defaultValue="schema">
+      <TabsList aria-label="Dataset sections">
+        <TabsTrigger value="schema">Schema</TabsTrigger>
+        <TabsTrigger value="batches">Batches</TabsTrigger>
+      </TabsList>
+      <TabsContent value="schema">
+        Six classes: person, forklift, pallet, box, cone, vehicle.
+      </TabsContent>
+      <TabsContent value="batches">148 batches, 1.2M frames in total.</TabsContent>
+    </Tabs>
+  );
+}
 ```
 
-```tsx
-<Tabs defaultValue="schema">
-  <TabsList aria-label="Dataset sections">
-    <TabsTrigger value="schema">Schema</TabsTrigger>
-    <TabsTrigger value="batches">Batches</TabsTrigger>
-  </TabsList>
-  <TabsContent value="schema">Six classes: person, forklift, pallet, box, cone, vehicle.</TabsContent>
-  <TabsContent value="batches">148 batches, 1.2M frames total.</TabsContent>
-</Tabs>
-```
-
-`TabsList` carries no visible label of its own, so give it an `aria-label` describing what it switches between.
+<Callout title="Name the list, match the values">
+  `TabsList` has no visible label, so give it an `aria-label` describing what it switches between.
+  Each `TabsTrigger` is paired with its panel by `value`, so a trigger whose value has no matching
+  `TabsContent` selects an empty region.
+</Callout>
 
 ## Composition
 
@@ -43,30 +56,98 @@ Tabs
 └─ TabsContent
 ```
 
-## Variants
+## Examples
 
-`variant="default"` raises the active trigger on a `bg-muted` track, with a shadow doing the lifting.
-`variant="line"` clears the track and marks the active trigger with an underline instead, for a
-quieter row.
+### Variants
+
+`default` raises the active trigger on a muted track: it reads as a segmented control and suits
+a short set in a card or a toolbar. `line` clears the track and underlines the active trigger,
+which is the quieter choice for the main sections of a page.
 
 <Preview demo="tabs/variants">
   <Variants client:load />
 </Preview>
 
-## Vertical
+### With icons
 
-`orientation="vertical"` moves `TabsList` beside its panels instead of above them. Triggers stretch
-to the list's width and left-align their label, and the active mark (in the `line` variant) moves to
-the trailing edge.
+An icon with `data-icon="inline-start"` leads the label and the trigger trims its padding on that
+side. Use it when the sections are kinds of view and a glyph speeds up scanning; keep the words,
+since the icons alone are rarely enough.
+
+<Preview demo="tabs/with-icons">
+  <WithIcons client:load />
+</Preview>
+
+### Vertical
+
+`orientation="vertical"` places `TabsList` beside its panels. The triggers fill the list's width
+and left-align their labels, and the `line` underline moves to the trailing edge. It suits a settings
+page with a few sections and a lot of room.
 
 <Preview demo="tabs/vertical">
   <Vertical client:load />
 </Preview>
 
-## Disabled
+### Controlled
 
-A `disabled` trigger stays in the row, dimmed, so the set of sections doesn't shift under the reader.
+Pass `value` and `onValueChange` when something outside the list has to move the selection, such as
+a Continue button in a multi-step form. The tabs stay clickable, so a reader can still jump back.
+
+<Preview demo="tabs/controlled">
+  <Controlled client:load />
+</Preview>
+
+### Manual activation
+
+By default a trigger activates the moment it receives focus, so arrowing across the row shows
+every panel in turn. When a panel is costly to render or load, set `activationMode="manual"`: the
+arrow keys then only move focus, and Enter or Space opens the panel.
+
+<Preview demo="tabs/manual">
+  <Manual client:load />
+</Preview>
+
+### Disabled
+
+A `disabled` trigger stays in the row, dimmed and unselectable, so the set of sections doesn't
+shift under the reader. Use it for a section that exists but is not available yet.
 
 <Preview demo="tabs/disabled">
   <Disabled client:load />
 </Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Keep labels short nouns that name the section, such as Metrics or Logs.",
+    "Show three to six tabs in a row, and keep their order stable.",
+    'Use `variant="line"` for a page\'s main sections and `default` for a compact switch inside a card.',
+    "Give `TabsList` an `aria-label`.",
+  ]}
+  dont={[
+    "Don't use tabs for steps that must happen in order; show progress instead.",
+    "Don't put actions in a tab label; a tab shows content, it does not run anything.",
+    "Don't nest tabs inside tabs.",
+    "Don't hide content a reader needs to compare; panels show one at a time.",
+  ]}
+/>
+
+## Accessibility
+
+Radix Tabs gives the list `role="tablist"`, each trigger `role="tab"` with `aria-selected`, and each
+panel `role="tabpanel"` linked back to its trigger. The list is one tab stop with roving focus, and the
+active panel is the next stop after it.
+
+<Keyboard
+  keys={[
+    ["Tab", "Moves focus into the list on the active trigger, then on to its panel."],
+    [
+      "ArrowLeft / ArrowRight",
+      "Moves focus between triggers in a horizontal list, and selects them unless activation is manual.",
+    ],
+    ["ArrowUp / ArrowDown", "Does the same in a vertical list."],
+    ["Home / End", "Moves focus to the first or last trigger."],
+    ["Enter / Space", "Selects the focused trigger when activation is manual."],
+  ]}
+/>

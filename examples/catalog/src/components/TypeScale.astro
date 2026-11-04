@@ -1,0 +1,152 @@
+---
+import Classes from "@/components/Classes.astro";
+import SpecTable from "@/components/SpecTable.astro";
+
+/**
+ * One register of the type scale as a reference table. There is no custom
+ * type token: every row is Tailwind's own size, with the weight and tracking
+ * the components pair it with. Under each sample, its size, line height and
+ * weight in px, so the reader can match a design file against it.
+ */
+interface Props {
+  set: "families" | "headings" | "copy" | "labels";
+}
+
+type Row = { text: string; classes: string; meta: string; usage: string };
+
+// Copy runs to two lines on purpose: its line height is the point, and a
+// single line can't show it.
+const PROSE =
+  "Twelve feeds, <strong>sampled every four seconds</strong>, stream into the review queue for the night shift.";
+
+const SETS: Record<Props["set"], Row[]> = {
+  families: [
+    {
+      text: "Aa Bb Gg Rr 0123456789",
+      classes: "font-sans text-lg",
+      meta: "Inter Variable · 100–900",
+      usage: "Prose and every component. Declared as `--font-sans`, bundled offline.",
+    },
+    {
+      text: "rk_live_4f2a 0O 1lI",
+      classes: "font-mono text-lg",
+      meta: "Geist Mono Variable · 100–900",
+      usage:
+        "Machine-shaped content: an identifier, a hash, a path. Zero, O, one, l and I stay apart.",
+    },
+    {
+      text: "Rollout stopped",
+      classes: "font-heading text-lg font-semibold tracking-tight",
+      meta: "--font-heading → --font-sans",
+      usage: "A hook on h1–h4 that survives a change of face. Today it is Inter.",
+    },
+  ],
+  headings: [
+    {
+      text: "Fleet overview",
+      classes: "text-4xl font-semibold tracking-tight",
+      meta: "36 / 40 · 600",
+      usage: "A page's title.",
+    },
+    {
+      text: "Fleet overview",
+      classes: "text-3xl font-semibold tracking-tight",
+      meta: "30 / 36 · 600",
+      usage: "A page's title under the md breakpoint.",
+    },
+    {
+      text: "Monterrey DC-2",
+      classes: "text-2xl font-semibold tracking-tight",
+      meta: "24 / 32 · 600",
+      usage: "A screen's title inside a product shell.",
+    },
+    {
+      text: "Recent missions",
+      classes: "text-xl font-semibold tracking-tight",
+      meta: "20 / 28 · 600",
+      usage: "A section of a page.",
+    },
+    {
+      text: "Notifications",
+      classes: "text-base font-semibold",
+      meta: "16 / 24 · 600",
+      usage: "A subsection, a group of settings.",
+    },
+    {
+      text: "Delete dataset?",
+      classes: "text-sm font-medium",
+      meta: "14 / 20 · 500",
+      usage: "A Card, Dialog or Popover title.",
+    },
+  ],
+  copy: [
+    {
+      text: PROSE,
+      classes: "text-lg/relaxed",
+      meta: "18 / 29.25 · 400",
+      usage: "A page's lede, under its title.",
+    },
+    {
+      text: PROSE,
+      classes: "text-base/7",
+      meta: "16 / 28 · 400",
+      usage: "Document prose: a docs page, a help article.",
+    },
+    {
+      text: PROSE,
+      classes: "text-sm/6",
+      meta: "14 / 24 · 400",
+      usage: "Prose inside a product: a description, a dialog body.",
+    },
+    {
+      text: PROSE,
+      classes: "text-xs/relaxed",
+      meta: "12 / 19.5 · 400",
+      usage: "Component copy: Button, Input, a menu item, a Card's description.",
+    },
+  ],
+  labels: [
+    {
+      text: "Start ingest",
+      classes: "text-xs/relaxed font-medium",
+      meta: "12 / 19.5 · 500",
+      usage: "A control's label, a Button, a tab. One line, never wrapped.",
+    },
+    {
+      text: "Low battery",
+      classes: "text-[0.625rem] font-medium",
+      meta: "10 · 500",
+      usage: "A Badge, a menu shortcut.",
+    },
+    {
+      text: "a1b2c3d4",
+      classes: "font-mono text-xs",
+      meta: "12 · 400",
+      usage: "A Kbd, an identifier beside a label.",
+    },
+    {
+      text: "1,024 frames · 311.9 MB",
+      classes: "text-sm tabular-nums",
+      meta: "14 · tabular",
+      usage: "A number that changes: equal-width digits keep the layout still.",
+    },
+  ],
+};
+
+const rows = SETS[Astro.props.set];
+const code = (text: string) =>
+  text.replace(/`([^`]+)`/g, '<code class="font-mono text-xs text-foreground">$1</code>');
+---
+
+<SpecTable>
+  {rows.map((row) => (
+    <div class="spec-row">
+      <span class="flex min-w-0 flex-col gap-1.5">
+        <span class:list={[row.classes, "max-w-[24rem] min-w-0 text-pretty"]} set:html={row.text} />
+        <span class="font-mono text-[0.625rem] text-muted-foreground tabular-nums">{row.meta}</span>
+      </span>
+      <Classes value={row.classes} />
+      <span class="text-pretty text-muted-foreground" set:html={code(row.usage)} />
+    </div>
+  ))}
+</SpecTable>

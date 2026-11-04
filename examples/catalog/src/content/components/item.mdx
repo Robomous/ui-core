@@ -1,6 +1,7 @@
 ---
 title: Item
-description: A row with its own title, description and actions, for a list where each entry is more than one line of text.
+description: A row with its own media, title, description and actions, for a list where each entry is more than one line of text.
+related: [card, table, avatar, attachment]
 builtOn:
   - name: Radix Slot
     docsUrl: https://www.radix-ui.com/primitives/docs/utilities/slot
@@ -9,93 +10,140 @@ builtOn:
 
 import AsChild from "@/demos/item/as-child";
 import Group from "@/demos/item/group";
+import HeaderFooter from "@/demos/item/header-footer";
 import Media from "@/demos/item/media";
+import Overview from "@/demos/item/overview";
 import Sizes from "@/demos/item/sizes";
 import Variants from "@/demos/item/variants";
 
-<Preview demo="item/variants">
-  <Variants client:load />
+<Preview demo="item/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@robomous/ui-core";
+import { BotIcon } from "@robomous/ui-core/icons";
+
+export function RobotRow() {
+  return (
+    <Item variant="outline">
+      <ItemMedia variant="icon">
+        <BotIcon />
+      </ItemMedia>
+      <ItemContent>
+        <ItemTitle>rb-07 Atlas</ItemTitle>
+        <ItemDescription>Docked at bay 3, battery 82%</ItemDescription>
+      </ItemContent>
+    </Item>
+  );
+}
 ```
 
-```tsx
-<Item variant="outline">
-  <ItemMedia variant="icon">
-    <FileIcon />
-  </ItemMedia>
-  <ItemContent>
-    <ItemTitle>batch-0041.zip</ItemTitle>
-    <ItemDescription>311.9 MB, uploaded today</ItemDescription>
-  </ItemContent>
-</Item>
-```
-
-`ItemContent` holds `ItemTitle` and `ItemDescription`; anything trailing goes in `ItemActions`,
-which sits outside `ItemContent` so it never competes with the title for the row's width.
+<Callout title="Actions live beside the content">
+  Put trailing controls in `ItemActions`, a sibling of `ItemContent`, never inside it. The content
+  takes the remaining width and truncates its title and description, so the actions keep theirs.
+</Callout>
 
 ## Composition
 
 ```text
 ItemGroup
 ├─ Item
+│  ├─ ItemHeader         optional: a full row above
 │  ├─ ItemMedia
 │  ├─ ItemContent
 │  │  ├─ ItemTitle
 │  │  └─ ItemDescription
 │  ├─ ItemActions
-│  ├─ ItemHeader
-│  └─ ItemFooter
+│  └─ ItemFooter         optional: a full row below
 └─ ItemSeparator
 ```
 
-## Variants
+## Examples
 
-`default` is borderless, sitting flush with whatever it's stacked in. `outline` draws its own
-border, for a row that reads as a distinct card. `muted` fills with the muted surface instead,
-for a row that's present but demoted, like a folder among files.
+### Variants
+
+`default` is borderless and sits flush in whatever holds it. `outline` draws its own border, so a
+row reads as a distinct card. `muted` fills with the muted surface, for a row that is present but
+demoted, like a robot in maintenance among active ones.
 
 <Preview demo="item/variants">
   <Variants client:load />
 </Preview>
 
-## Sizes
+### Sizes
 
-`size` steps `default` down to `sm` and `xs`, tightening the row's own padding and, on `ItemGroup`,
-the gap between stacked items.
+`size` is `default`, `sm` or `xs`, three steps of one scale: each trims the row's padding and the
+gap between media and text, and shrinks the icon tile with them (40, 32 and 24px). `xs` also
+tightens the space between title and description. Use the small sizes for lists in
+sidebars and popovers, where rows repeat tightly.
 
 <Preview demo="item/sizes">
   <Sizes client:load />
 </Preview>
 
-## Media
+### Media
 
-`ItemMedia` `variant="default"` leaves its content unstyled, for something that already carries its
-own size, like a status dot. `variant="icon"` sizes a `lucide-react` icon consistently. `variant="image"`
-crops whatever `<img>` it wraps to a fixed square, shrinking with `size`.
+`ItemMedia` has three variants. `default` leaves its content unstyled, for something that already
+carries its own size, like a status dot or an `Avatar`. `icon` puts an icon on a muted tile.
+`image` crops whatever `<img>` it wraps to a fixed square that shrinks with `size`.
 
 <Preview demo="item/media">
   <Media client:load />
 </Preview>
 
-## Group with a separator
+### Header and footer
 
-`ItemGroup` is `role="list"`, so assistive tech announces the count. `ItemSeparator` marks the
-boundary between rows instead of each `Item` drawing its own border.
+`ItemHeader` and `ItemFooter` each take a full row, above and below the media and content line.
+Use them for metadata that applies to the whole item, such as an identifier and status on top, or
+progress underneath, without squeezing it into the description.
+
+<Preview demo="item/header-footer">
+  <HeaderFooter client:load />
+</Preview>
+
+### Group with a separator
+
+`ItemGroup` is `role="list"` and every `Item` inside it becomes a `listitem`, so assistive
+technology reads the rows as a list with a count. `ItemSeparator` marks the boundary between rows
+in place of each item drawing its own border; it is decorative, so it doesn't break the list.
+Here the group sits inside a `Card`, which is the usual home for a settings-style list.
 
 <Preview demo="item/group">
   <Group client:load />
 </Preview>
 
-## As a link
+### As a link
 
-`asChild` hands the row's classes to an anchor, so the whole item is a link and stays reachable as
-one tab stop rather than a title link buried inside a static row.
+`asChild` hands the row's classes to an anchor, so the whole item is one link and one tab stop,
+and the row tints on hover. A linked item keeps its link role — it never becomes a `listitem` —
+so put a set of linked rows in a `nav` rather than an `ItemGroup`.
 
 <Preview demo="item/as-child">
   <AsChild client:load />
 </Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Keep the title to a name and the description to one line of state.",
+    "Use `ItemMedia variant=\"icon\"` when every row in the list has an icon, so the titles align.",
+    "Use `asChild` with an `<a>` when the whole row navigates.",
+    "Wrap a set of rows in `ItemGroup`, so they are announced as a list.",
+  ]}
+  dont={[
+    "Don't put several competing buttons in `ItemActions`; one action or one menu reads cleanly.",
+    "Don't mix `outline` and `default` rows in one group unless the border carries meaning.",
+    "Don't nest a link inside an `Item` that is itself a link.",
+    "Don't rely on the description for key information: it clamps to two lines.",
+  ]}
+/>
+
+## Accessibility
+
+`ItemGroup` renders `role="list"` and each `Item` inside it `role="listitem"`; outside a group an
+`Item` is a plain row with no role. An `Item` with `asChild` keeps the semantics of the element you
+give it, and its focus ring shows on `:focus-visible` only.

@@ -1,0 +1,147 @@
+---
+import Classes from "@/components/Classes.astro";
+import SpecTable from "@/components/SpecTable.astro";
+
+/**
+ * The surface presets the components are built from, one row each: the
+ * material drawn at size, the classes that make it, and which components
+ * wear it. Class strings stay literal so Tailwind emits them.
+ *
+ * Every sample sits on what it sits on in a product, so it can be told apart:
+ * a material the colour of the page goes on a muted well, one that lives on
+ * the page goes on a patch of page, a Dialog goes over the scrim, and the
+ * scrim goes over content it dims.
+ */
+interface Props {
+  set: "surface" | "floating" | "focus";
+}
+
+type Row = {
+  classes: string;
+  usage: string;
+  /** What the sample is drawn on. */
+  on?: "muted" | "page" | "scrim";
+  /** How the sample is drawn: a block (default), a control, an edge panel, a scrim over content. */
+  shape?: "control" | "edge" | "scrim";
+};
+
+const SETS: Record<Props["set"], Row[]> = {
+  surface: [
+    { classes: "bg-background", usage: "The page. Everything else sits on it.", on: "muted" },
+    {
+      classes: "bg-card rounded-lg ring-1 ring-foreground/10",
+      usage: "Card, Attachment: content that sits in place, raised by a ring, never a border.",
+      on: "muted",
+    },
+    {
+      classes: "bg-muted rounded-md",
+      usage:
+        "A recess: Kbd, a Card's footer band, the current page in a sidebar, a Toggle that is on.",
+    },
+    {
+      classes: "bg-input/20 border border-input rounded-md dark:bg-input/30",
+      usage: "A control at rest: Input, Textarea, Select, Combobox chips.",
+      shape: "control",
+    },
+    {
+      classes: "border border-border rounded-md dark:bg-input/30",
+      usage: "An outline: the outline Button, ButtonGroupText, an Alert.",
+      shape: "control",
+    },
+    {
+      classes: "border border-dashed rounded-lg",
+      usage: "A place something could go: an idle Attachment, an Empty state.",
+    },
+  ],
+  floating: [
+    {
+      classes: "bg-popover rounded-lg shadow-md ring-1 ring-foreground/10",
+      usage: "Popover, HoverCard, Select, Combobox. Menus add the dark class, so they invert.",
+      on: "muted",
+    },
+    {
+      classes: "bg-foreground text-background rounded-md",
+      usage: "Tooltip: the ink inverted, no shadow, the lightest thing that floats.",
+    },
+    {
+      classes:
+        "bg-popover rounded-2xl shadow-[0_0_0_1px_oklch(0_0_0/0.06),0_1px_2px_oklch(0_0_0/0.04),0_16px_40px_-12px_oklch(0_0_0/0.25)] dark:shadow-[0_0_0_1px_oklch(1_0_0/0.1),0_16px_40px_-12px_oklch(0_0_0/0.7)]",
+      usage:
+        "Dialog: the most lift of anything, a hairline of shadow, a contact shadow and a long soft one, over a light scrim.",
+      on: "scrim",
+    },
+    {
+      classes: "bg-popover border-l shadow-lg",
+      usage: "Sheet: a panel from one edge, with a border on that edge only.",
+      on: "muted",
+      shape: "edge",
+    },
+    {
+      classes: "bg-overlay backdrop-blur-[2px]",
+      usage:
+        "The scrim: near-black at 40% (60% in dark) under a 2px blur, behind anything modal. It sets the surface apart without hiding where the reader came from.",
+      shape: "scrim",
+    },
+  ],
+  focus: [
+    {
+      classes: "border-ring ring-2 ring-ring/30",
+      usage:
+        "focus-visible on every control. The geometry is the component's; the colour is the token's.",
+      shape: "control",
+    },
+    {
+      classes: "border-destructive ring-2 ring-destructive/20",
+      usage: "aria-invalid on Input, Textarea, Select, Checkbox, Switch.",
+      shape: "control",
+    },
+    {
+      classes: "outline-2 outline-offset-2 outline-ring/50",
+      usage: "The base layer gives every element the outline colour; drawn here at 2px to show it.",
+      shape: "control",
+    },
+  ],
+};
+
+const rows = SETS[Astro.props.set];
+const wells = {
+  muted: "bg-muted",
+  page: "bg-background ring-1 ring-foreground/10",
+  scrim: "bg-overlay",
+};
+---
+
+<SpecTable>
+  {rows.map((row) => (
+    <div class="spec-row">
+      <span
+        class:list={[
+          "relative flex h-22 max-w-64 items-center overflow-hidden rounded-xl p-3",
+          wells[row.on ?? "page"],
+          row.shape === "edge" ? "justify-end p-0" : "justify-center",
+        ]}
+      >
+        {row.shape === "scrim" ? (
+          <>
+            <span class="flex w-full flex-col gap-2" aria-hidden="true">
+              <span class="h-2.5 w-2/3 rounded-full bg-foreground/70" />
+              <span class="h-2 w-full rounded-full bg-foreground/25" />
+              <span class="h-2 w-5/6 rounded-full bg-foreground/25" />
+            </span>
+            <span class:list={["absolute inset-0", row.classes]} />
+          </>
+        ) : row.shape === "control" ? (
+          <span
+            class:list={["h-8 w-full rounded-md border bg-input/20 dark:bg-input/30", row.classes]}
+          />
+        ) : row.shape === "edge" ? (
+          <span class:list={["h-full w-1/2", row.classes]} />
+        ) : (
+          <span class:list={["h-16 w-full", row.classes]} />
+        )}
+      </span>
+      <Classes value={row.classes} />
+      <span class="text-pretty text-muted-foreground">{row.usage}</span>
+    </div>
+  ))}
+</SpecTable>

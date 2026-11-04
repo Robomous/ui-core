@@ -1,6 +1,7 @@
 ---
 title: ContextMenu
-description: A menu that opens on right-click instead of a press, over the same item anatomy as DropdownMenu. Neither surface plays an exit animation, for the same reason — the reader can right-click again before the closing menu has left.
+description: A menu that opens on right-click or long-press over an area, with the same items as DropdownMenu. Neither surface plays an exit animation, so the next right-click always lands.
+related: [dropdown-menu, split-button, popover]
 builtOn:
   - name: Radix ContextMenu
     docsUrl: https://www.radix-ui.com/primitives/docs/components/context-menu
@@ -8,11 +9,13 @@ builtOn:
 ---
 
 import Basic from "@/demos/context-menu/basic";
+import Canvas from "@/demos/context-menu/canvas";
 import CheckboxItems from "@/demos/context-menu/checkbox-items";
+import Overview from "@/demos/context-menu/overview";
 import Submenu from "@/demos/context-menu/submenu";
 
-<Preview demo="context-menu/basic">
-  <Basic client:load />
+<Preview demo="context-menu/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
@@ -24,67 +27,116 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@robomous/ui-core";
+
+export function FrameTile() {
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger className="rounded-lg border p-6">frame-000184.jpg</ContextMenuTrigger>
+      <ContextMenuContent>
+        <ContextMenuItem>Copy link</ContextMenuItem>
+        <ContextMenuItem variant="destructive">Delete</ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
+  );
+}
 ```
 
-```tsx
-<ContextMenu>
-  <ContextMenuTrigger className="rounded-lg border border-dashed p-6">
-    Right-click here
-  </ContextMenuTrigger>
-  <ContextMenuContent>
-    <ContextMenuItem>Copy link</ContextMenuItem>
-    <ContextMenuItem variant="destructive">Delete</ContextMenuItem>
-  </ContextMenuContent>
-</ContextMenu>
-```
-
-`ContextMenuTrigger` is the area itself, not a button: it wraps whatever content the reader
-right-clicks and renders `select-none` so the click doesn't also select text.
+<Callout title="Mirror every action elsewhere" tone="warning">
+  Nothing signals that a right-click menu exists, and not every reader can open one. Anything it
+  offers should also be reachable from a visible control, such as a row's action menu.
+</Callout>
 
 ## Composition
 
 ```text
 ContextMenu
-├─ ContextMenuTrigger
-└─ ContextMenuPortal
-   └─ ContextMenuContent
-      ├─ ContextMenuLabel
-      ├─ ContextMenuGroup
-      │  └─ ContextMenuItem
-      │     └─ ContextMenuShortcut
-      ├─ ContextMenuCheckboxItem
-      ├─ ContextMenuRadioGroup
-      │  └─ ContextMenuRadioItem
-      ├─ ContextMenuSeparator
-      └─ ContextMenuSub
-         ├─ ContextMenuSubTrigger
-         └─ ContextMenuSubContent
-            └─ ContextMenuItem
+├─ ContextMenuTrigger           the area itself, not a button; select-none
+└─ ContextMenuContent           portals itself; opens at the pointer
+   ├─ ContextMenuLabel
+   ├─ ContextMenuGroup
+   │  └─ ContextMenuItem
+   │     └─ ContextMenuShortcut
+   ├─ ContextMenuCheckboxItem
+   ├─ ContextMenuRadioGroup
+   │  └─ ContextMenuRadioItem
+   ├─ ContextMenuSeparator
+   └─ ContextMenuSub
+      ├─ ContextMenuSubTrigger
+      └─ ContextMenuSubContent
+         └─ ContextMenuItem
 ```
 
-## Basic
+## Examples
 
-A label, a group holding an item with a shortcut, a separator, and a destructive item — the
-anatomy a right-click menu reaches for first.
+### A tile
+
+The trigger is whatever area should answer a right-click, so it wraps real content rather than a
+button. A label names the object, a group holds the common actions with their shortcuts, and the
+destructive one comes last behind a separator.
 
 <Preview demo="context-menu/basic">
   <Basic client:load />
 </Preview>
 
-## Checkbox items
+### At the pointer
 
-Checked, unchecked, and indeterminate sit on the same axis as `DropdownMenuCheckboxItem`. The
-indeterminate state wears a dash, not the tick that would claim every one of them.
+When the action depends on where the reader clicked, record the position in the trigger's own
+`onContextMenu` and read it back from the item. Radix still opens the menu; your handler only
+runs first.
+
+<Preview demo="context-menu/canvas">
+  <Canvas client:load />
+</Preview>
+
+### View options
+
+Checkbox items suit toggles for how something is shown. Checked, unchecked and indeterminate sit on
+the same axis as `DropdownMenuCheckboxItem`: the dash says an overlay is on for some zones, not
+all of them.
 
 <Preview demo="context-menu/checkbox-items">
   <CheckboxItems client:load />
 </Preview>
 
-## Submenu
+### Submenu
 
-A submenu can hold its own radio group, so a destination is chosen without leaving the row that
-opened it. It shares its parent's no-exit-animation rule: the next right-click has to land.
+A submenu can hold its own radio group, so a destination is chosen without leaving the card the
+menu opened from. It opens on hover or the right arrow, and shares the parent's rule of no exit
+animation.
 
 <Preview demo="context-menu/submenu">
   <Submenu client:load />
 </Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Use it as a shortcut to actions on the object under the pointer.",
+    "Offer the same actions from a visible control, like a row's action menu.",
+    "Keep the menu short and put the destructive item last, behind a separator.",
+    "Label the object with a `ContextMenuLabel` when the menu covers more than one thing.",
+  ]}
+  dont={[
+    "Don't make it the only way to reach an action.",
+    "Don't use it for a menu opened from a button; that is a DropdownMenu.",
+    "Don't put it on text the reader may want to select or copy, since it replaces the browser's menu.",
+    "Don't put forms or long content inside it.",
+  ]}
+/>
+
+## Accessibility
+
+Radix gives the surface `role="menu"` and its items `menuitem`, `menuitemcheckbox` or
+`menuitemradio`, and moves focus into the menu when it opens. Touch devices open it with a
+long-press, and the browser's own menu is suppressed only over the trigger.
+
+<Keyboard
+  keys={[
+    ["ArrowDown / ArrowUp", "Moves focus to the next or previous item."],
+    ["ArrowRight", "Opens a submenu from its trigger row."],
+    ["ArrowLeft", "Closes a submenu and returns to its trigger row."],
+    ["Enter / Space", "Selects the focused item."],
+    ["Escape", "Closes the menu."],
+  ]}
+/>

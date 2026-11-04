@@ -1,0 +1,96 @@
+---
+title: Typography
+description: How text is set across the system. Two faces, Tailwind's own scale, and the weight and line height each size is paired with.
+group: Foundations
+order: 4
+---
+
+import TypeScale from "@/components/TypeScale.astro";
+import Numbers from "@/demos/typography/numbers";
+import Wrapping from "@/demos/typography/wrapping";
+
+## Usage
+
+There is no custom type-scale token. Sizes are Tailwind's own, written where they are used together
+with the line height they need, and each component carries the weight that goes with its size. To
+emphasise a run of text, nest a `<strong>`: the face stays the same and the weight goes up one
+step.
+
+```tsx
+<p className="text-sm/6 text-muted-foreground">
+  Twelve feeds, <strong>sampled every four seconds</strong>.
+</p>
+```
+
+Under every sample below are its size, line height and weight in pixels, so you can match it
+against a design file.
+
+## Families
+
+There are two faces. Inter, through `--font-sans`, sets prose and every component. Geist Mono,
+through `font-mono`, marks machine-shaped content: identifiers, hashes, measurements, paths,
+commits. Both are bundled offline through `@fontsource-variable`.
+
+Prose never wears the mono face, and whether to apply it is always the caller's choice. No base
+rule puts it on `code` or `pre`, because a `<code>` in a sentence is often prose about code rather
+than code.
+
+<TypeScale set="families" />
+
+## Headings
+
+A heading introduces a page or a section. From 20px up, headings get tight tracking. The smallest
+heading is the size of body copy and stands out by weight alone.
+
+<TypeScale set="headings" />
+
+## Copy
+
+Copy is meant to run over several lines, so each size gets a looser line height than a label of
+the same size. The samples wrap on purpose, because one line can't show line height.
+
+<TypeScale set="copy" />
+
+## Labels
+
+A label is meant for a single line: a control's label, a chip, a shortcut, a number. Its line height
+is tight, so it sits level with an icon beside it.
+
+<TypeScale set="labels" />
+
+## Wrapping
+
+A browser fills each line greedily. That often leaves a heading with one word on its last line and
+a paragraph with an orphan. Two utilities fix this:
+
+- `text-balance` evens out the lines of a heading or title. The components use it on their own
+  titles.
+- `text-pretty` keeps the last line of a paragraph from ending on a single word.
+
+Keep `text-balance` for short runs. It is meant for a few lines, and on long text it costs layout
+time without improving the result.
+
+<Preview demo="typography/wrapping">
+  <Wrapping client:load />
+</Preview>
+
+## Numbers
+
+Inter's digits are proportional by default: a 1 is narrower than an 8. In a value that changes,
+such as a counter, a timer or a progress label, every update shifts the text after it. Add
+`tabular-nums` to give every digit the same width, which also lines up columns of figures in a
+table.
+
+<Preview demo="typography/numbers">
+  <Numbers client:load />
+</Preview>
+
+## Rendering
+
+Set `antialiased` on the root. On macOS, light text on a dark page renders heavier than the same
+text on a light page; greyscale smoothing evens out the two themes, and every page in this catalogue
+uses it.
+
+```html
+<body class="bg-background text-foreground antialiased"></body>
+```

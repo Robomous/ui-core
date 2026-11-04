@@ -1,0 +1,118 @@
+---
+title: ShowMore
+description: A long region shown in part, faded at its fold, with one control on a hairline to reveal the rest.
+related: [collapsible, accordion, scroll-area]
+builtOn:
+  - name: native HTML
+    docsUrl: https://developer.mozilla.org/docs/Web/HTML/Element/button
+---
+
+import Default from "@/demos/show-more/default";
+import List from "@/demos/show-more/list";
+import Overview from "@/demos/show-more/overview";
+import Tags from "@/demos/show-more/tags";
+import Trace from "@/demos/show-more/trace";
+
+<Preview demo="show-more/overview" hero>
+  <Overview client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { ShowMore, ShowMoreContent, ShowMoreTrigger } from "@robomous/ui-core";
+
+export function ReleaseNotes({ notes }: { notes: React.ReactNode }) {
+  return (
+    <ShowMore>
+      <ShowMoreContent collapsedHeight="6rem">{notes}</ShowMoreContent>
+      <ShowMoreTrigger />
+    </ShowMore>
+  );
+}
+```
+
+<Callout title="Clipped, not removed">
+  Collapsed content stays in the document, so find-in-page and screen readers still reach it. If
+  hiding it must also keep it out of reach, this is the wrong component; use `Collapsible`, which
+  unmounts the region while it is closed.
+</Callout>
+
+## Composition
+
+```text
+ShowMore
+├─ ShowMoreContent   collapsedHeight
+└─ ShowMoreTrigger   moreLabel / lessLabel
+```
+
+## Examples
+
+### Prose
+
+The common case. `ShowMoreContent` stops at `collapsedHeight` (default `8rem`) and fades over its
+last lines, which tells the reader the text continues without a word. Pick a height that shows a
+complete first thought, not a sentence cut in the middle.
+
+<Preview demo="show-more/default">
+  <Default client:load />
+</Preview>
+
+### Chips
+
+`collapsedHeight` is any CSS length, so it can fit a row count rather than a text length: two rows
+of chips here. Put the hidden count in `moreLabel` when you know it, because "Show 8 more classes"
+promises exactly what the click will do.
+
+<Preview demo="show-more/tags">
+  <Tags client:load />
+</Preview>
+
+### Code and traces
+
+Monospace output clips the same way. Name what is behind the fold in the labels, such as "Show
+full trace", so the trigger reads as an action and not a toggle.
+
+<Preview demo="show-more/trace">
+  <Trace client:load />
+</Preview>
+
+### A list
+
+For a list, control `open` and slice the data yourself instead of using `ShowMoreContent`: the
+trigger takes its own labels and reports changes through `onOpenChange`. Slicing means the
+hidden rows are not rendered, which is the right trade for long or costly lists.
+
+<Preview demo="show-more/list">
+  <List client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Use it for content the reader may want but does not need first: notes, descriptions, activity.",
+    "Say how much is hidden when you know it: `Show 3 more`.",
+    "Choose a `collapsedHeight` that ends on a whole line or row.",
+    "Slice the data yourself for a long list, rather than clipping thousands of rows.",
+  ]}
+  dont={[
+    "Don't hide what a reader needs to act; show it in full.",
+    "Don't use it for separate, titled sections; that is `Accordion`.",
+    "Don't set `collapsedHeight` larger than the content; the trigger would do nothing.",
+    "Don't use it for a scrollable panel; give that region a height and use `ScrollArea`.",
+  ]}
+/>
+
+## Accessibility
+
+The trigger is a `button` with `aria-expanded` and `aria-controls` pointing at the content, so
+assistive tech announces both its state and what it reveals. The content is never hidden from the
+accessibility tree.
+
+<Keyboard
+  keys={[
+    ["Enter / Space", "Expands or collapses the region."],
+    ["Tab", "Moves focus to the trigger."],
+  ]}
+/>

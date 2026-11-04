@@ -1,37 +1,70 @@
-import { Button } from "@robomous/ui-core";
-import { MoonIcon, SunIcon } from "@robomous/ui-core/icons";
+import { MonitorIcon, MoonIcon, SunIcon } from "@robomous/ui-core/icons";
 import { useEffect, useState } from "react";
 
+type Theme = "system" | "light" | "dark";
+
+declare global {
+  interface Window {
+    /** Defined by the inline script in Base.astro, before any island runs. */
+    setTheme: (dark: boolean) => void;
+  }
+}
+
+const OPTIONS: { value: Theme; label: string; Icon: typeof SunIcon }[] = [
+  { value: "system", label: "System theme", Icon: MonitorIcon },
+  { value: "light", label: "Light theme", Icon: SunIcon },
+  { value: "dark", label: "Dark theme", Icon: MoonIcon },
+];
+
 /**
- * Flips the `dark` class on <html>, the theme's one source, and remembers the
- * choice for the inline script in Base.astro to replay before the next paint.
+ * Three positions on one control: follow the system, or pin light or dark.
+ * The `dark` class on <html> stays the theme's one source; the stored choice
+ * is what the inline script in Base.astro replays before the next paint, and
+ * "system" is the absence of a stored choice.
  */
 export default function ThemeToggle() {
-  const [dark, setDark] = useState(false);
+  const [theme, setTheme] = useState<Theme>("system");
   useEffect(() => {
-    setDark(document.documentElement.classList.contains("dark"));
+    try {
+      const stored = localStorage.getItem("theme");
+      if (stored === "light" || stored === "dark") setTheme(stored);
+    } catch {
+      // Storage may be unavailable; "system" is then the only position.
+    }
   }, []);
 
-  function toggle() {
-    const next = !dark;
-    document.documentElement.classList.toggle("dark", next);
+  function choose(next: Theme) {
+    const dark =
+      next === "dark" || (next === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+    window.setTheme(dark);
     try {
-      localStorage.setItem("theme", next ? "dark" : "light");
+      if (next === "system") localStorage.removeItem("theme");
+      else localStorage.setItem("theme", next);
     } catch {
-      // Storage may be unavailable; the class still applied for this page.
+      // The class still applied for this page.
     }
-    setDark(next);
+    setTheme(next);
   }
 
   return (
-    <Button
-      variant="ghost"
-      size="icon-sm"
-      aria-pressed={dark}
-      aria-label="Dark theme"
-      onClick={toggle}
+    <div
+      role="radiogroup"
+      aria-label="Theme"
+      className="inline-flex items-center rounded-full border p-0.5"
     >
-      {dark ? <SunIcon /> : <MoonIcon />}
-    </Button>
+      {OPTIONS.map(({ value, label, Icon }) => (
+        <button
+          key={value}
+          type="button"
+          role="radio"
+          aria-checked={theme === value}
+          aria-label={label}
+          onClick={() => choose(value)}
+          className="inline-flex size-7 items-center justify-center rounded-full text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/30 aria-checked:bg-muted aria-checked:text-foreground"
+        >
+          <Icon className="size-3.5" />
+        </button>
+      ))}
+    </div>
   );
 }

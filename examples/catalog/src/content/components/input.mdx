@@ -1,6 +1,7 @@
 ---
 title: Input
-description: A native text input. `aria-invalid` reads as the invalid state, never a class of its own.
+description: A native text input, 28px tall, with a focus ring on keyboard focus only. `aria-invalid` reads as the invalid state, never a class of its own.
+related: [textarea, input-group, search-input, field]
 builtOn:
   - name: native HTML
     docsUrl: https://developer.mozilla.org/docs/Web/HTML/Element/input
@@ -8,24 +9,35 @@ builtOn:
 
 import Default from "@/demos/input/default";
 import Disabled from "@/demos/input/disabled";
+import File from "@/demos/input/file";
 import Invalid from "@/demos/input/invalid";
+import Overview from "@/demos/input/overview";
+import ReadOnly from "@/demos/input/read-only";
+import Types from "@/demos/input/types";
 
-<Preview demo="input/default">
-  <Default client:load />
+<Preview demo="input/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
-import { Input } from "@robomous/ui-core";
+import { Field, FieldLabel, Input } from "@robomous/ui-core";
+
+export function DatasetName() {
+  return (
+    <Field>
+      <FieldLabel htmlFor="dataset-name">Dataset name</FieldLabel>
+      <Input id="dataset-name" placeholder="retail-shelves-q3" />
+    </Field>
+  );
+}
 ```
 
-```tsx
-<Input placeholder="warehouse-cameras" aria-label="Project name" />
-```
-
-A bare `Input` needs its own `aria-label`; pair it with `Field`/`FieldLabel` instead when there is
-a visible label and, often, a description to attach through `aria-describedby`.
+<Callout title="A bare Input has no name" tone="warning">
+  Pair it with a visible `FieldLabel` or `Label` through `htmlFor` and `id`. If a visible label
+  really doesn't fit, give the input an `aria-label`.
+</Callout>
 
 ## Composition
 
@@ -33,20 +45,93 @@ a visible label and, often, a description to attach through `aria-describedby`.
 Input
 ```
 
-## Disabled
+## Examples
 
-Disabled keeps the arrow cursor and drops the opacity: nothing will respond to focus or a
-keystroke.
+### Label and description
+
+A visible label names the field; a description says the rule before the reader breaks it. Tie the
+description to the input with `aria-describedby` so a screen reader reads it on focus.
+
+<Preview demo="input/default">
+  <Default client:load />
+</Preview>
+
+### Types
+
+`Input` passes `type` straight to the native element, so the browser supplies the right mobile
+keyboard, autofill and basic validation; each field below names its type underneath. Pair
+`type="number"` with `tabular-nums` so digits don't shift as they change.
+
+<Preview demo="input/types">
+  <Types client:load />
+</Preview>
+
+### File
+
+`type="file"` keeps the native picker. The component restyles the file button so it sits in the
+same box as every other field. The accepted formats go in `accept` and the description, and the
+chosen file is read back from `onChange`, here as its size.
+
+<Preview demo="input/file">
+  <File client:load />
+</Preview>
+
+### Read only
+
+Use `readOnly` for a value the reader should copy but not edit. Unlike `disabled`, it stays in the
+tab order and its text can be selected, and it is still submitted with the form.
+
+<Preview demo="input/read-only">
+  <ReadOnly client:load />
+</Preview>
+
+### Invalid
+
+`aria-invalid` is the only thing that switches on the destructive border and ring, so the
+stylesheet and a screen reader agree. Set it with the error, tie the message back with
+`aria-describedby`, and clear all of it as soon as the value is fine. The action that would send
+the bad value stays disabled until then.
+
+<Preview demo="input/invalid">
+  <Invalid client:load />
+</Preview>
+
+### Disabled
+
+Disabled keeps the arrow cursor and drops to half opacity: nothing will respond to focus or a
+keystroke, and the control leaves the tab order. Say why nearby when the reason isn't obvious, and
+note how the editable field above it keeps its full contrast.
 
 <Preview demo="input/disabled">
   <Disabled client:load />
 </Preview>
 
-## Invalid
+## Guidelines
 
-`aria-invalid` styles the invalid state directly, so a screen reader and the stylesheet agree on
-the same attribute.
+<Guidelines
+  do={[
+    "Choose the native `type` that matches the data: `email`, `url`, `number`.",
+    "Set `autoComplete` so the browser can fill known fields, and `off` for IDs and names.",
+    "Show the format rule in a description before the reader gets it wrong.",
+    "Use a monospace class for IDs, URLs and paths that people compare character by character.",
+  ]}
+  dont={[
+    "Don't use a placeholder as the label; it vanishes while typing.",
+    "Don't validate on every keystroke before the reader has finished the first attempt.",
+    "Don't use `disabled` for a value to copy; use `readOnly`.",
+    "Don't turn an Input into a multi-line field; use `Textarea`.",
+  ]}
+/>
 
-<Preview demo="input/invalid">
-  <Invalid client:load />
-</Preview>
+## Accessibility
+
+A native `<input>`, so the role, value, focus and form behaviour all come from the platform. The
+focus ring is drawn on `:focus-visible`, and `aria-invalid` is what both the invalid style and
+assistive technology read.
+
+<Keyboard
+  keys={[
+    ["Tab", "Moves focus into the input; a `disabled` input is skipped."],
+    ["Shift+Tab", "Moves focus to the previous control."],
+  ]}
+/>

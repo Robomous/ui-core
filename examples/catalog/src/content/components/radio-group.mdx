@@ -1,63 +1,142 @@
 ---
 title: RadioGroup
 description: One tab stop for the whole group. The arrow keys move the selection, not just focus, and `aria-invalid` styles the invalid state.
+related: [checkbox, select, switch, toggle-group]
 builtOn:
   - name: Radix RadioGroup
     docsUrl: https://www.radix-ui.com/primitives/docs/components/radio-group
     apiUrl: https://www.radix-ui.com/primitives/docs/components/radio-group#api-reference
 ---
 
+import Cards from "@/demos/radio-group/cards";
 import Default from "@/demos/radio-group/default";
 import Disabled from "@/demos/radio-group/disabled";
+import Inline from "@/demos/radio-group/inline";
 import Invalid from "@/demos/radio-group/invalid";
+import Overview from "@/demos/radio-group/overview";
 
-<Preview demo="radio-group/default">
-  <Default client:load />
+<Preview demo="radio-group/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import { Label, RadioGroup, RadioGroupItem } from "@robomous/ui-core";
+import { useState } from "react";
+
+export function ExportFormat() {
+  const [format, setFormat] = useState("coco");
+
+  return (
+    <RadioGroup value={format} onValueChange={setFormat} aria-label="Export format">
+      <div className="flex items-center gap-2">
+        <RadioGroupItem value="coco" id="format-coco" />
+        <Label htmlFor="format-coco">COCO</Label>
+      </div>
+      <div className="flex items-center gap-2">
+        <RadioGroupItem value="yolo" id="format-yolo" />
+        <Label htmlFor="format-yolo">YOLO</Label>
+      </div>
+    </RadioGroup>
+  );
+}
 ```
 
-```tsx
-<RadioGroup defaultValue="internal" aria-label="Visibility">
-  <div className="flex items-center gap-2">
-    <RadioGroupItem value="draft" id="visibility-draft" />
-    <Label htmlFor="visibility-draft">Draft</Label>
-  </div>
-  <div className="flex items-center gap-2">
-    <RadioGroupItem value="internal" id="visibility-internal" />
-    <Label htmlFor="visibility-internal">Internal</Label>
-  </div>
-</RadioGroup>
-```
-
-`RadioGroupItem` renders the input; it carries no text of its own, so pair each one with a `Label`
-through `htmlFor` rather than relying on adjacency.
+<Callout title="The item has no text" tone="note">
+  `RadioGroupItem` is only the circle. Pair each one with a `Label` through `htmlFor` and `id`, and
+  name the group itself with `aria-label` or a `FieldLegend`. The group is a grid with a gap, so
+  change its layout through `className`.
+</Callout>
 
 ## Composition
 
 ```text
-RadioGroup
-└─ RadioGroupItem
+RadioGroup                 role="radiogroup", one tab stop
+└─ RadioGroupItem          value, id, disabled, aria-invalid
 ```
 
-## Disabled
+## Examples
 
-A single disabled option inside an otherwise enabled group. Its `Label` dims with it, because the
-item's own class carries `peer` for exactly that pairing.
+### Options with descriptions
+
+When an option needs a sentence of explanation, wrap each in a horizontal `Field`, and put the
+label and description in a `FieldContent` beside the item. A `FieldSet` and `FieldLegend` name the
+whole question, and `aria-describedby` ties each description to its item.
+
+<Preview demo="radio-group/default">
+  <Default client:load />
+</Preview>
+
+### Selectable cards
+
+A `FieldLabel` wrapped around a whole `Field` turns the option into a card: it takes a border,
+a hover state, a focus ring and a tint when it is checked. Use it for a few big, weighty choices,
+like where the model runs, not for a long list. A `Badge` in the title can mark the default.
+
+<Preview demo="radio-group/cards">
+  <Cards client:load />
+</Preview>
+
+### In a row
+
+The group is a `grid`; add `flex` and a gap through `className` to lay a short list of options out
+in a row. Good for a few values on one scale, like a frame rate or a resolution. Keep the value
+controlled when the page reacts to it, as the storage estimate does here.
+
+<Preview demo="radio-group/inline">
+  <Inline client:load />
+</Preview>
+
+### Disabled option
+
+A single disabled option inside an otherwise enabled group, here a target the plan doesn't include.
+Its `Label` dims with it, because the item carries `peer` for exactly that pairing. Say why it is
+unavailable in the label. `disabled` on the `RadioGroup` itself locks every option, as on the
+right.
 
 <Preview demo="radio-group/disabled">
   <Disabled client:load />
 </Preview>
 
-## Invalid
+### Invalid
 
-`aria-invalid` on an item styles its ring as destructive without hiding which option is currently
-selected — the checked state still reads through.
+`aria-invalid` on an item rings it in the destructive colour without hiding which option is
+selected. Here the selected role is the one the form rejects, and the `FieldError` underneath says
+why; the group points at it with `aria-describedby`.
 
 <Preview demo="radio-group/invalid">
   <Invalid client:load />
 </Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Preselect the safest or most common option, so the group is never empty.",
+    "Use radios when the reader must pick exactly one and should see all options at once.",
+    "Name the group with a `FieldLegend` or `aria-label`, not only the items.",
+    "Keep the option labels parallel: all verbs, or all nouns.",
+  ]}
+  dont={[
+    "Don't use radios for an on/off setting; that is a `Switch`.",
+    "Don't use them for more than about six options; use a `Select`.",
+    "Don't let the reader pick several; that is a set of `Checkbox`es.",
+    "Don't leave an item without a label.",
+  ]}
+/>
+
+## Accessibility
+
+Radix gives the group `role="radiogroup"` and each item `role="radio"` with `aria-checked`, and
+keeps a single tab stop: the checked item, or the first one if none is checked. Selection follows
+focus, so arrowing through the options changes the value.
+
+<Keyboard
+  keys={[
+    ["Tab / Shift+Tab", "Moves focus into and out of the group, to the checked item."],
+    ["Arrow Down / Arrow Right", "Moves focus to the next item and selects it; wraps at the end."],
+    ["Arrow Up / Arrow Left", "Moves focus to the previous item and selects it; wraps at the start."],
+    ["Space", "Selects the focused item if it is not already checked."],
+  ]}
+/>

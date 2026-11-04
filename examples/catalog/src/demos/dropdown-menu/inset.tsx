@@ -7,32 +7,35 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@robomous/ui-core";
-import { ChevronDownIcon, CopyIcon, PencilIcon } from "@robomous/ui-core/icons";
+import { ChevronDownIcon, HouseIcon, PauseIcon } from "@robomous/ui-core/icons";
 
-/** `inset` lines a label's or an item's leading edge up with the icons in the rows around it. */
+/** `inset` pads a row to the icon column, so plain rows line up with the iconed ones above. */
 export default function Inset() {
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline">
-          Batch actions
-          <ChevronDownIcon data-icon="inline-end" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-48" align="start">
-        <DropdownMenuLabel inset>batch-0042</DropdownMenuLabel>
-        <DropdownMenuItem>
-          <PencilIcon />
-          Rename
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          <CopyIcon />
-          Duplicate
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem inset>View audit log</DropdownMenuItem>
-        <DropdownMenuItem inset>Copy batch ID</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="flex w-full max-w-sm items-center gap-3 rounded-lg border p-2 pl-3">
+      <span className="text-muted-foreground">Controlling</span>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" className="flex-1 justify-between">
+            rb-07 "Atlas"
+            <ChevronDownIcon data-icon="inline-end" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-52" align="end">
+          <DropdownMenuLabel inset>Mission controls</DropdownMenuLabel>
+          <DropdownMenuItem>
+            <PauseIcon />
+            Pause mission
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <HouseIcon />
+            Return to dock
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem inset>View telemetry</DropdownMenuItem>
+          <DropdownMenuItem inset>Copy robot ID</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 }

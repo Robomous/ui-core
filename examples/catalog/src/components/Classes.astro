@@ -1,0 +1,21 @@
+---
+/**
+ * A class string in a reference table. It wraps only between classes, never
+ * at the hyphen inside one, and the chip hugs its text instead of filling the
+ * column.
+ */
+interface Props {
+  value: string;
+}
+
+const classes = Astro.props.value.split(" ");
+---
+
+<code class="justify-self-start font-mono text-xs text-muted-foreground">
+  {classes.map((name, index) => (
+    <>
+      {index > 0 && " "}
+      <span class="whitespace-nowrap">{name}</span>
+    </>
+  ))}
+</code>

@@ -1,6 +1,7 @@
 ---
 title: Button
-description: The action element. Six variants with one intent each, eight sizes from xs to icon-lg, and `type="button"` unless asked otherwise.
+description: The action element. Six variants with one intent each, eight sizes from `xs` to `icon-lg`, and `type="button"` unless asked otherwise.
+related: [button-group, split-button, toggle]
 builtOn:
   - name: Radix Slot
     docsUrl: https://www.radix-ui.com/primitives/docs/utilities/slot
@@ -10,83 +11,138 @@ builtOn:
 import AsChild from "@/demos/button/as-child";
 import Disabled from "@/demos/button/disabled";
 import Icon from "@/demos/button/icon";
+import Loading from "@/demos/button/loading";
+import Overview from "@/demos/button/overview";
 import Sizes from "@/demos/button/sizes";
 import Variants from "@/demos/button/variants";
 import WithIcon from "@/demos/button/with-icon";
 
-<Preview demo="button/variants">
-  <Variants client:load />
+<Preview demo="button/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import { Button } from "@robomous/ui-core";
+
+export function SaveBar() {
+  return (
+    <div className="flex gap-2">
+      <Button variant="outline">Cancel</Button>
+      <Button type="submit">Save changes</Button>
+    </div>
+  );
+}
 ```
 
-```tsx
-<Button>Save changes</Button>
-<Button variant="outline">Cancel</Button>
-<Button variant="destructive" size="sm">
-  Delete
-</Button>
-```
-
-A plain `Button` never submits a form: it renders `type="button"` unless you pass `type="submit"`.
+<Callout title="It never submits by accident">
+  A plain `Button` renders `type="button"`, so dropping one inside a `<form>` does not submit it.
+  Pass `type="submit"` on the one button that should.
+</Callout>
 
 ## Composition
 
 ```text
 Button
-└─ <PlusIcon data-icon="inline-start" />
+└─ <Icon data-icon="inline-start" | "inline-end" />   optional
 ```
 
-## Variants
+## Examples
 
-Six variants, one intent each. `default` is the page's single primary action; `destructive` is
-the only one wearing a status colour, because it ends something. There is no `success` button.
+### Variants
+
+Six variants, one intent each. `default` is the page's single primary action; `outline` and
+`secondary` sit beside it; `ghost` is for toolbars and dense rows; `link` is navigation that
+reads as text. `destructive` is the only one wearing a status colour, because it ends something —
+there is no `success` button.
 
 <Preview demo="button/variants">
   <Variants client:load />
 </Preview>
 
-## Sizes
+### Sizes
 
-Four heights on one baseline. The small sizes step down the radius scale with them.
+Four text heights on one baseline. `default` fits a form, `sm` a toolbar or table row, `xs` an
+inline chip of actions, `lg` a page's lone call to action. The small sizes step down the radius
+scale with them, so corners stay proportional.
 
 <Preview demo="button/sizes">
   <Sizes client:load />
 </Preview>
 
-## Icon
+### Icon only
 
-Square sizes for a bare icon. The label moves to `aria-label`.
+Square sizes for a bare icon: `icon-xs`, `icon-sm`, `icon` and `icon-lg`, each matching the
+height of its text sibling. With no visible text, the name moves to `aria-label`.
 
 <Preview demo="button/icon">
   <Icon client:load />
 </Preview>
 
-## With an icon
+### With an icon
 
 An icon reads as part of the label. `data-icon="inline-start"` or `"inline-end"` tells the button
-which side to pad.
+which side to pad, so the optical spacing stays even on both sides of the text.
 
 <Preview demo="button/with-icon">
   <WithIcon client:load />
 </Preview>
 
-## As a link
+### Loading
 
-`asChild` hands the classes to the child element, so a link looks like a button and stays a link.
+While a request runs, disable the button, say what is happening in the label, and put a `Spinner`
+in the icon slot. The button keeps its width close to the original, so the row around it doesn't
+jump.
+
+<Preview demo="button/loading">
+  <Loading client:load />
+</Preview>
+
+### As a link
+
+`asChild` hands the classes to the child element, so a link looks like a button and stays a link:
+it can open in a new tab, shows its URL on hover and is announced as a link. Add an external-link
+icon when it leaves the app.
 
 <Preview demo="button/as-child">
   <AsChild client:load />
 </Preview>
 
-## Disabled
+### Disabled
 
-Disabled keeps the arrow cursor: nothing will respond to a press.
+Disabled keeps the arrow cursor and drops to half opacity: nothing will respond to a press. Prefer
+explaining why an action is unavailable nearby over disabling it silently.
 
 <Preview demo="button/disabled">
   <Disabled client:load />
 </Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Keep one `default` button per view; it is the answer to \"what do I do here?\"",
+    "Label with a verb and its object: \"Deploy model\", not \"OK\".",
+    "Use `asChild` with an `<a>` when the action navigates.",
+    "Put the primary action last in a row, where the reader's eye finishes.",
+  ]}
+  dont={[
+    "Don't line up several `default` buttons; they cancel each other out.",
+    "Don't use `destructive` for emphasis. It means the action ends or removes something.",
+    "Don't use an `onClick` that changes the URL; that is a link.",
+    "Don't leave an icon-only button without an `aria-label`.",
+  ]}
+/>
+
+## Accessibility
+
+A native `<button>` underneath, so focus, activation and the disabled state come from the
+platform. The focus ring is drawn on `:focus-visible` only, never on a mouse press.
+
+<Keyboard
+  keys={[
+    ["Enter / Space", "Activates the button."],
+    ["Tab", "Moves focus to the next control; a `disabled` button is skipped."],
+  ]}
+/>

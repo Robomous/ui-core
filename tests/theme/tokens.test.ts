@@ -222,7 +222,7 @@ describe("@theme", () => {
   });
 
   it("declares the three font variables", () => {
-    expect(inline.get("--font-sans")).toBe("'Geist Variable', sans-serif");
+    expect(inline.get("--font-sans")).toBe("'Inter Variable', sans-serif");
     expect(inline.get("--font-heading")).toBe("var(--font-sans)");
     expect(inline.get("--font-mono")).toBe("'Geist Mono Variable', monospace");
   });

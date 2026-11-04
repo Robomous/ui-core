@@ -1,6 +1,7 @@
 ---
 title: Sidebar
-description: The application shell's navigable panel. `side`, `variant` and `collapsible` shape it, `⌘/Ctrl+B` and a cookie remember whether it is open, and it becomes a Sheet below 768px.
+description: The application shell's navigable panel. `side`, `variant` and `collapsible` shape it, `⌘/Ctrl+B` toggles it, and it becomes a Sheet below 768px.
+related: [sheet, tabs, breadcrumb, collapsible]
 builtOn:
   - name: Radix Slot
     docsUrl: https://www.radix-ui.com/primitives/docs/utilities/slot
@@ -11,36 +12,79 @@ builtOn:
 ---
 
 import Anatomy from "@/demos/sidebar/anatomy";
-import Sizes from "@/demos/sidebar/sizes";
-import Outline from "@/demos/sidebar/outline";
-import Loading from "@/demos/sidebar/loading";
 import Collapsing from "@/demos/sidebar/collapsing";
 import Floating from "@/demos/sidebar/floating";
+import Inset from "@/demos/sidebar/inset";
+import Loading from "@/demos/sidebar/loading";
+import Outline from "@/demos/sidebar/outline";
+import Overview from "@/demos/sidebar/overview";
+import Sizes from "@/demos/sidebar/sizes";
 
-<Preview demo="sidebar/anatomy">
-  <Anatomy client:load />
+<Preview demo="sidebar/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
-import { Sidebar, SidebarContent, SidebarInset, SidebarProvider, SidebarTrigger } from "@robomous/ui-core";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@robomous/ui-core";
+import { DatabaseIcon } from "@robomous/ui-core/icons";
+
+export function AppShell({ children }: { children: React.ReactNode }) {
+  return (
+    <SidebarProvider>
+      <Sidebar>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Platform</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton isActive>
+                    <DatabaseIcon />
+                    <span>Datasets</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>
+      <SidebarInset>
+        <SidebarTrigger />
+        {children}
+      </SidebarInset>
+    </SidebarProvider>
+  );
+}
 ```
 
-```tsx
-<SidebarProvider>
-  <Sidebar>
-    <SidebarContent>{/* groups and menus */}</SidebarContent>
-  </Sidebar>
-  <SidebarInset>
-    <SidebarTrigger />
-    {/* page content */}
-  </SidebarInset>
-</SidebarProvider>
-```
+<Callout title="The panel is fixed to the viewport">
+  `collapsible="offcanvas"` and `"icon"` render the panel `position: fixed`, which is right for a
+  real app shell. The demos on this page sit inside a card instead, so each wraps its shell in a
+  box with `contain-layout` (a new containing block for the fixed panel) and gives `Sidebar`
+  `className="h-full"`. In your app, leave both off.
+</Callout>
 
-`useSidebar` throws outside a `SidebarProvider`, so every composition starts there; the provider is
-also what the `⌘/Ctrl+B` shortcut and the `sidebar_state` cookie attach to.
+<Callout title="It remembers where the reader left it">
+  Uncontrolled and without `defaultOpen`, `SidebarProvider` restores the last state from the
+  `sidebar_state` cookie before the first paint, and writes it on every toggle. A server that reads
+  the cookie can pass `defaultOpen` itself so the first HTML already matches. `persist={false}`
+  turns both off; the secondary demos on this page use it, along with `keyboardShortcut={false}`,
+  so they don't share one state and one shortcut.
+</Callout>
 
 ## Composition
 
@@ -66,66 +110,109 @@ SidebarProvider
 └─ SidebarInset
 ```
 
-`collapsible="offcanvas"` and `collapsible="icon"` render the panel `position: fixed`, which is
-right for a real app shell but not for a card sitting in a document's flow. The Anatomy, Sizes,
-Outline and Loading demos below sidestep that with `collapsible="none"` and a fixed-height wrapper;
-Collapsing and Floating, where the fixed behaviour is the point, instead wrap the demo in a box with
-`contain-layout`, which gives the panel a containing block other than the browser viewport so it
-stays inside the card.
+## Examples
 
-## Anatomy
+### Groups, actions and sub-menus
 
-A header input, a labelled group with its own group action, an active item wearing a badge, a
-second item with a hover-revealed `SidebarMenuAction` and a `SidebarMenuSub`, and a footer row.
-Every part reads its state off the same `data-*` attributes the `Sidebar` itself sets.
+The parts a full navigation tree uses: a search input in the header, a labelled group with its
+own `SidebarGroupAction`, an active item wearing a `SidebarMenuBadge`, an item with a
+hover-revealed `SidebarMenuAction` and a `SidebarMenuSub`, and a footer row. This one uses
+`collapsible="none"`, a fixed panel that never moves, so it can sit in the flow of a document.
 
 <Preview demo="sidebar/anatomy">
   <Anatomy client:load />
 </Preview>
 
-## Sizes
+### Collapsing to icons
 
-Three heights for `SidebarMenuButton` on the same baseline: `sm`, `default`, `lg`.
-
-<Preview demo="sidebar/sizes">
-  <Sizes client:load />
-</Preview>
-
-## Outline
-
-`variant="outline"` rings a menu button with `--sidebar-border` instead of filling it on hover,
-for an item that should read as a control rather than a destination.
-
-<Preview demo="sidebar/outline">
-  <Outline client:load />
-</Preview>
-
-## Loading
-
-`SidebarMenuSkeleton` stands in for a row before its label is known; `showIcon` reserves the space
-the icon will take once it lands.
-
-<Preview demo="sidebar/loading">
-  <Loading client:load />
-</Preview>
-
-## Collapsing
-
-`collapsible="icon"` shrinks the panel to `--sidebar-width-icon` and keeps only the icons;
-`collapsible="offcanvas"`, the default, hides it outright instead. `⌘/Ctrl+B`, the `SidebarTrigger`
-button and `SidebarRail` all call the same `toggleSidebar`, and the choice persists in the
-`sidebar_state` cookie so a reload keeps it. `SidebarInset` is the `<main>` that only picks up a
-border and margin once `variant="inset"`.
+`collapsible="icon"` shrinks the panel to `--sidebar-width-icon` and keeps only the icons; the
+default, `"offcanvas"`, hides it entirely. The `SidebarTrigger`, the `SidebarRail` along the edge
+and `⌘/Ctrl+B` all call the same `toggleSidebar`. Pass `open` and `onOpenChange` to own the state,
+and `tooltip` on each button to name it while collapsed; the provider already supplies the tooltip
+context, so there is nothing to wrap.
 
 <Preview demo="sidebar/collapsing">
   <Collapsing client:load />
 </Preview>
 
-## Floating
+### Inset
+
+`variant="inset"` paints the sidebar's own surface behind the page and turns `SidebarInset` into
+a rounded card on top of it, with a margin around it. Reach for it when the shell should feel like
+a frame around the work instead of a column beside it.
+
+<Preview demo="sidebar/inset">
+  <Inset client:load />
+</Preview>
+
+### Floating
 
 `variant="floating"` lifts the panel off the page's edge into its own ringed, shadowed box instead
-of sharing a border with it; `side="right"` mirrors which edge it docks to.
+of sharing a border with it. `side="right"` mirrors which edge it docks to, which suits an
+inspector beside a canvas rather than primary navigation.
 
 <Preview demo="sidebar/floating">
   <Floating client:load />
 </Preview>
+
+### Menu button sizes
+
+Three heights for `SidebarMenuButton`: `sm` for dense secondary lists, `default` for navigation,
+`lg` for a two-line row such as a workspace switcher or the signed-in user.
+
+<Preview demo="sidebar/sizes">
+  <Sizes client:load />
+</Preview>
+
+### Outline
+
+`variant="outline"` rings a menu button with `--sidebar-border` instead of leaving it flat until
+hover, for an item that should read as a control rather than a destination: a data source, a
+switcher. The top group shows the flat default for comparison.
+
+<Preview demo="sidebar/outline">
+  <Outline client:load />
+</Preview>
+
+### Loading
+
+`SidebarMenuSkeleton` stands in for a row before its label is known; `showIcon` reserves the space
+the icon will take once it lands. Each skeleton picks its own width between 50% and 90%, so the
+placeholder doesn't read as a table.
+
+<Preview demo="sidebar/loading">
+  <Loading client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Group related destinations under a `SidebarGroupLabel` and mark the current page with `isActive`.",
+    "Use `collapsible=\"icon\"` for shells people live in, and give every button a `tooltip`.",
+    "Wrap an icon-only action in `sr-only` text so its name is announced.",
+    "Put the signed-in user and workspace switcher in `SidebarHeader` and `SidebarFooter`.",
+  ]}
+  dont={[
+    "Don't nest more than one `SidebarMenuSub` level; deeper trees belong on a page.",
+    "Don't let two sidebars on one page both answer ⌘/Ctrl+B; pass `keyboardShortcut={false}` to all but one.",
+    "Don't use a sidebar for in-page tabs or a table of contents; it navigates the whole app.",
+    "Don't put page content in the panel; it is for navigation and context only.",
+  ]}
+/>
+
+## Accessibility
+
+Navigation links belong in a list: `SidebarMenu` renders a `ul` and each `SidebarMenuItem` an `li`,
+and `isActive` sets `data-active` for styling, so also pass `aria-current="page"` on the link that
+is current. Below 768px the panel becomes a modal `Sheet`, with a visually hidden title, focus
+trapping and Escape to close. `SidebarTrigger` carries an `sr-only` "Toggle Sidebar" label.
+
+<Keyboard
+  keys={[
+    ["⌘+B / Ctrl+B", "Toggles the sidebar from anywhere on the page. `keyboardShortcut` picks another key, or `false` for none."],
+    ["Tab / Shift+Tab", "Moves through the menu buttons and links in order."],
+    ["Enter / Space", "Activates the focused button or trigger."],
+    ["Esc", "Closes the mobile sheet."],
+  ]}
+/>

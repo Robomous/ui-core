@@ -1,0 +1,40 @@
+---
+import Classes from "@/components/Classes.astro";
+import SpecTable from "@/components/SpecTable.astro";
+
+// Every step derives from `--radius: 0.625rem` in `@theme inline`; the pixel
+// values are what that resolves to at the default root size.
+const ROWS = [
+  {
+    classes: "rounded-xs",
+    size: "2px",
+    usage: "Kbd, a Tooltip's chip. Tailwind's own, below the derived scale.",
+  },
+  { classes: "rounded-sm", size: "6px", usage: "The xs Button, an Item, the smallest Attachment." },
+  { classes: "rounded-md", size: "8px", usage: "Button, Input, Select, a menu item, a Toggle." },
+  { classes: "rounded-lg", size: "10px", usage: "Card, Alert, Popover, a menu, a Select list." },
+  { classes: "rounded-xl", size: "14px", usage: "Dialog, Drawer, Command, Empty." },
+  { classes: "rounded-2xl", size: "18px", usage: "Open for a product's larger surfaces." },
+  { classes: "rounded-full", size: "∞", usage: "Badge, Avatar, Switch, the theme control." },
+] as const;
+---
+
+<!-- Each sample is one corner drawn in ink, so the curve reads at a glance
+     instead of a pale tile whose corners have to be hunted for. -->
+<SpecTable>
+  {ROWS.map((row) => (
+    <div class="spec-row">
+      <span class="flex items-center gap-4">
+        <span
+          class:list={[
+            "size-14 shrink-0 border-t-2 border-l-2 border-foreground/70 bg-foreground/5",
+            row.classes,
+          ]}
+        ></span>
+        <span class="font-mono text-xs text-muted-foreground tabular-nums">{row.size}</span>
+      </span>
+      <Classes value={row.classes} />
+      <span class="text-pretty text-muted-foreground">{row.usage}</span>
+    </div>
+  ))}
+</SpecTable>

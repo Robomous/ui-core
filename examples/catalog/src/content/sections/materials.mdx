@@ -1,0 +1,75 @@
+---
+title: Materials
+description: Presets for radius, fill, stroke and shadow. What a surface is made of, on the page and above it.
+group: Foundations
+order: 5
+---
+
+import MaterialRows from "@/components/MaterialRows.astro";
+import RadiusRows from "@/components/RadiusRows.astro";
+
+## Surface
+
+A surface on the page stays in place. A raised surface gets `ring-1 ring-foreground/10`, never a
+coloured border: the ring reads as a hairline in light mode and as a faint glint in dark mode,
+with no second token. Each sample sits on what it would sit on in a product, so even a surface the
+colour of the page still shows its edges.
+
+<MaterialRows set="surface" />
+
+## Floating
+
+A floating surface sits above the page. Anything that opens and closes paints on `popover`, so it
+switches between light and dark on its own. The more modal it is, the more lift it gets. A Tooltip
+has no shadow at all; a Dialog gets the most, a long soft shadow over a light scrim.
+
+<MaterialRows set="floating" />
+
+## Radius
+
+`--radius: 0.625rem` is set in the stylesheet, and every step is derived from it in
+`@theme inline`, from `radius-sm` at ×0.6 to `radius-4xl` at ×2.6. Components take their radius
+from that scale. A surface nested inside another takes the next step down, so the corners stay
+concentric.
+
+The exception is an arbitrary value left in a component. That is geometry, not radius: a one-off
+measurement that doesn't belong to any scale.
+
+<RadiusRows />
+
+## Focus and invalid
+
+Focus and invalid are materials too: a stroke and a ring painted over a control's resting surface.
+Each focusable component draws its own ring, and invalid wears the same geometry in the
+destructive colour. [States](/docs/states) covers what sets each one.
+
+<MaterialRows set="focus" />
+
+## Best practices
+
+### Choosing a material
+
+- Reach for a material instead of hand-rolling a radius, a fill, a stroke and a shadow. The preset
+  already encodes where the surface sits.
+- Pick it by where the element sits: `card` for content in place, `popover` for what floats, the
+  scrim for what is modal.
+- Don't stack two materials on one element. A child that needs more lift becomes a surface of its
+  own.
+
+### Restraint
+
+- Use the lowest elevation that still reads as raised against its background. Too much elevation
+  is the usual source of visual noise.
+- Status is never a stroke on a container. A status `Badge` paints its surface and keeps
+  `border-transparent`; an `Alert` keeps a neutral hairline and puts the status colour on its icon
+  alone.
+- Let the material set the chrome and leave spacing to the layout. Don't override a surface's
+  shadow to make room.
+
+### Accessibility
+
+- A material is decorative. The meaning lives on the element that carries the role, such as
+  `role="dialog"` on a Dialog or `role="tooltip"` on a Tooltip.
+- Elevation never stands in for focus. Every focusable surface also shows the focus-visible ring.
+- Check a material in both themes. Shadows read weaker on a dark page than on a light one, so make
+  sure the separation still shows.

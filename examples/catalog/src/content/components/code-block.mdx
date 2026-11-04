@@ -1,0 +1,153 @@
+---
+title: CodeBlock
+description: Multi-line source to scan or paste. A filename header with a copy button, line numbers, highlighted, added and removed lines, linkable lines and a language switcher.
+related: [snippet, kbd, tabs]
+builtOn:
+  - name: native HTML
+    docsUrl: https://developer.mozilla.org/docs/Web/HTML/Element/pre
+  - name: Radix Select
+    docsUrl: https://www.radix-ui.com/primitives/docs/components/select
+    apiUrl: https://www.radix-ui.com/primitives/docs/components/select#api-reference
+---
+
+import Actions from "@/demos/code-block/actions";
+import AddedRemoved from "@/demos/code-block/added-removed";
+import HighlightedLines from "@/demos/code-block/highlighted-lines";
+import LanguageSwitcher from "@/demos/code-block/language-switcher";
+import LanguageTabs from "@/demos/code-block/language-tabs";
+import NoFilename from "@/demos/code-block/no-filename";
+import Overview from "@/demos/code-block/overview";
+import ReferencedLines from "@/demos/code-block/referenced-lines";
+
+<Preview demo="code-block/overview" hero>
+  <Overview client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { CodeBlock } from "@robomous/ui-core";
+
+const source = `const stream = await client.detections.stream({ site: "monterrey-dc-2" });`;
+
+export function Example() {
+  return <CodeBlock filename="watch-site.ts" language="ts" code={source} />;
+}
+```
+
+<Callout title="The highlighter is small on purpose">
+  `language` only picks the comment syntax (`#` for `py`, `bash`, `yaml`…, `//` otherwise) for a
+  built-in highlighter that colours one line at a time: comments, strings, numbers, keywords, calls
+  and JSX tags. A string that spans lines is coloured on its first line only. For exact
+  highlighting, set `highlight={false}` and return your own markup from `renderLine`.
+</Callout>
+
+## Composition
+
+```text
+CodeBlock
+```
+
+## Examples
+
+### Language switcher
+
+Pass `variants` to put a picker in the header, one entry per language. Each variant carries its own
+`code`, and optionally its own `language` and `filename`, so the header name changes with the
+language. Use it for the same task shown in several SDKs.
+
+<Preview demo="code-block/language-switcher">
+  <LanguageSwitcher client:load />
+</Preview>
+
+### Tabs
+
+`switcher="tabs"` puts the variants in a row above the block, where every option is visible at once.
+Use tabs for two to four short alternatives, like package managers; keep the picker for longer lists.
+
+<Preview demo="code-block/language-tabs">
+  <LanguageTabs client:load />
+</Preview>
+
+### Highlighted lines
+
+`highlightLines` takes 1-based line numbers and marks them with a tinted band and an accent edge.
+Highlight the lines the surrounding text is explaining, and nothing else.
+
+<Preview demo="code-block/highlighted-lines">
+  <HighlightedLines client:load />
+</Preview>
+
+### Added and removed lines
+
+`addedLines` and `removedLines` mark a change with `+` and `-` in the gutter, and a screen reader
+hears "Added" or "Removed" before each line. The copy button drops the removed lines, so a pasted
+change runs without hand-editing.
+
+<Preview demo="code-block/added-removed">
+  <AddedRemoved client:load />
+</Preview>
+
+### Referenced lines
+
+With `referenceable`, every line number becomes a link to `#<id>-L<n>`; the targeted line lights up
+and the URL can be shared. Give the block a stable `id`, or the generated one changes between
+renders. Press a number below.
+
+<Preview demo="code-block/referenced-lines">
+  <ReferencedLines client:load />
+</Preview>
+
+### Without a header
+
+Without `filename` (or `variants`, or `actions`) the header goes and the copy button floats in the
+corner, which suits a short, anonymous example. `showLineNumbers={false}` with `highlight={false}`
+fits plain output, where a gutter and colour would be noise.
+
+<Preview demo="code-block/no-filename">
+  <NoFilename client:load />
+</Preview>
+
+### Header actions
+
+`actions` adds your own controls to the header's trailing edge, ahead of the copy button. Use it
+for one extra verb that belongs to the code, like running a query.
+
+<Preview demo="code-block/actions">
+  <Actions client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Show a `filename` when the code has a destination, like `fleet.config.ts`.",
+    "Highlight only the lines the prose refers to.",
+    "Mark changes with `addedLines` and `removedLines` so the copy stays runnable.",
+    "Use `Snippet` for a single command and `CodeBlock` for anything longer than a command.",
+  ]}
+  dont={[
+    "Don't write `// added` comments to mark changes; they break copy and paste.",
+    "Don't highlight every line; a block that is all highlighted reads like none.",
+    "Don't rely on `language` for exact colouring; it only selects the comment syntax.",
+    "Don't use more than four tabs; switch to the picker instead.",
+  ]}
+/>
+
+## Accessibility
+
+The code sits in a focusable `<pre>` labelled `<filename> source` (or "Code"), so a keyboard user can
+scroll a long line into view with the arrow keys. The copy button is named "Copy code" and swaps
+to a check for a moment after copying. With `switcher="tabs"` the row is a `tablist`: one tab stop,
+the arrow keys select as they move, and the code becomes the `tabpanel` labelled by the selected
+tab.
+
+<Keyboard
+  keys={[
+    ["Tab", "Moves focus to the language switcher, the copy button and the code itself."],
+    ["Arrow keys", "Scroll the focused code horizontally or vertically."],
+    ["ArrowLeft / ArrowRight", "In the tabs switcher, selects the previous or next language."],
+    ["Home / End", "In the tabs switcher, selects the first or last language."],
+    ["Enter / Space", "Copies the code from the focused copy button."],
+  ]}
+/>

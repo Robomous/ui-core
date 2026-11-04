@@ -1,53 +1,129 @@
 ---
 title: Accordion
 description: A stack of headings that each disclose a region. The arrows, Home and End move between them; `type` decides whether one or many stay open.
+related: [collapsible, tabs, show-more, sidebar]
 builtOn:
   - name: Radix Accordion
     docsUrl: https://www.radix-ui.com/primitives/docs/components/accordion
     apiUrl: https://www.radix-ui.com/primitives/docs/components/accordion#api-reference
 ---
 
+import Controlled from "@/demos/accordion/controlled";
 import Default from "@/demos/accordion/default";
 import Multiple from "@/demos/accordion/multiple";
+import Overview from "@/demos/accordion/overview";
+import WithStatus from "@/demos/accordion/with-status";
 
-<Preview demo="accordion/default">
-  <Default client:load />
+<Preview demo="accordion/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@robomous/ui-core";
+
+export function RobotDetails() {
+  return (
+    <Accordion type="single" collapsible>
+      <AccordionItem value="battery">
+        <AccordionTrigger>Battery</AccordionTrigger>
+        <AccordionContent>82% charged, about five hours of runtime.</AccordionContent>
+      </AccordionItem>
+      <AccordionItem value="firmware">
+        <AccordionTrigger>Firmware</AccordionTrigger>
+        <AccordionContent>Running fw-2.8.1.</AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  );
+}
 ```
 
-```tsx
-<Accordion type="single" collapsible>
-  <AccordionItem value="general">
-    <AccordionTrigger>General</AccordionTrigger>
-    <AccordionContent>The project name, its description, and who can see it.</AccordionContent>
-  </AccordionItem>
-</Accordion>
-```
-
-Each trigger is a `button` inside an `h3`, with `aria-expanded`; each content is a `region`
-labelled by its trigger. The height animation plays both ways: the Motion rule removes exit
-animations only from floating surfaces, and a region in the page's flow has no dismissable layer
-to swallow the next press.
+<Callout title="type is required, and single won't close by default">
+  `Accordion` needs `type="single"` or `type="multiple"`. A `single` accordion keeps one item
+  open at all times unless you also pass `collapsible`, which lets the open one close again.
+</Callout>
 
 ## Composition
 
 ```text
 Accordion
-└─ AccordionItem
+└─ AccordionItem   value
    ├─ AccordionTrigger
    └─ AccordionContent
 ```
 
-## Multiple
+## Examples
 
-`type="multiple"` lets every region open on its own. `disabled` on an item keeps it shut and out
-of the arrow-key order.
+### Single
+
+`type="single" collapsible` opens one region at a time: opening another closes the first, and
+pressing the open heading closes it. Use it when the sections compete for the same space and
+reading one rarely needs another beside it.
+
+<Preview demo="accordion/default">
+  <Default client:load />
+</Preview>
+
+### Multiple
+
+`type="multiple"` lets every region open on its own, which suits filters or settings that a reader
+compares side by side. `disabled` on an item keeps it shut and out of the arrow-key order; say
+nearby why it is unavailable.
 
 <Preview demo="accordion/multiple">
   <Multiple client:load />
 </Preview>
+
+### Controlled
+
+Pass `value` and `onValueChange` to own the open state: an array for `multiple`, a string for
+`single`. That is how an "Expand all" button, or a deep link to a section, reaches into the
+accordion.
+
+<Preview demo="accordion/controlled">
+  <Controlled client:load />
+</Preview>
+
+### With status
+
+A trigger is not limited to text. Wrap the label and a `Badge` in a single element with `flex-1`
+so the chevron stays at the edge, and a reader can scan states without opening anything. Open the
+sections that need attention by default.
+
+<Preview demo="accordion/with-status">
+  <WithStatus client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Use short, noun-like trigger labels a reader can scan: \"Firmware\", not \"Learn about firmware\".",
+    "Pick `single` when sections compete for space and `multiple` when they get compared.",
+    "Open the one section most readers need with `defaultValue`.",
+    "Keep triggers as plain headings, and let one wrapper element carry any badge.",
+  ]}
+  dont={[
+    "Don't hide content everyone needs to complete a task; show it.",
+    "Don't nest accordions inside accordions.",
+    "Don't put interactive controls inside a trigger; it is already a button.",
+    "Don't use it for a single disclosure; that is `Collapsible`.",
+  ]}
+/>
+
+## Accessibility
+
+Each trigger is a `button` inside an `h3`, with `aria-expanded` and `aria-controls`; each content
+is a `region` labelled by its trigger. Items with `disabled` are skipped by arrow-key movement. The
+height animation plays both ways: the Motion rule removes exit animations only from floating
+surfaces, and a region in the page's flow has no dismissable layer to swallow the next press.
+
+<Keyboard
+  keys={[
+    ["Enter / Space", "Opens or closes the focused section."],
+    ["Tab / Shift+Tab", "Moves focus to the next or previous trigger."],
+    ["Arrow Down / Arrow Up", "Moves focus to the next or previous trigger."],
+    ["Home / End", "Moves focus to the first or last trigger."],
+  ]}
+/>

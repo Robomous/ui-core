@@ -1,32 +1,44 @@
 ---
 title: Textarea
 description: A native multi-line text control that grows with what is typed through `field-sizing-content`, instead of scrolling inside a fixed height.
+related: [input, input-group, field]
 builtOn:
   - name: native HTML
     docsUrl: https://developer.mozilla.org/docs/Web/HTML/Element/textarea
 ---
 
+import CharacterCount from "@/demos/textarea/character-count";
 import Default from "@/demos/textarea/default";
-import GrowsWithContent from "@/demos/textarea/grows-with-content";
 import Disabled from "@/demos/textarea/disabled";
+import GrowsWithContent from "@/demos/textarea/grows-with-content";
 import Invalid from "@/demos/textarea/invalid";
+import MinHeight from "@/demos/textarea/min-height";
+import Overview from "@/demos/textarea/overview";
 
-<Preview demo="textarea/default">
-  <Default client:load />
+<Preview demo="textarea/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
-import { Textarea } from "@robomous/ui-core";
+import { Field, FieldLabel, Textarea } from "@robomous/ui-core";
+
+export function BatchNotes() {
+  return (
+    <Field>
+      <FieldLabel htmlFor="batch-notes">Batch notes</FieldLabel>
+      <Textarea id="batch-notes" placeholder="Anything annotators should know?" />
+    </Field>
+  );
+}
 ```
 
-```tsx
-<Textarea placeholder="What is this dataset for?" aria-label="Notes" />
-```
-
-`field-sizing-content` sets the height from the content, down to a `min-h-16` floor, so a `rows`
-prop is rarely needed.
+<Callout title="No rows, no resize handle" tone="note">
+  The height comes from the content, down to a `min-h-16` floor, so a `rows` prop is rarely needed.
+  `field-sizing-content` is a recent CSS feature; in a browser without it the box falls back to a
+  fixed height and scrolls.
+</Callout>
 
 ## Composition
 
@@ -34,27 +46,95 @@ prop is rarely needed.
 Textarea
 ```
 
-## Grows with content
+## Examples
 
-The box grows as lines are added instead of scrolling inside a fixed height — there is no resize
-handle to drag.
+### Empty
+
+Empty, it is a two-line box with a placeholder that says what belongs inside. Always pair it with a
+visible label; the placeholder is a hint for the first keystroke, not the field's name. The action
+beside it stays off until there is text.
+
+<Preview demo="textarea/default">
+  <Default client:load />
+</Preview>
+
+### Grows with content
+
+The box grows as lines are added instead of scrolling inside a fixed height, and there is no resize
+handle to drag. The reader always sees everything they wrote, and the page decides how much
+room it can give.
 
 <Preview demo="textarea/grows-with-content">
   <GrowsWithContent client:load />
 </Preview>
 
-## Disabled
+### Taller minimum
 
-Disabled keeps the arrow cursor: nothing will respond to focus or a keystroke.
+The `min-h-16` floor is a default, not a rule. Raise it with `className` when the answer is
+expected to be a paragraph, so the field looks like it invites one. The two boxes below are the
+same component at both floors.
+
+<Preview demo="textarea/min-height">
+  <MinHeight client:load />
+</Preview>
+
+### Character count
+
+For a limit, set `maxLength` on the control and show the count beside the description. Use
+`tabular-nums` so the number doesn't jitter while it changes. The browser stops input at the limit,
+so there is no error state to design. The count turns to the warning colour for the last twenty
+characters.
+
+<Preview demo="textarea/character-count">
+  <CharacterCount client:load />
+</Preview>
+
+### Invalid
+
+`aria-invalid` switches on the destructive border and ring, the same attribute a screen reader
+reads. Here the rule is a minimum length: the error appears while the text is too short and clears
+the moment it isn't, which also enables the action that was blocked.
+
+<Preview demo="textarea/invalid">
+  <Invalid client:load />
+</Preview>
+
+### Disabled
+
+Disabled keeps the arrow cursor and drops to half opacity: nothing will respond to focus or a
+keystroke. For text the reader should still select and copy, use `readOnly` instead.
 
 <Preview demo="textarea/disabled">
   <Disabled client:load />
 </Preview>
 
-## Invalid
+## Guidelines
 
-`aria-invalid` styles the invalid state directly, the same attribute a screen reader reads.
+<Guidelines
+  do={[
+    "Use it for free text that can run past one line: notes, reasons, descriptions.",
+    "Say in the description who will read the text.",
+    "Raise `min-h-*` when the expected answer is a paragraph.",
+    "Show a live count whenever you set `maxLength`.",
+  ]}
+  dont={[
+    "Don't use a Textarea for a single value; use `Input`.",
+    "Don't give it a fixed `h-*` and a scrollbar; let it grow.",
+    "Don't rely on the placeholder as the label.",
+    "Don't block pasting or truncate text silently at the limit.",
+  ]}
+/>
 
-<Preview demo="textarea/invalid">
-  <Invalid client:load />
-</Preview>
+## Accessibility
+
+A native `<textarea>`, so it is exposed as a multi-line text box, with its value, selection and
+form behaviour from the platform. Name it with a `Label` and point `aria-describedby` at its
+description or error.
+
+<Keyboard
+  keys={[
+    ["Enter", "Inserts a new line; it does not submit the form."],
+    ["Tab", "Moves focus out of the field, instead of inserting a tab character."],
+    ["Shift+Tab", "Moves focus to the previous control."],
+  ]}
+/>

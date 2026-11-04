@@ -1,114 +1,195 @@
 ---
 title: Table
-description: A native table in a bordered, rounded frame that is also its horizontal scroller. The header reads quieter than the data, and every column keeps its own rule.
+description: A native table in a rounded card that is also its horizontal scroller, with hairlines between rows only. The header reads quieter than the data, and a TableFrame can seat it on a muted tray under a title.
+related: [item, card, pagination]
 builtOn:
   - name: native HTML
     docsUrl: https://developer.mozilla.org/docs/Web/HTML/Element/table
 ---
 
-import Caption from "@/demos/table/caption";
 import Dataset from "@/demos/table/dataset";
 import EmptyState from "@/demos/table/empty-state";
 import Footer from "@/demos/table/footer";
+import Loading from "@/demos/table/loading";
+import Overview from "@/demos/table/overview";
 import Pagination from "@/demos/table/pagination";
+import Selectable from "@/demos/table/selectable";
+import Sortable from "@/demos/table/sortable";
 
-<Preview demo="table/dataset">
-  <Dataset client:load />
+<Preview demo="table/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@robomous/ui-core";
+
+export function ModelScores() {
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Model</TableHead>
+          <TableHead className="text-right">mAP@50</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        <TableRow>
+          <TableCell className="font-mono">detector-v3.2</TableCell>
+          <TableCell className="text-right tabular-nums">0.912</TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+  );
+}
 ```
 
-```tsx
-<Table>
-  <TableHeader>
-    <TableRow>
-      <TableHead>Model</TableHead>
-      <TableHead className="text-right">mAP@50</TableHead>
-    </TableRow>
-  </TableHeader>
-  <TableBody>
-    <TableRow>
-      <TableCell className="font-mono">yolo-v9-tiny</TableCell>
-      <TableCell className="text-right tabular-nums">0.912</TableCell>
-    </TableRow>
-  </TableBody>
-</Table>
-```
-
-Right-align a numeric column's `TableHead` with `text-right`, and give its `TableCell`s the same
-class plus `tabular-nums`, so the figures line up under the heading and each other.
-
-## Anatomy of the look
-
-The frame is `rounded-xl border`, and it is the `overflow-x-auto` container too, so the corners hold
-while a wide table scrolls. The header sits on `bg-muted/50` in muted ink at normal weight, so it
-reads quieter than the data; rows are 52px (`px-3 py-4`); every column carries a vertical rule
-(`border-r`, none on the last). An icon in a `TableHead` — a `ChevronsUpDown` beside a sortable
-label — is sized to 14px by the head; the sort itself, and `aria-sort`, are the call site's.
+<Callout title="Align numbers on both ends">
+  Right-align a numeric column by giving its `TableHead` and every `TableCell` the same
+  `text-right`, and add `tabular-nums` to the cells, so figures line up under the heading and under
+  each other.
+</Callout>
 
 ## Composition
 
 ```text
-Table
-├─ TableCaption
-├─ TableHeader
-│  └─ TableRow
-│     └─ TableHead
-├─ TableBody
-│  └─ TableRow
-│     └─ TableCell
-└─ TableFooter
-   └─ TableRow
-      └─ TableCell
+TableFrame              optional: the muted tray around the table
+├─ TableFrameHeader
+│  └─ TableFrameTitle   names the table inside it
+└─ Table
+   ├─ TableCaption
+   ├─ TableHeader
+   │  └─ TableRow
+   │     └─ TableHead
+   ├─ TableBody
+   │  └─ TableRow
+   │     └─ TableCell
+   ├─ TableFooter
+   │  └─ TableRow
+   │     └─ TableCell
+   └─ TablePagination   a <tfoot> of its own, in place of TableFooter
 ```
 
-## Wide data
+## Examples
 
-`Table` is its own `overflow-x-auto` frame, so a dataset with more columns than the viewport
-scrolls horizontally inside the rounded border instead of crushing every column to fit.
+### Frame
+
+`TableFrame` seats the table on a muted tray with a `TableFrameHeader` above it: the table's name
+on the left in a `TableFrameTitle`, a status line on the right. The tray's corner is the table's
+radius plus the tray's padding, so the two curves stay concentric. The title becomes the table's
+accessible name on its own; an `aria-label` on the `Table` still wins. A `TableHead` takes a
+leading icon as its first child, set inline before the label at 14px. A `Badge` in a cell reads at
+the cell's size and weight, so a status sits level with the text beside it.
+
+The hero above is a frame: circular checkboxes (`rounded-full` on each `Checkbox`), icons in the
+header, and the last column in muted ink because it is context, not data.
+
+### Wide data
+
+`Table` is its own `overflow-x-auto` frame with rounded corners, so a dataset with more columns than
+the viewport scrolls inside the border instead of crushing every column to fit. Cells don't wrap
+(`whitespace-nowrap`), so a long value widens its column rather than breaking in two. When the
+table is wider than its frame, the frame becomes a tab stop, so a keyboard can scroll it too; a
+table that fits adds no extra stop. While there are columns out of view, the side they are on fades out, and
+the fade lifts as you reach that end.
 
 <Preview demo="table/dataset">
   <Dataset client:load />
 </Preview>
 
-## Footer
+### Selectable rows
 
-`TableFooter` closes the table with a muted, bordered band, for a total that summarises the rows
-above rather than continuing them.
+Selection is yours to hold. Set `data-state="selected"` on a `TableRow` to give it the selected
+surface; a `Checkbox` in the first column drops that cell's right padding automatically. The
+header checkbox shows `indeterminate` while only some rows are chosen. The count and the bulk action
+above the table read the same state.
+
+<Preview demo="table/selectable">
+  <Selectable client:load />
+</Preview>
+
+### Sortable columns
+
+The table doesn't sort for you. Put a `button` in the `TableHead`, swap the icon to show direction
+(the head sizes it to 14px), and set `aria-sort` on the `th` so assistive technology knows which
+column is ordered and how.
+
+<Preview demo="table/sortable">
+  <Sortable client:load />
+</Preview>
+
+### Footer and caption
+
+`TableFooter` closes the table with the header's band, for a total that summarises the rows above
+rather than continuing them. Its first cell reads as the row's label, in muted ink, so the figures
+after it carry the weight. `TableCaption` is the table's accessible name and one muted line of context,
+for when a heading above would overstate it.
 
 <Preview demo="table/footer">
   <Footer client:load />
 </Preview>
 
-## Pagination
+### Pagination
 
-`TablePagination` is the footer of a table that pages: the range on the left, Rows per page, the
-page position and first / previous / next / last on the right. It renders a `<tfoot>`, so give it
-`colSpan` for the columns above. With one page it is a count only, and `loading` swaps the range
-for a skeleton and disables the pager.
+`TablePagination` is the footer of a table that pages: the range on the left; Rows per page, the
+page position and first / previous / next / last on the right, joined in one group. Labels are
+muted and figures are in full ink, all in tabular figures, so the footer doesn't shift as the
+numbers change. It renders a `<tfoot>`, so give it
+`colSpan` for the columns above. The range is a polite live region, so each page change announces
+itself. With one page it shows a count only (`total` and `unit`).
 
 <Preview demo="table/pagination">
   <Pagination client:load />
 </Preview>
 
-## Caption
+### Loading
 
-`TableCaption` closes the frame as a muted band under a rule, for the one line of context that a
-heading above the table would overstate. It is also the table's accessible name.
+While rows load, keep the header and the frame and fill the body with `Skeleton`s of about the
+width of the real values, so the layout doesn't jump when data arrives. `loading` on
+`TablePagination` swaps its range and page number for skeletons and disables the pager.
 
-<Preview demo="table/caption">
-  <Caption client:load />
+<Preview demo="table/loading">
+  <Loading client:load />
 </Preview>
 
-## Empty state
+### Empty state
 
-An empty result set stays inside the table rather than replacing it: one row, spanning every
-column, carries the message.
+An empty result set stays inside the table: one row spanning every column carries the message, so
+the headers still tell the reader what would appear here, and a button in the cell offers the
+obvious next step.
 
 <Preview demo="table/empty-state">
   <EmptyState client:load />
 </Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Set identifiers and model names in `font-mono`, and numbers in `tabular-nums`.",
+    "Add `colSpan` to a footer or empty-state cell so it spans every column.",
+    "Name the table with a `TableCaption` or an `aria-label` when the page has several.",
+    "Add a visually hidden label to an icon-only column header, like `sr-only` \"Actions\".",
+  ]}
+  dont={[
+    "Don't use a table for layout; use `Item`s or a grid when the data has no columns.",
+    "Don't pack more than one action per row; move the rest into a menu.",
+    "Don't remove the frame's overflow to fit a wide table; let it scroll.",
+    "Don't sort or select by styling alone: set `aria-sort` and `aria-label`s as well.",
+  ]}
+/>
+
+## Accessibility
+
+A real `<table>`, so row and column headers, the caption and cell relationships come from the
+platform. Sorting, selection and `aria-sort` are the call site's to add. The pager's buttons are named
+(First page, Previous page…) and disabled at either end.
+
+<Keyboard
+  keys={[
+    ["Tab", "Moves through the controls inside the table, and onto the frame itself when the table is wider than it."],
+    ["ArrowLeft / ArrowRight", "Scrolls a focused, overflowing frame sideways."],
+    ["Enter / Space", "Activates a focused sort button or pager button, or toggles a focused checkbox."],
+  ]}
+/>

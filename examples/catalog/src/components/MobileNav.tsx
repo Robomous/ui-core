@@ -21,7 +21,7 @@ export default function MobileNav({ nav, current }: { nav: Nav; current: string 
           <MenuIcon />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-72 gap-0 overflow-y-auto px-4">
+      <SheetContent side="left" className="w-72 gap-0 overflow-y-auto pt-12">
         <SheetHeader className="sr-only">
           <SheetTitle>Navigation</SheetTitle>
           <SheetDescription>Sections and components of the documentation.</SheetDescription>

@@ -9,38 +9,51 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@robomous/ui-core";
-import { ChevronDownIcon, CopyIcon, EyeIcon, PencilIcon } from "@robomous/ui-core/icons";
+import {
+  ChevronDownIcon,
+  CreditCardIcon,
+  LogOutIcon,
+  SettingsIcon,
+  UserIcon,
+} from "@robomous/ui-core/icons";
 
-/** Label over a group, a separator, and a shortcut hint — the everyday anatomy. */
+/** An account menu: a label over a group, a separator, and shortcut hints on the rows that have them. */
 export default function Basic() {
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline">
-          Batch actions
-          <ChevronDownIcon data-icon="inline-end" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-52" align="start">
-        <DropdownMenuLabel>batch-0042</DropdownMenuLabel>
-        <DropdownMenuGroup>
+    <div className="flex w-full max-w-md items-center justify-between gap-3 rounded-lg border p-2 pl-3">
+      <span className="text-sm font-medium">Robomous</span>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="sm">
+            María López
+            <ChevronDownIcon data-icon="inline-end" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-52" align="end">
+          <DropdownMenuLabel>maria@robomous.example</DropdownMenuLabel>
+          <DropdownMenuGroup>
+            <DropdownMenuItem>
+              <UserIcon />
+              Profile
+              <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <CreditCardIcon />
+              Billing
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <SettingsIcon />
+              Settings
+              <DropdownMenuShortcut>⌘,</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
           <DropdownMenuItem>
-            <PencilIcon />
-            Rename
-            <DropdownMenuShortcut>⌘R</DropdownMenuShortcut>
+            <LogOutIcon />
+            Sign out
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <CopyIcon />
-            Duplicate
-            <DropdownMenuShortcut>⌘D</DropdownMenuShortcut>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <EyeIcon />
-          View details
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 }

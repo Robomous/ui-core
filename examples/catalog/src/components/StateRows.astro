@@ -1,0 +1,73 @@
+---
+import SpecTable from "@/components/SpecTable.astro";
+
+/**
+ * The state vocabulary: what each state is called, the variant that styles it
+ * and what sets it. Every row is either a pseudo-class the browser keeps or an
+ * attribute something else writes; none of them is a class.
+ */
+const rows = [
+  {
+    state: "Hover",
+    selector: "hover:",
+    source:
+      "The pointer resting on it. Touch has no hover, so nothing is reachable only through it.",
+  },
+  {
+    state: "Pressed",
+    selector: "active:",
+    source: "A press in progress. A button sinks one pixel and comes back on release.",
+  },
+  {
+    state: "Focus",
+    selector: "focus-visible:",
+    source: "Keyboard focus. A mouse click never draws the ring.",
+  },
+  {
+    state: "Disabled",
+    selector: "disabled:  data-disabled:",
+    source: "The native `disabled` attribute, or a primitive's `data-disabled` on an item.",
+  },
+  {
+    state: "Invalid",
+    selector: "aria-invalid:",
+    source: "`aria-invalid` from your form code; `data-invalid` on the `Field` around it.",
+  },
+  {
+    state: "Checked",
+    selector: "data-checked:",
+    source: "The primitive, from `checked` or `defaultChecked`.",
+  },
+  {
+    state: "Open",
+    selector: "data-open:  data-closed:",
+    source: "The primitive, while a menu, dialog or collapsible is open.",
+  },
+  {
+    state: "Selected",
+    selector: "data-selected:  data-active:",
+    source: "The primitive: the highlighted option, the current tab.",
+  },
+  {
+    state: "Busy",
+    selector: "aria-busy",
+    source: "Your code, while a request runs. Pair it with `disabled` and a label that says so.",
+  },
+];
+const code = (text: string) =>
+  text.replace(/`([^`]+)`/g, '<code class="font-mono text-xs text-foreground">$1</code>');
+---
+
+<SpecTable example="State" name="Selector" usage="Set by" columns="7rem 14rem minmax(0, 1fr)">
+  {rows.map((row) => (
+    <div class="spec-row">
+      <span class="font-medium">{row.state}</span>
+      <span class="flex flex-wrap gap-x-3 gap-y-1">
+        {row.selector.split(/\s{2,}/).map((part) => (
+          <code class="font-mono text-xs text-muted-foreground">{part}</code>
+        ))}
+      </span>
+      <span class="text-pretty text-muted-foreground" set:html={code(row.source)} />
+    </div>
+  ))}
+</SpecTable>

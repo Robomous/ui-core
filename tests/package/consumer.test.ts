@@ -254,8 +254,9 @@ describe("a real Tailwind compile of the consumer's stylesheet", () => {
   it("carries shadcn's utility and variant layer, and our utility on top of it", () => {
     // `no-scrollbar` is shadcn's; the Sidebar's content names it.
     expect(css).toContain(".no-scrollbar");
-    // And its companion, which the Combobox list wears over the bar it hides.
-    expect(css).toContain(".scroll-fade-y");
+    // And its companion, which the Combobox list wears over the bar it hides,
+    // gated on scroll-driven animation support.
+    expect(css).toContain("supports-\\[animation-timeline\\:scroll\\(\\)\\]\\:scroll-fade-y");
     // shadcn's `data-active` variant is the reason the layer is load-bearing: it
     // excludes `"false"`, which Tailwind's own presence check would match.
     expect(css).toContain('[data-active]:not([data-active="false"])');
@@ -304,8 +305,8 @@ describe("a real Tailwind compile of the consumer's stylesheet", () => {
     expect(css).not.toMatch(/--neutral-500:/);
   });
 
-  it("bundles both Geist faces, and resolves font-mono through the mono one", () => {
-    expect(css).toContain("Geist Variable");
+  it("bundles Inter and Geist Mono, and resolves font-mono through the mono one", () => {
+    expect(css).toContain("Inter Variable");
     expect(css).toContain("Geist Mono Variable");
     // `@theme inline` writes the family into the utility, so this is the whole
     // chain: the token, the import, and the consumer class that reaches them.

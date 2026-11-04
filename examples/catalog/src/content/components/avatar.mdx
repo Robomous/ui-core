@@ -1,36 +1,43 @@
 ---
 title: Avatar
-description: A user's picture reduced to a circle, in three sizes carried as `data-size` so a group's overflow count can match. `AvatarFallback` is not optional — it stands in for a missing or still-loading image.
+description: A person or thing reduced to a circle, in three sizes carried as `data-size`. `AvatarFallback` stands in for a missing or still-loading image, so render it every time.
+related: [item, badge, attachment]
 builtOn:
   - name: Radix Avatar
     docsUrl: https://www.radix-ui.com/primitives/docs/components/avatar
     apiUrl: https://www.radix-ui.com/primitives/docs/components/avatar#api-reference
 ---
 
-import Sizes from "@/demos/avatar/sizes";
 import Badge from "@/demos/avatar/badge";
-import Group from "@/demos/avatar/group";
 import Fallback from "@/demos/avatar/fallback";
+import Group from "@/demos/avatar/group";
+import ImageAvatar from "@/demos/avatar/image";
+import Overview from "@/demos/avatar/overview";
+import Sizes from "@/demos/avatar/sizes";
 
-<Preview demo="avatar/sizes">
-  <Sizes client:load />
+<Preview demo="avatar/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import { Avatar, AvatarFallback, AvatarImage } from "@robomous/ui-core";
+
+export function Reviewer() {
+  return (
+    <Avatar>
+      <AvatarImage src="/users/maria-lopez.png" alt="" />
+      <AvatarFallback>ML</AvatarFallback>
+    </Avatar>
+  );
+}
 ```
 
-```tsx
-<Avatar>
-  <AvatarImage src="/users/yael.png" alt="" />
-  <AvatarFallback>YA</AvatarFallback>
-</Avatar>
-```
-
-`AvatarFallback` is not optional: render it every time, so something shows while the image loads
-and if it never does.
+<Callout title="Always render the fallback">
+  Without `AvatarFallback` a missing or slow image leaves an empty circle. Pass `alt=""` on the image
+  when the person's name is already printed beside it, so it isn't announced twice.
+</Callout>
 
 ## Composition
 
@@ -38,45 +45,85 @@ and if it never does.
 Avatar
 ├─ AvatarImage
 ├─ AvatarFallback
-└─ AvatarBadge
+└─ AvatarBadge        optional: status dot over the corner
 
 AvatarGroup
+├─ Avatar
 └─ AvatarGroupCount
 ```
 
-## Sizes
+## Examples
 
-Three sizes, carried as `data-size` on the root so anything reading it — an `AvatarGroupCount`
-sitting next to it — can match.
+### Sizes
+
+`sm` (24px), the default (32px) and `lg` (40px). The size is carried as `data-size` on the root, so
+the badge and the group's overflow count read it and scale to match. Use `sm` in table cells and
+dense lists, `lg` for a profile header.
 
 <Preview demo="avatar/sizes">
   <Sizes client:load />
 </Preview>
 
-## Badge
+### Image
 
-`AvatarBadge` sits over the corner and scales itself down with the avatar's `data-size`, for a
-presence or status dot.
+`AvatarImage` fills the circle and crops to cover it. The fallback renders until the image has
+loaded, then steps aside, so the circle is never empty while a picture is on its way.
+
+<Preview demo="avatar/image">
+  <ImageAvatar client:load />
+</Preview>
+
+### Fallback
+
+When the image fails, `AvatarFallback` takes over. Use initials for a person and an icon for
+something with no name to abbreviate, like a robot or an automated check; a plain `?` marks a slot
+no one has taken yet. `AvatarFallback` also
+takes `delayMs` from Radix, to wait before showing so fast images don't flash initials first.
+
+<Preview demo="avatar/fallback">
+  <Fallback client:load />
+</Preview>
+
+### Status badge
+
+`AvatarBadge` sits over the bottom-right corner, scales with the avatar's `data-size` (and hides
+its icon at `sm`), and takes the primary colour by default. Give it a semantic colour such as
+`bg-success`, and say the status in text too, because a coloured dot alone fails colour-blind readers.
 
 <Preview demo="avatar/badge">
   <Badge client:load />
 </Preview>
 
-## Group
+### Group
 
-`AvatarGroup` overlaps its children and rings each one in the page's background.
-`AvatarGroupCount` picks up the same `data-size`, so the overflow count reads as one more avatar,
-not a label stuck on the end.
+`AvatarGroup` overlaps its children and rings each one in the page background. Put an
+`AvatarGroupCount` last for the overflow; it matches the size of the avatars beside it. Show three
+or four faces, then the count. The group and its count follow the size of the avatars inside it.
 
 <Preview demo="avatar/group">
   <Group client:load />
 </Preview>
 
-## Fallback
+## Guidelines
 
-`AvatarFallback` is not optional: a broken `AvatarImage` unmounts straight to it, so there is never
-an empty circle.
+<Guidelines
+  do={[
+    "Use two-letter initials in the fallback, drawn from the person's name.",
+    "Give a group an `AvatarGroupCount` rather than rendering every member.",
+    "Pair a status badge with a text label that says the same thing.",
+    "Keep `alt=\"\"` on the image when the name is printed next to it.",
+  ]}
+  dont={[
+    "Don't omit `AvatarFallback`, even when you expect the image to load.",
+    "Don't use `size=\"sm\"` for the only identity on screen; it is for repeated rows.",
+    "Don't convey status with colour alone.",
+    "Don't stretch an avatar with `w-` and `h-` classes; use `size` so the badge and count follow.",
+  ]}
+/>
 
-<Preview demo="avatar/fallback">
-  <Fallback client:load />
-</Preview>
+## Accessibility
+
+Radix renders the image only once it has loaded, and the fallback is plain text inside a `span`, so
+initials are read as text: with a name nearby, hide them from assistive technology with
+`aria-hidden`, or leave them if the avatar stands alone. An `AvatarBadge` has no label of its own,
+so give status a visible or screen-reader text next to the avatar.

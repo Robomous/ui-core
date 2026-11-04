@@ -1,6 +1,7 @@
 ---
 title: Label
-description: Names the control it pairs with through `htmlFor`/`id`, and dims through `peer-disabled` when the control it names is disabled.
+description: Names the control it pairs with through `htmlFor`/`id`, and dims when that control is disabled, through `peer-disabled` or a `group`.
+related: [field, input, checkbox, radio-group]
 builtOn:
   - name: Radix Label
     docsUrl: https://www.radix-ui.com/primitives/docs/components/label
@@ -8,48 +9,116 @@ builtOn:
 ---
 
 import Default from "@/demos/label/default";
+import DisabledGroup from "@/demos/label/disabled-group";
 import DisabledPeer from "@/demos/label/disabled-peer";
+import Overview from "@/demos/label/overview";
+import Required from "@/demos/label/required";
+import Wrapping from "@/demos/label/wrapping";
 
-<Preview demo="label/default">
-  <Default client:load />
+<Preview demo="label/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
-import { Label, Input } from "@robomous/ui-core";
+import { Input, Label } from "@robomous/ui-core";
+
+export function DatasetName() {
+  return (
+    <div className="flex flex-col gap-2">
+      <Label htmlFor="dataset-name">Dataset name</Label>
+      <Input id="dataset-name" placeholder="retail-shelves-q3" />
+    </div>
+  );
+}
 ```
 
-```tsx
-<div className="flex flex-col gap-1.5">
-  <Label htmlFor="camera-id">Camera ID</Label>
-  <Input id="camera-id" placeholder="cam-004" />
-</div>
-```
-
-`htmlFor` must match the control's `id`, so a click on the label focuses it. `FieldLabel` writes
-this pairing for you inside a `Field`.
+<Callout title="Inside a Field, use FieldLabel" tone="note">
+  `FieldLabel` is a `Label` that also reacts to a disabled `Field` and to checked choice cards. Reach
+  for the bare `Label` when there is no `Field` around: next to a checkbox, a radio or a lone input.
+</Callout>
 
 ## Composition
 
 ```text
 Label
+└─ text, plus any inline marker or hint   optional
 ```
 
-## Paired with a control
+## Examples
 
-A label and the input it names, wired by hand with `htmlFor` and `id`.
+### Paired with a control
+
+`htmlFor` must equal the control's `id`. Clicking the label then focuses the input, and assistive
+technology announces the label as its name. A placeholder is not a substitute: it disappears as
+soon as the reader types.
 
 <Preview demo="label/default">
   <Default client:load />
 </Preview>
 
-## Disabled peer
+### Required and optional
 
-`peer-disabled` styles a label reactively when the sibling it follows in the DOM is disabled — the
-control has to come first in markup for the CSS sibling selector to reach it, so a visually
-top-of-stack label needs `flex-col-reverse` underneath it.
+A label is a flex row with a gap, so a marker is just another child. Mark the exception: an `*` on
+required fields when most are optional, a muted "Optional" when most are required. Hide the
+asterisk from screen readers with `aria-hidden`, and let `required` on the control say it instead.
+Pick one convention per form and keep it: the two columns below are the two honest options.
+
+<Preview demo="label/required">
+  <Required client:load />
+</Preview>
+
+### Wrapping the control
+
+A label can contain its control instead of pointing at it. There is no `id` to invent or keep in
+step, and the whole block, text and control, is the click target. That is the natural shape for a
+checkbox. Override the row layout with `flex-col items-start` when the control should sit below the
+text.
+
+<Preview demo="label/wrapping">
+  <Wrapping client:load />
+</Preview>
+
+### Disabled through a sibling
+
+The label carries `peer-disabled` styles, so it dims when a sibling marked `peer` is disabled. CSS
+only looks forward, so the control has to come first in the markup; `flex-col-reverse` puts the
+label back on top visually. The enabled field above it shows what the label looks like otherwise.
 
 <Preview demo="label/disabled-peer">
   <DisabledPeer client:load />
 </Preview>
+
+### Disabled through a group
+
+When the label comes first, put `group` and `data-disabled="true"` on the shared parent. The label
+dims from there, and the order of the markup stays the natural one. The group without
+`data-disabled` stays at full strength.
+
+<Preview demo="label/disabled-group">
+  <DisabledGroup client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Give every form control a visible label, and match `htmlFor` to its `id`.",
+    "Keep labels short and in sentence case: \"Dataset name\", not \"Please enter the dataset name\".",
+    "Mark only the exception, whether that is required or optional fields.",
+    "Dim the label together with a disabled control so the pair reads as one unit.",
+  ]}
+  dont={[
+    "Don't use a placeholder in place of a label.",
+    "Don't put a heading or a paragraph in a `Label`; it names one control.",
+    "Don't repeat an `id` on a page; `htmlFor` would point at the first one.",
+    "Don't make the label look clickable when it has no control to focus.",
+  ]}
+/>
+
+## Accessibility
+
+Radix renders a native `<label>`, so the browser associates it with its control, and a click on it
+activates the control. It also stops a double click on the text from selecting it. A label is not
+focusable itself, so it has no keyboard interaction of its own.

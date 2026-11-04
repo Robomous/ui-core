@@ -1,35 +1,40 @@
 ---
 title: Slider
-description: A value, or a range of them, on a track. One thumb per value, and each thumb — the element a screen reader announces — carries the name.
+description: A value, or a range of them, on a track. One thumb per value, and each thumb, the element a screen reader announces, carries the name.
+related: [input, progress, select]
 builtOn:
   - name: Radix Slider
     docsUrl: https://www.radix-ui.com/primitives/docs/components/slider
     apiUrl: https://www.radix-ui.com/primitives/docs/components/slider#api-reference
 ---
 
-import Default from "@/demos/slider/default";
+import Commit from "@/demos/slider/commit";
 import Disabled from "@/demos/slider/disabled";
+import Overview from "@/demos/slider/overview";
 import Range from "@/demos/slider/range";
+import MinMax from "@/demos/slider/min-max";
 import Vertical from "@/demos/slider/vertical";
 
-<Preview demo="slider/default">
-  <Default client:load />
+<Preview demo="slider/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import { Slider } from "@robomous/ui-core";
+
+export function ThresholdControl() {
+  return <Slider aria-label="Confidence threshold" defaultValue={[60]} step={5} />;
+}
 ```
 
-```tsx
-<Slider aria-label="Confidence threshold" defaultValue={[60]} step={5} />
-```
-
-The value is always an array. `aria-label` and `aria-labelledby` are forwarded to every thumb
-rather than the root, because the thumb is the element with `role="slider"`. A `<label htmlFor>`
-names nothing here, so point `aria-labelledby` at the visible label instead. With no value, the
-slider starts at `[min]` with one thumb.
+<Callout title="The value is always an array" tone="warning">
+  Even for one thumb: `defaultValue={[60]}`, `onValueChange={([value]) => …}`. `aria-label` and
+  `aria-labelledby` are forwarded to every thumb, because the thumb is the element with
+  `role="slider"`. A `<label htmlFor>` names nothing here, so point `aria-labelledby` at the visible
+  label instead.
+</Callout>
 
 ## Composition
 
@@ -37,22 +42,85 @@ slider starts at `[min]` with one thumb.
 Slider
 ```
 
-## Range
+One thumb is drawn per entry in `value` or `defaultValue`. With neither, the slider starts at `[min]`
+with a single thumb.
 
-Two values render two thumbs; the filled track between them is the selection.
+## Examples
+
+### Min, max and step
+
+`min`, `max` and `step` bound the track; they default to 0, 100 and 1. Show the live number beside
+the label, and name what each end means when the extremes trade something off.
+
+<Preview demo="slider/min-max">
+  <MinMax client:load />
+</Preview>
+
+### Apply on release
+
+`onValueChange` fires on every step of a drag. When the change triggers something costly, such as a
+query or a re-render of thousands of rows, keep the draft in state and act in `onValueCommit`, which
+fires once when the reader lets go.
+
+<Preview demo="slider/commit">
+  <Commit client:load />
+</Preview>
+
+### Range
+
+Two values render two thumbs, and the filled track between them is the selection. `minStepsBetweenThumbs`
+keeps them from meeting, here at least two steps (10%) apart.
 
 <Preview demo="slider/range">
   <Range client:load />
 </Preview>
 
-## Vertical
+### Vertical
+
+`orientation="vertical"` fills the height its parent gives it, with a minimum of `10rem`, and the
+arrow keys follow it: Up raises the value. Use it for mixer-style controls that sit side by side.
 
 <Preview demo="slider/vertical">
   <Vertical client:load />
 </Preview>
 
-## Disabled
+### Disabled
+
+Disabled drops the whole control to half opacity and takes the thumb out of the tab order. Keep the
+readout visible so the reader still sees the value they cannot change.
 
 <Preview demo="slider/disabled">
   <Disabled client:load />
 </Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Show the current value as text beside the slider; a thumb position is only approximate.",
+    "Set a `step` that matches how precise the setting really is.",
+    "Use `onValueCommit` when a change is expensive to apply.",
+    "Name the slider with `aria-labelledby` pointing at the visible label.",
+  ]}
+  dont={[
+    "Don't use a slider for an exact number the reader will want to type; use an `Input`.",
+    "Don't use a slider for a few named choices; use a `Select` or `RadioGroup`.",
+    "Don't use it to show progress; that is a `Progress`, which the reader cannot move.",
+    "Don't rely on `<label htmlFor>`, which does not reach the thumb.",
+  ]}
+/>
+
+## Accessibility
+
+Each thumb is a `role="slider"` with `aria-valuemin`, `aria-valuemax` and `aria-valuenow`, so a screen
+reader announces the value as it changes. The thumbs of a range are independent tab stops.
+
+<Keyboard
+  keys={[
+    ["Arrow Right / Arrow Up", "Increases the value by one step."],
+    ["Arrow Left / Arrow Down", "Decreases the value by one step."],
+    ["Home / End", "Jumps to the minimum or maximum."],
+    ["Page Up / Page Down", "Moves by a larger step."],
+    ["Tab", "Moves focus to the next thumb or control."],
+  ]}
+/>

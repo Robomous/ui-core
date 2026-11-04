@@ -6,7 +6,7 @@ import { buildNav } from "@/lib/nav";
 export const GET: APIRoute = async () => {
   const nav = await buildNav();
   const entries = [
-    ...nav.sections.map((link) => ({ ...link, group: "Sections" })),
+    ...nav.sections.map((link) => ({ ...link, group: link.group ?? "Getting started" })),
     ...nav.components.map((link) => ({ ...link, group: link.group ?? "Components" })),
   ];
   return new Response(JSON.stringify(entries), {

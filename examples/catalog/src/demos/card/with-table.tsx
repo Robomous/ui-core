@@ -1,4 +1,7 @@
 import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
   Badge,
   Card,
   CardContent,
@@ -13,35 +16,55 @@ import {
   TableRow,
 } from "@robomous/ui-core";
 
+const members = [
+  {
+    name: "Lena Fischer",
+    initials: "LF",
+    image: "/assets/people/lena-fischer.svg",
+    role: "Owner",
+  },
+  { name: "Ravi Shah", initials: "RS", image: "/assets/people/ravi-shah.svg", role: "Admin" },
+  {
+    name: "Sofia Brennan",
+    initials: "SB",
+    image: "/assets/people/sofia-brennan.svg",
+    role: "Annotator",
+  },
+];
+
 /** `CardContent` is where a `Table` usually lives: the card's own padding stays out of the table's cells. */
 export default function WithTable() {
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle>Cameras</CardTitle>
-        <CardDescription>Feed health by device.</CardDescription>
+        <CardTitle>Members</CardTitle>
+        <CardDescription>People with access to this workspace.</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Device</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Role</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow>
-              <TableCell className="font-mono">cam-b07</TableCell>
-              <TableCell>
-                <Badge variant="success">online</Badge>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="font-mono">cam-b08</TableCell>
-              <TableCell>
-                <Badge variant="destructive">offline</Badge>
-              </TableCell>
-            </TableRow>
+            {members.map((member) => (
+              <TableRow key={member.name}>
+                <TableCell>
+                  <div className="flex items-center gap-2.5">
+                    <Avatar size="sm">
+                      <AvatarImage src={member.image} alt="" />
+                      <AvatarFallback>{member.initials}</AvatarFallback>
+                    </Avatar>
+                    {member.name}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Badge variant="quiet">{member.role}</Badge>
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </CardContent>

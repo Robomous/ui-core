@@ -9,58 +9,66 @@ const { headings } = Astro.props;
 const items = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
 ---
 
-{items.length > 0 && (
-  <nav aria-label="On this page" class="text-sm" data-toc>
-    <p class="mb-3 font-medium">On This Page</p>
-    <!-- A rail with the current heading marked on it: position is read from
-         the edge, not only from a colour change. -->
-    <ul class="flex flex-col border-l">
-      {items.map((heading) => (
-        <li>
-          <a
-            href={`#${heading.slug}`}
-            class:list={[
-              "-ml-px block border-l border-transparent py-1 pl-3 text-pretty text-muted-foreground transition-colors hover:text-foreground aria-[current=location]:border-foreground aria-[current=location]:text-foreground",
-              heading.depth === 3 && "pl-6",
-            ]}
-          >
-            {heading.text}
-          </a>
-        </li>
-      ))}
-    </ul>
-  </nav>
-)}
+<!-- The right lane mirrors the left one: the same label, the same item recipe
+     and the same current-item surface, so the two rails read as one system.
+     The left says where the page sits in the docs, this one where the reader
+     sits in the page. -->
+<nav aria-label="On this page" class="px-4 py-6 text-sm" data-toc>
+  {items.length > 0 && (
+    <>
+      <p class="px-3 pb-2 text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">
+        On this page
+      </p>
+      <ul class="flex flex-col">
+        {items.map((heading) => (
+          <li>
+            <a
+              href={`#${heading.slug}`}
+              class:list={[
+                "block rounded-md py-1.5 pr-3 text-pretty text-muted-foreground transition-colors hover:text-foreground aria-[current=location]:bg-muted aria-[current=location]:text-foreground",
+                heading.depth === 3 ? "pl-6" : "pl-3",
+              ]}
+            >
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </>
+  )}
+</nav>
 
 <script>
-  // The heading nearest the top of the viewport is the current one.
-  const toc = document.querySelector<HTMLElement>("[data-toc]");
-  if (toc) {
-    const links = new Map<string, HTMLAnchorElement>();
-    for (const link of toc.querySelectorAll<HTMLAnchorElement>("a[href^='#']")) {
-      links.set(decodeURIComponent(link.hash.slice(1)), link);
-    }
-    const headings = [...links.keys()]
-      .map((id) => document.getElementById(id))
+  // The current section: the last heading that has scrolled past the header;
+  // at the very bottom, the last one however short.
+  for (const toc of document.querySelectorAll<HTMLElement>("[data-toc]")) {
+    const links = [...toc.querySelectorAll<HTMLAnchorElement>("a[href^='#']")];
+    const targets = links
+      .map((link) => document.getElementById(decodeURIComponent(link.hash.slice(1))))
       .filter((element): element is HTMLElement => element !== null);
-    let current: string | null = null;
-    const mark = (id: string) => {
-      if (id === current) return;
-      current = id;
-      for (const [key, link] of links) {
-        if (key === id) link.setAttribute("aria-current", "location");
+    if (targets.length === 0) continue;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const root = document.documentElement;
+      const offset = 96;
+      const atBottom = innerHeight + scrollY >= root.scrollHeight - 2;
+      let index = atBottom ? targets.length - 1 : -1;
+      if (!atBottom) {
+        for (const [i, target] of targets.entries()) {
+          if (target.getBoundingClientRect().top - offset <= 0) index = i;
+          else break;
+        }
+      }
+      const id = targets[Math.max(index, 0)]!.id;
+      for (const link of links) {
+        if (decodeURIComponent(link.hash.slice(1)) === id)
+          link.setAttribute("aria-current", "location");
         else link.removeAttribute("aria-current");
       }
     };
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visible[0]) mark(visible[0].target.id);
-      },
-      { rootMargin: "-64px 0px -70% 0px" },
-    );
-    for (const heading of headings) observer.observe(heading);
+    addEventListener("scroll", () => (frame ||= requestAnimationFrame(update)), { passive: true });
+    addEventListener("resize", () => (frame ||= requestAnimationFrame(update)));
+    update();
   }
 </script>

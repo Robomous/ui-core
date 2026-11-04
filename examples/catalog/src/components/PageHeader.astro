@@ -1,0 +1,55 @@
+---
+import type { MarkdownHeading } from "astro";
+
+import Lede from "@/components/Lede.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  headings?: MarkdownHeading[];
+}
+
+const { title, description, headings = [] } = Astro.props;
+const outline = headings.filter((heading) => heading.depth === 2);
+---
+
+<header class="flex flex-col gap-3 px-(--gutter) pt-12 pb-10">
+  <h1 class="text-3xl font-semibold tracking-tight text-balance md:text-4xl">{title}</h1>
+  <div class="max-w-3xl">
+    <Lede text={description} />
+  </div>
+  <slot />
+  <!-- Below xl the right rail is gone; its top level folds in here, so a
+       long page still says what it holds before the reader scrolls. -->
+  {outline.length > 2 && (
+    <details class="group/outline mt-3 rounded-md border xl:hidden">
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-2.5 text-sm font-medium select-none [&::-webkit-details-marker]:hidden">
+        On this page
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="size-4 text-muted-foreground transition-transform duration-150 ease-out group-open/outline:rotate-180"
+        >
+          <path d="m6 9 6 6 6-6"></path>
+        </svg>
+      </summary>
+      <ul class="grid gap-x-6 border-t px-2 py-2 text-sm sm:grid-cols-2">
+        {outline.map((heading) => (
+          <li>
+            <a
+              href={`#${heading.slug}`}
+              class="block rounded-md px-2 py-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </details>
+  )}
+</header>

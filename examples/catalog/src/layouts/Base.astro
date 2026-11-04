@@ -20,22 +20,51 @@ const fullTitle = title === "ui-core" ? title : `${title} · ui-core`;
     <title>{fullTitle}</title>
     {description ? <meta name="description" content={description} /> : null}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#ffffff" />
     <script is:inline>
       // The theme has one source: the `dark` class on <html>. Set it before
-      // first paint from the stored choice, else from the system.
+      // first paint from the stored choice ("light" | "dark"), else from the
+      // system, and follow the system while nothing is stored. Every switch
+      // goes through `setTheme`, which also keeps the browser's own chrome
+      // (theme-color) on the page's canvas and suspends transitions for the
+      // one frame of the swap, so no surface fades while its neighbours snap.
       (() => {
-        let stored = null;
-        try {
-          stored = localStorage.getItem("theme");
-        } catch {}
-        const dark =
-          stored === "dark" ||
-          (stored !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
-        document.documentElement.classList.toggle("dark", dark);
+        const root = document.documentElement;
+        const media = matchMedia("(prefers-color-scheme: dark)");
+        const stored = () => {
+          try {
+            return localStorage.getItem("theme");
+          } catch {
+            return null;
+          }
+        };
+        // Read once the stylesheet is in: before it, the canvas is unpainted.
+        const syncChrome = () => {
+          const meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute("content", getComputedStyle(root).backgroundColor);
+        };
+        window.setTheme = (dark) => {
+          root.classList.add("theme-switching");
+          root.classList.toggle("dark", dark);
+          syncChrome();
+          void root.offsetHeight;
+          requestAnimationFrame(() => root.classList.remove("theme-switching"));
+        };
+        addEventListener("DOMContentLoaded", syncChrome);
+        const apply = () => {
+          const choice = stored();
+          window.setTheme(choice === "dark" || (choice !== "light" && media.matches));
+        };
+        apply();
+        media.addEventListener("change", apply);
       })();
     </script>
   </head>
-  <body class="min-h-svh antialiased">
+  <!-- The page sits on the canvas, a shade off the frame, so the frame's side
+       rules read as edges. The canvas colour is opaque and lives on <html> too
+       (global.css), so overscroll and wide screens never show the browser's
+       default white behind a dark page. -->
+  <body class="min-h-svh bg-background antialiased">
     <slot />
     <Toaster client:only="react" position="bottom-right" />
   </body>

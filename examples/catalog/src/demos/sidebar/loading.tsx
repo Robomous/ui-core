@@ -14,11 +14,11 @@ import {
 /** `SidebarMenuSkeleton` stands in for a row before its label is known; `showIcon` reserves space for the icon that will land once it does. */
 export default function Loading() {
   return (
-    <SidebarProvider className="min-h-0 w-auto">
-      <Sidebar collapsible="none" className="w-56 rounded-lg ring-1 ring-sidebar-border">
+    <SidebarProvider persist={false} keyboardShortcut={false} className="min-h-0 w-auto">
+      <Sidebar collapsible="none" className="w-64 rounded-lg ring-1 ring-sidebar-border">
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Datasets</SidebarGroupLabel>
+            <SidebarGroupLabel>Training runs</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {Array.from({ length: 3 }).map((_, i) => (
@@ -31,7 +31,7 @@ export default function Loading() {
           </SidebarGroup>
           <SidebarSeparator />
           <SidebarGroup>
-            <SidebarGroupLabel>Cameras</SidebarGroupLabel>
+            <SidebarGroupLabel>Endpoints</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {Array.from({ length: 2 }).map((_, i) => (

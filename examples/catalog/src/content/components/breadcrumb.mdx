@@ -1,18 +1,22 @@
 ---
 title: Breadcrumb
-description: A trail of links ending in the page you're on. The last crumb is a `BreadcrumbPage`, not a link, and the separators between them are decorative.
+description: A trail of links ending in the page you're on. The last crumb is a `BreadcrumbPage`, not a link, and the separators between crumbs are decorative.
+related: [sidebar, tabs, pagination, dropdown-menu]
 builtOn:
   - name: Radix Slot
     docsUrl: https://www.radix-ui.com/primitives/docs/utilities/slot
     apiUrl: https://www.radix-ui.com/primitives/docs/utilities/slot#api-reference
 ---
 
-import Trail from "@/demos/breadcrumb/trail";
-import Ellipsis from "@/demos/breadcrumb/ellipsis";
 import CustomSeparator from "@/demos/breadcrumb/custom-separator";
+import Ellipsis from "@/demos/breadcrumb/ellipsis";
+import LongNames from "@/demos/breadcrumb/long-names";
+import Overview from "@/demos/breadcrumb/overview";
+import Trail from "@/demos/breadcrumb/trail";
+import WithIcon from "@/demos/breadcrumb/with-icon";
 
-<Preview demo="breadcrumb/trail">
-  <Trail client:load />
+<Preview demo="breadcrumb/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
@@ -26,24 +30,29 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@robomous/ui-core";
+
+export function DatasetBreadcrumb() {
+  return (
+    <Breadcrumb>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/datasets">Datasets</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbPage>pallet-detection</BreadcrumbPage>
+        </BreadcrumbItem>
+      </BreadcrumbList>
+    </Breadcrumb>
+  );
+}
 ```
 
-```tsx
-<Breadcrumb>
-  <BreadcrumbList>
-    <BreadcrumbItem>
-      <BreadcrumbLink href="/datasets">Datasets</BreadcrumbLink>
-    </BreadcrumbItem>
-    <BreadcrumbSeparator />
-    <BreadcrumbItem>
-      <BreadcrumbPage>Batch 12</BreadcrumbPage>
-    </BreadcrumbItem>
-  </BreadcrumbList>
-</Breadcrumb>
-```
-
-The crumb you're standing on is a `BreadcrumbPage`, never a `BreadcrumbLink`: there is nothing to
-navigate to, so `aria-current="page"` is all it needs to say.
+<Callout title="The last crumb is not a link">
+  The page you're standing on is a `BreadcrumbPage`, never a `BreadcrumbLink`: there is nowhere to
+  go, so `aria-current="page"` is all it needs to say. Put `BreadcrumbSeparator` between items, as a
+  sibling of `BreadcrumbItem`, not inside one.
+</Callout>
 
 ## Composition
 
@@ -57,28 +66,84 @@ Breadcrumb
    └─ BreadcrumbSeparator
 ```
 
-## Trail
+## Examples
 
-The crumb you're standing on is a `BreadcrumbPage`, not a link: `aria-current="page"` tells
-assistive tech, and there is nothing left to press.
+### Trail
+
+Every ancestor is a link and the current page is the last, unlinked crumb. Link text matches the
+title of the page it leads to, so a reader can tell where each link goes. Pass `asChild` to
+`BreadcrumbLink` to render your router's link in place of an `<a>`.
 
 <Preview demo="breadcrumb/trail">
   <Trail client:load />
 </Preview>
 
-## Ellipsis
+### Collapsed trail
 
-`BreadcrumbEllipsis` stands in for the crumbs a long trail has no room to show.
+A trail too deep to show in full keeps its first and last crumbs and folds the middle into a
+`BreadcrumbEllipsis`. Make the ellipsis the trigger of a `DropdownMenu` that lists the hidden
+crumbs, so they stay reachable. The trigger needs an `aria-label`, because the ellipsis itself is
+hidden from assistive tech.
 
 <Preview demo="breadcrumb/ellipsis">
   <Ellipsis client:load />
 </Preview>
 
-## Custom separator
+### Icon as the root
 
-`BreadcrumbSeparator` accepts children: swap the chevron for anything else and it stays
-`aria-hidden` either way.
+An icon can stand in for the first crumb to save width, as long as the link carries an
+`aria-label`. Use it for a home or workspace root that everyone recognises; keep words for
+everything below it.
+
+<Preview demo="breadcrumb/with-icon">
+  <WithIcon client:load />
+</Preview>
+
+### Long names
+
+Crumbs named by users can be as long as they like. Cap the last one with `truncate`, turn off
+wrapping on the list with `flex-nowrap`, and let the item shrink with `min-w-0`. Keep the full name
+in a `title` so nothing is lost.
+
+<Preview demo="breadcrumb/long-names">
+  <LongNames client:load />
+</Preview>
+
+### Custom separator
+
+`BreadcrumbSeparator` accepts children, so a slash can replace the chevron for a path-like trail,
+such as an organisation, a project and a resource. It stays `aria-hidden` whatever you put in.
 
 <Preview demo="breadcrumb/custom-separator">
   <CustomSeparator client:load />
 </Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Mirror the real hierarchy of the product, from the broadest section down to the current page.",
+    "Make the final crumb a `BreadcrumbPage` so it is marked as the current page.",
+    "Collapse the middle of a long trail, and keep the first and last crumbs.",
+    "Place it above the page title, where it reads as context.",
+  ]}
+  dont={[
+    "Don't use it as the only way to navigate; it supplements the main navigation.",
+    "Don't show the history of pages visited; it shows where the page sits, not how you got there.",
+    "Don't link the current page to itself.",
+    "Don't use it on a flat site with one level.",
+  ]}
+/>
+
+## Accessibility
+
+`Breadcrumb` renders a `<nav aria-label="breadcrumb">` around an ordered list, so screen readers
+announce a breadcrumb landmark and the position in the trail. `BreadcrumbPage` carries
+`aria-current="page"`, and the separators and ellipsis are `aria-hidden`.
+
+<Keyboard
+  keys={[
+    ["Tab / Shift+Tab", "Moves between the crumb links; the current page is not a tab stop."],
+    ["Enter", "Follows the focused link."],
+  ]}
+/>

@@ -6,22 +6,24 @@ import {
   AttachmentTitle,
   Spinner,
 } from "@robomous/ui-core";
-import { FileIcon } from "@robomous/ui-core/icons";
+import { FileArchiveIcon } from "@robomous/ui-core/icons";
 
 /** Every part styles off `state`: dashed and quiet while idle, a spinner mid-upload, a shimmering title while processing, and a plain settled `done`. */
 export default function States() {
   return (
-    <div className="flex flex-wrap gap-3">
-      <Attachment state="idle">
-        <AttachmentMedia variant="icon">
-          <FileIcon />
+    <div className="grid w-full max-w-md grid-cols-[5.5rem_1fr] items-center gap-x-4 gap-y-3">
+      <span className="font-mono text-xs text-muted-foreground">idle</span>
+      <Attachment state="idle" className="w-full">
+        <AttachmentMedia>
+          <FileArchiveIcon />
         </AttachmentMedia>
         <AttachmentContent>
           <AttachmentTitle>Drop a batch</AttachmentTitle>
         </AttachmentContent>
       </Attachment>
-      <Attachment state="uploading">
-        <AttachmentMedia variant="icon">
+      <span className="font-mono text-xs text-muted-foreground">uploading</span>
+      <Attachment state="uploading" className="w-full">
+        <AttachmentMedia>
           <Spinner />
         </AttachmentMedia>
         <AttachmentContent>
@@ -29,27 +31,30 @@ export default function States() {
           <AttachmentDescription>1.2 GB</AttachmentDescription>
         </AttachmentContent>
       </Attachment>
-      <Attachment state="processing">
-        <AttachmentMedia variant="icon">
-          <FileIcon />
+      <span className="font-mono text-xs text-muted-foreground">processing</span>
+      <Attachment state="processing" className="w-full">
+        <AttachmentMedia>
+          <FileArchiveIcon />
         </AttachmentMedia>
         <AttachmentContent>
           <AttachmentTitle>batch-0044.zip</AttachmentTitle>
           <AttachmentDescription>Extracting frames</AttachmentDescription>
         </AttachmentContent>
       </Attachment>
-      <Attachment state="error">
-        <AttachmentMedia variant="icon">
-          <FileIcon />
+      <span className="font-mono text-xs text-muted-foreground">error</span>
+      <Attachment state="error" className="w-full">
+        <AttachmentMedia>
+          <FileArchiveIcon />
         </AttachmentMedia>
         <AttachmentContent>
-          <AttachmentTitle>broken.zip</AttachmentTitle>
+          <AttachmentTitle>frames-02.tar</AttachmentTitle>
           <AttachmentDescription>Upload failed</AttachmentDescription>
         </AttachmentContent>
       </Attachment>
-      <Attachment state="done">
-        <AttachmentMedia variant="icon">
-          <FileIcon />
+      <span className="font-mono text-xs text-muted-foreground">done</span>
+      <Attachment state="done" className="w-full">
+        <AttachmentMedia>
+          <FileArchiveIcon />
         </AttachmentMedia>
         <AttachmentContent>
           <AttachmentTitle>batch-0041.zip</AttachmentTitle>

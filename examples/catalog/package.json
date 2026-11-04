@@ -10,7 +10,8 @@
     "check": "astro sync && astro check",
     "preview": "astro preview",
     "fresh": "astro dev stop && node -e \"fs.rmSync('node_modules/.vite',{recursive:true,force:true})\"",
-    "api": "node scripts/extract-api.ts"
+    "api": "node scripts/extract-api.ts",
+    "assets": "node scripts/generate-assets.ts"
   },
   "dependencies": {
     "@robomous/ui-core": "workspace:*",

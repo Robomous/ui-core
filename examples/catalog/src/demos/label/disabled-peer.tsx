@@ -1,11 +1,17 @@
-import { Label, Input } from "@robomous/ui-core";
+import { Input, Label } from "@robomous/ui-core";
 
-/** A label dims through `peer-disabled` when the control it names is disabled; the control must precede the label in the DOM for the sibling selector to reach it. */
+/** The control carries `peer` and comes first in the DOM, so its label dims with it; `flex-col-reverse` puts each label back on top. */
 export default function DisabledPeer() {
   return (
-    <div className="flex flex-col-reverse gap-1.5">
-      <Input id="lbl-frozen" defaultValue="30 fps" disabled className="peer w-48" />
-      <Label htmlFor="lbl-frozen">Frame rate</Label>
+    <div className="grid w-full max-w-sm gap-4">
+      <div className="flex flex-col-reverse gap-2">
+        <Input id="lb-hostname" defaultValue="rb-12.mty-dc2" className="peer font-mono" />
+        <Label htmlFor="lb-hostname">Hostname</Label>
+      </div>
+      <div className="flex flex-col-reverse gap-2">
+        <Input id="lb-firmware" defaultValue="v2.14.1" disabled className="peer font-mono" />
+        <Label htmlFor="lb-firmware">Firmware version</Label>
+      </div>
     </div>
   );
 }

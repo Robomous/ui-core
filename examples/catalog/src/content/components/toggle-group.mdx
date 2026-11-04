@@ -1,6 +1,7 @@
 ---
 title: ToggleGroup
-description: A row of Toggles that share one selection model. `type="single"` behaves like radios, `type="multiple"` like independent pressed buttons.
+description: A set of Toggles that share one selection model. `type="single"` behaves like radios you can clear, `type="multiple"` like independent pressed buttons.
+related: [toggle, tabs, radio-group, button-group]
 builtOn:
   - name: Radix ToggleGroup
     docsUrl: https://www.radix-ui.com/primitives/docs/components/toggle-group
@@ -8,63 +9,131 @@ builtOn:
 ---
 
 import Multiple from "@/demos/toggle-group/multiple";
+import Overview from "@/demos/toggle-group/overview";
 import Single from "@/demos/toggle-group/single";
+import Sizes from "@/demos/toggle-group/sizes";
 import Vertical from "@/demos/toggle-group/vertical";
 import Welded from "@/demos/toggle-group/welded";
 
-<Preview demo="toggle-group/single">
-  <Single client:load />
+<Preview demo="toggle-group/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import { ToggleGroup, ToggleGroupItem } from "@robomous/ui-core";
+import { LayoutGridIcon, ListIcon } from "@robomous/ui-core/icons";
+
+export function LayoutSwitch() {
+  return (
+    <ToggleGroup type="single" defaultValue="grid" aria-label="Dataset layout">
+      <ToggleGroupItem value="grid" aria-label="Grid">
+        <LayoutGridIcon />
+      </ToggleGroupItem>
+      <ToggleGroupItem value="list" aria-label="List">
+        <ListIcon />
+      </ToggleGroupItem>
+    </ToggleGroup>
+  );
+}
 ```
 
-```tsx
-<ToggleGroup type="single" defaultValue="left" aria-label="Alignment">
-  <ToggleGroupItem value="left" aria-label="Left">
-    <AlignLeftIcon />
-  </ToggleGroupItem>
-  <ToggleGroupItem value="center" aria-label="Centre">
-    <AlignCenterIcon />
-  </ToggleGroupItem>
-</ToggleGroup>
-```
-
-Items inherit the group's `variant` and `size` — set them once on `ToggleGroup`, not on each
-`ToggleGroupItem`.
+<Callout title="A single group can end up empty" tone="warning">
+  In `type="single"`, pressing the active item turns it off and `onValueChange` receives an empty
+  string. If one option must always be chosen, control the value and ignore the empty one:
+  `onValueChange={(next) => next && setValue(next)}`.
+</Callout>
 
 ## Composition
 
 ```text
 ToggleGroup
 └─ ToggleGroupItem
+   └─ <Icon data-icon="inline-start" | "inline-end" />   optional
 ```
 
-## Multiple selection
+## Examples
 
-`type="multiple"` behaves like independent pressed buttons: any number of segments can stay on
-at once.
+### Single selection
+
+`type="single"` allows at most one pressed item and takes a string `value`. Reach for it when the
+options are views of the same thing, such as a grid, a list or a table, and for a toolbar where
+the whole group is one icon-only control.
+
+<Preview demo="toggle-group/single">
+  <Single client:load />
+</Preview>
+
+### Multiple selection
+
+`type="multiple"` takes an array in `value`, so any number of items can stay on. It suits layers
+you can show together, such as boxes, masks and labels over a frame. Text next to each icon makes
+the set readable without hovering.
 
 <Preview demo="toggle-group/multiple">
   <Multiple client:load />
 </Preview>
 
-## Welded segments
+### Welded segments
 
-`spacing={0}` welds the segments into one control, sharing borders instead of gaps — the first
-and last items pick up the group's own corner radius.
+`spacing={0}` removes the gap and welds the segments into one control, sharing borders. The first
+and last item take the group's corner radius. This is the shape for a short range picker, and the
+selection drives something else, so it is controlled here.
 
 <Preview demo="toggle-group/welded">
   <Welded client:load />
 </Preview>
 
-## Vertical
+### Sizes
 
-`orientation="vertical"` stacks the segments and stretches them to one width instead of a row.
+`size` and `variant` are set once on the group and every item inherits them, so you cannot end up
+with mismatched segments. The sizes match `Toggle`: `sm`, `default` and `lg`.
+
+<Preview demo="toggle-group/sizes">
+  <Sizes client:load />
+</Preview>
+
+### Vertical
+
+`orientation="vertical"` stacks the items, stretches them to one width and turns the arrow keys
+to the column's axis: up and down move between items. Use it for a tool rail along the edge of a
+canvas or a map. Give the group a width to set the rail's thickness.
 
 <Preview demo="toggle-group/vertical">
   <Vertical client:load />
 </Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Set `variant` and `size` on the group, not on each item.",
+    "Name the group with `aria-label`, and each icon-only item with its own.",
+    'Choose `type="single"` for exclusive options and `type="multiple"` for independent ones.',
+    "Keep it to a handful of items that fit on one line.",
+  ]}
+  dont={[
+    "Don't use it to switch between panels of content; that is `Tabs`.",
+    'Don\'t use `type="single"` as a form field where an empty value is invalid; use a `RadioGroup`.',
+    "Don't mix text and icon-only items in one group.",
+    "Don't rely on the pressed fill alone when the labels are icons the reader may not know.",
+  ]}
+/>
+
+## Accessibility
+
+In `type="single"` the group is a `radiogroup` and each item a `radio` with `aria-checked`. In
+`type="multiple"` the group is a `toolbar` and each item a button with `aria-pressed`. Either way the
+group is one tab stop with roving focus, so the arrow keys along its `orientation` move between
+items.
+
+<Keyboard
+  keys={[
+    ["Tab / Shift+Tab", "Moves focus into and out of the group as one stop."],
+    ["ArrowLeft / ArrowRight", "Moves focus between items in a horizontal group."],
+    ["ArrowUp / ArrowDown", "Moves focus between items in a vertical group."],
+    ["Home / End", "Moves focus to the first or last item."],
+    ["Enter / Space", "Toggles the focused item."],
+  ]}
+/>

@@ -78,6 +78,61 @@ describe("Sidebar", () => {
     expect(document.cookie).toContain("sidebar_state=true");
   });
 
+  it("restores the stored state when no defaultOpen is given", () => {
+    document.cookie = "sidebar_state=false; path=/";
+    render(<Shell />);
+    expect(panel().getAttribute("data-state")).toBe("collapsed");
+  });
+
+  it("lets an explicit defaultOpen win over the cookie", () => {
+    document.cookie = "sidebar_state=false; path=/";
+    render(<Shell defaultOpen />);
+    expect(panel().getAttribute("data-state")).toBe("expanded");
+  });
+
+  it("neither reads nor writes the cookie when persist is off", async () => {
+    const user = userEvent.setup();
+    document.cookie = "sidebar_state=false; path=/";
+    render(<Shell persist={false} />);
+    expect(panel().getAttribute("data-state")).toBe("expanded");
+    await user.click(trigger());
+    await user.click(trigger());
+    expect(document.cookie).toContain("sidebar_state=false");
+  });
+
+  it("can drop or change the keyboard shortcut", async () => {
+    const user = userEvent.setup();
+    const { unmount } = render(<Shell keyboardShortcut={false} />);
+    await user.keyboard("{Control>}b{/Control}");
+    expect(panel().getAttribute("data-state")).toBe("expanded");
+    unmount();
+    render(<Shell keyboardShortcut="j" />);
+    await user.keyboard("{Control>}j{/Control}");
+    expect(panel().getAttribute("data-state")).toBe("collapsed");
+  });
+
+  it("provides the tooltip provider a menu button's tooltip needs", async () => {
+    const user = userEvent.setup();
+    render(
+      <SidebarProvider>
+        <Sidebar collapsible="icon">
+          <SidebarContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton tooltip="Datasets">Datasets</SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarContent>
+        </Sidebar>
+        <SidebarTrigger />
+      </SidebarProvider>,
+    );
+    // Without a provider in the tree Radix throws on render; collapsed, the tooltip shows.
+    await user.click(trigger());
+    await user.hover(screen.getByRole("button", { name: "Datasets" }));
+    expect(await screen.findByRole("tooltip")).toBeTruthy();
+  });
+
   it("toggles from the keyboard shortcut", async () => {
     const user = userEvent.setup();
     render(<Shell />);

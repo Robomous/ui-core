@@ -1,41 +1,44 @@
 ---
 title: Checkbox
 description: A box the reader ticks, with an indeterminate state for select-all. Its state is `aria-checked`, and inside a form it still posts its value.
+related: [switch, radio-group, toggle]
 builtOn:
   - name: Radix Checkbox
     docsUrl: https://www.radix-ui.com/primitives/docs/components/checkbox
     apiUrl: https://www.radix-ui.com/primitives/docs/components/checkbox#api-reference
 ---
 
-import Default from "@/demos/checkbox/default";
+import CardOptions from "@/demos/checkbox/card-options";
 import Disabled from "@/demos/checkbox/disabled";
+import InForm from "@/demos/checkbox/in-form";
 import Indeterminate from "@/demos/checkbox/indeterminate";
 import Invalid from "@/demos/checkbox/invalid";
+import Overview from "@/demos/checkbox/overview";
 import WithDescription from "@/demos/checkbox/with-description";
 
-<Preview demo="checkbox/default">
-  <Default client:load />
+<Preview demo="checkbox/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import { Checkbox, Label } from "@robomous/ui-core";
+
+export function UnreviewedOption() {
+  return (
+    <div className="flex items-center gap-2">
+      <Checkbox id="include-unreviewed" />
+      <Label htmlFor="include-unreviewed">Include unreviewed frames in the export</Label>
+    </div>
+  );
+}
 ```
 
-```tsx
-<div className="flex items-center gap-2">
-  <Checkbox id="terms" />
-  <Label htmlFor="terms">Accept the terms of use</Label>
-</div>
-```
-
-`Checkbox` renders a `button` with `role="checkbox"` and `type="button"`, so pressing it never
-submits a form. Inside a `<form>`, Radix adds a hidden native input, so `name` and `value` post as
-a native checkbox would. Pair it with a `Label` through `htmlFor`.
-
-A checkbox is for a choice that takes effect when the form is saved. A setting that applies the
-moment it changes is a [Switch](/components/switch).
+<Callout title="Checkbox or Switch?">
+  A checkbox is a choice that takes effect when the form is saved. A setting that applies the moment
+  it changes is a [Switch](/components/switch).
+</Callout>
 
 ## Composition
 
@@ -43,35 +46,95 @@ moment it changes is a [Switch](/components/switch).
 Checkbox
 ```
 
-## With a description
+A checkbox carries no text of its own. Pair it with a `Label` through `htmlFor`, or put it in a
+`Field` next to a `FieldLabel`.
 
-Inside a horizontal `Field` with `FieldContent`, the box aligns to the first line of the label.
+## Examples
+
+### With a description
+
+Inside a horizontal `Field` with `FieldContent`, the box aligns to the first line of the label, so a
+longer explanation can sit underneath without pulling the box down. Link it with
+`aria-describedby`.
 
 <Preview demo="checkbox/with-description">
   <WithDescription client:load />
 </Preview>
 
-## Indeterminate
+### Select all
 
 `checked="indeterminate"` renders `aria-checked="mixed"`: a select-all over rows that are only
 partly chosen. The box fills as it does when checked but draws a dash, not a tick, so a partial
-selection never reads as a full one. The state is the caller's to derive.
+selection never reads as a full one. The component does not derive the state; you compute it from
+the rows.
 
 <Preview demo="checkbox/indeterminate">
   <Indeterminate client:load />
 </Preview>
 
-## Disabled
+### Selectable cards
+
+When each option needs a title and a sentence, wrap a `Field` in a `FieldLabel`. The whole card
+becomes the hit area and tints once checked, which suits a short list of rich options.
+
+<Preview demo="checkbox/card-options">
+  <CardOptions client:load />
+</Preview>
+
+### In a form
+
+Give each box a `name` and a `value`. Radix adds a hidden native input inside a `<form>`, so
+checked boxes post under the same name and `FormData.getAll` returns every one of them.
+
+<Preview demo="checkbox/in-form">
+  <InForm client:load />
+</Preview>
+
+### Invalid
+
+`aria-invalid` on the checkbox paints the destructive ring; `data-invalid` on the `Field` colours
+its label. The message and `aria-describedby` are yours to write, since the component knows
+neither. Tick the box in the demo and the error clears.
+
+<Preview demo="checkbox/invalid">
+  <Invalid client:load />
+</Preview>
+
+### Disabled
+
+A disabled box drops to half opacity and its label dims with it. Say why the option is locked
+nearby, especially for a checked one the reader cannot change.
 
 <Preview demo="checkbox/disabled">
   <Disabled client:load />
 </Preview>
 
-## Invalid
+## Guidelines
 
-`aria-invalid` on the checkbox paints the destructive ring; `data-invalid` on the `Field` colours
-its label. The message and `aria-describedby` are the call site's.
+<Guidelines
+  do={[
+    "Label every checkbox with text the reader can click; the label toggles the box.",
+    'Use a select-all with `checked="indeterminate"` when rows can be partly chosen.',
+    'Phrase the label so that checked means yes: "Include unreviewed frames".',
+    "Explain a locked option in a description, not only by disabling it.",
+  ]}
+  dont={[
+    "Don't use a checkbox for a setting that applies instantly; that is a `Switch`.",
+    "Don't pick one of several exclusive options with checkboxes; use a `RadioGroup`.",
+    "Don't write negative labels such as \"Don't skip unreviewed frames\".",
+    "Don't rely on the destructive ring alone to show an error; add a message.",
+  ]}
+/>
 
-<Preview demo="checkbox/invalid">
-  <Invalid client:load />
-</Preview>
+## Accessibility
+
+A `button` with `role="checkbox"` and `aria-checked` (`true`, `false` or `mixed`), so the state is
+announced without the visual tick. The hit area extends past the 16px box, and `type="button"`
+means it never submits a form on its own.
+
+<Keyboard
+  keys={[
+    ["Space", "Toggles the checkbox."],
+    ["Tab", "Moves focus to the next control; a `disabled` checkbox is skipped."],
+  ]}
+/>

@@ -4,7 +4,7 @@
 
 # @robomous/ui-core
 
-The Robomous design system, built on top of [shadcn/ui](https://ui.shadcn.com): forty-five React
+The Robomous design system, built on top of [shadcn/ui](https://ui.shadcn.com): fifty-four React
 components this package owns outright, over Radix UI and Base UI behaviour — plus cmdk under
 `Command` and vaul under `Drawer` — and the one stylesheet they resolve through. Extracted from
 [Robomous/VisionSet](https://github.com/Robomous/VisionSet), where it grew up.

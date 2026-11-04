@@ -1,0 +1,41 @@
+---
+import { Kbd, KbdGroup } from "@robomous/ui-core";
+
+import InlineText from "@/components/InlineText.astro";
+
+interface Props {
+  /** Rows of [keys, what they do]. Keys combine with "+" ("Shift+Tab"); several
+      alternatives are separated by " / " ("Enter / Space"). */
+  keys: [string, string][];
+}
+
+const { keys } = Astro.props;
+---
+
+<div data-block class="my-6 overflow-hidden rounded-md border text-sm">
+  <div class="hidden grid-cols-[minmax(0,11rem)_minmax(0,1fr)] gap-x-4 border-b sm:grid bg-muted/40 px-4 py-2 text-xs font-medium text-muted-foreground">
+    <span>Key</span>
+    <span>Action</span>
+  </div>
+  <dl class="divide-y">
+    {keys.map(([combo, action]) => (
+      <div class="grid items-baseline gap-x-4 gap-y-1.5 px-4 py-2.5 sm:grid-cols-[minmax(0,11rem)_minmax(0,1fr)]">
+        <dt class="flex flex-wrap items-center gap-1.5">
+          {combo.split(" / ").map((alternative, index) => (
+            <>
+              {index > 0 && <span class="text-xs text-muted-foreground">or</span>}
+              <KbdGroup>
+                {alternative.split("+").map((key) => (
+                  <Kbd className="px-1.5 text-[0.6875rem]">{key}</Kbd>
+                ))}
+              </KbdGroup>
+            </>
+          ))}
+        </dt>
+        <dd class="leading-6 text-pretty text-muted-foreground">
+          <InlineText text={action} />
+        </dd>
+      </div>
+    ))}
+  </dl>
+</div>

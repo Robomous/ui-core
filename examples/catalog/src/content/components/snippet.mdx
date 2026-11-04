@@ -1,0 +1,131 @@
+---
+title: Snippet
+description: A command for the reader to run, its `$` prompt drawn and never copied, with a copy button that confirms.
+related: [code-block, kbd, input-group]
+builtOn:
+  - name: native HTML
+    docsUrl: https://developer.mozilla.org/docs/Web/HTML/Element/pre
+---
+
+import Callback from "@/demos/snippet/callback";
+import Controlled from "@/demos/snippet/controlled";
+import CopyText from "@/demos/snippet/copy-text";
+import MultiLine from "@/demos/snippet/multi-line";
+import NoPrompt from "@/demos/snippet/no-prompt";
+import Overview from "@/demos/snippet/overview";
+import Variants from "@/demos/snippet/variants";
+
+<Preview demo="snippet/overview" hero>
+  <Overview client:load />
+</Preview>
+
+## Usage
+
+```tsx
+import { Snippet } from "@robomous/ui-core";
+
+export function InstallStep() {
+  return <Snippet text="pnpm add @robomous/ui-core" />;
+}
+```
+
+<Callout title="Pass the bare command" tone="warning">
+  The component draws the `$` itself and leaves it out of the copy, so `text="$ robomous login"`
+  would show two prompts. Write `text="robomous login"`.
+</Callout>
+
+## Composition
+
+```text
+Snippet
+```
+
+## Examples
+
+### Variants
+
+The default is a bordered line on the page surface. `inverted` flips to the foreground colour for
+the one command a page is about. `info`, `success`, `warning` and `error` paint the snippet with
+that role's surface and ink, for a command with consequences: a dry run, a resume, a mass update, a
+deletion. The colour only reinforces; say what the command does in the text around it.
+
+<Preview demo="snippet/variants">
+  <Variants client:load />
+</Preview>
+
+### Multi-line
+
+An array of strings is a short block of commands that belong together. Each line gets its own
+prompt and the copy button joins them with newlines, so one click pastes the whole sequence. Past
+three or four lines, or for anything with logic, switch to a [CodeBlock](/components/code-block).
+
+<Preview demo="snippet/multi-line">
+  <MultiLine client:load />
+</Preview>
+
+### No prompt
+
+`prompt={false}` removes the `$` for anything that isn't a shell command, such as a URL, a path or
+a token, so what is shown is exactly what is copied.
+
+<Preview demo="snippet/no-prompt">
+  <NoPrompt client:load />
+</Preview>
+
+### Copy more than is shown
+
+`copyText` replaces what lands on the clipboard. Use it when the readable form and the runnable
+form differ, like a long `docker run` with flags, and keep the visible text honest about what the
+command does.
+
+<Preview demo="snippet/copy-text">
+  <CopyText client:load />
+</Preview>
+
+### Copy callback
+
+`onCopy` receives the copied text after the write, for analytics or a toast. The button already
+swaps to a check for two seconds, so add a toast only when the reader's eyes are elsewhere.
+
+<Preview demo="snippet/callback">
+  <Callback client:load />
+</Preview>
+
+### Controlled copied state
+
+`copied` drives the checkmark from outside, so a parent that copies something else can borrow it. When
+you pass `copied`, you also own the reset: clear it yourself after a moment.
+
+<Preview demo="snippet/controlled">
+  <Controlled client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Show one command per snippet, with a line of text above saying what it does.",
+    "Write the bare command in `text` and let the component draw the `$`.",
+    "Set `prompt={false}` for URLs, paths and tokens.",
+    "Keep `error` for commands that delete or overwrite data.",
+  ]}
+  dont={[
+    "Don't put a long script in a `Snippet`; use a `CodeBlock`.",
+    "Don't include the `$` in `text`; it would appear twice.",
+    "Don't use `copyText` to copy something the reader can't see on screen.",
+    "Don't rely on the variant colour alone to warn about a destructive command.",
+  ]}
+/>
+
+## Accessibility
+
+The text is in a `<pre>`, so spacing is preserved and long lines scroll inside the snippet. The
+`$` is `aria-hidden`, so it is never read out. The copy button is named "Copy to clipboard" and a
+polite live region announces "Copied" after it.
+
+<Keyboard
+  keys={[
+    ["Tab", "Moves focus to the copy button."],
+    ["Enter / Space", "Copies the command."],
+  ]}
+/>

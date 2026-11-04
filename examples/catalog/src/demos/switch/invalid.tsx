@@ -1,11 +1,35 @@
-import { Label, Switch } from "@robomous/ui-core";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Field,
+  FieldContent,
+  FieldError,
+  FieldLabel,
+  Switch,
+} from "@robomous/ui-core";
 
 /** `aria-invalid` styles the destructive ring, as on every other control. */
 export default function Invalid() {
   return (
-    <div className="flex items-center gap-2">
-      <Switch id="switch-invalid" aria-invalid />
-      <Label htmlFor="switch-invalid">Enable webhooks</Label>
-    </div>
+    <Card className="w-full max-w-sm">
+      <CardHeader>
+        <CardTitle>Notifications</CardTitle>
+        <CardDescription>
+          Choose where fleet alerts for Monterrey DC-2 are delivered.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Field orientation="horizontal" data-invalid>
+          <FieldContent>
+            <FieldLabel htmlFor="switch-invalid">Send alerts to Slack</FieldLabel>
+            <FieldError id="switch-invalid-error">Connect a Slack workspace first.</FieldError>
+          </FieldContent>
+          <Switch id="switch-invalid" aria-invalid aria-describedby="switch-invalid-error" />
+        </Field>
+      </CardContent>
+    </Card>
   );
 }

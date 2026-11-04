@@ -1,6 +1,7 @@
 ---
 title: Collapsible
 description: One trigger, one region, no styling. The primitive the Accordion is built from, for a disclosure that is not a stack of headings.
+related: [accordion, show-more, popover, sidebar]
 builtOn:
   - name: Radix Collapsible
     docsUrl: https://www.radix-ui.com/primitives/docs/components/collapsible
@@ -8,31 +9,40 @@ builtOn:
 ---
 
 import Default from "@/demos/collapsible/default";
+import Disabled from "@/demos/collapsible/disabled";
+import Overview from "@/demos/collapsible/overview";
+import SwitchDriven from "@/demos/collapsible/switch-driven";
+import Tree from "@/demos/collapsible/tree";
 
-<Preview demo="collapsible/default">
-  <Default client:load />
+<Preview demo="collapsible/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import { Button, Collapsible, CollapsibleContent, CollapsibleTrigger } from "@robomous/ui-core";
+import { ChevronsUpDownIcon } from "@robomous/ui-core/icons";
+
+export function Hyperparameters() {
+  return (
+    <Collapsible>
+      <CollapsibleTrigger asChild>
+        <Button variant="ghost" size="icon-sm" aria-label="Toggle hyperparameters">
+          <ChevronsUpDownIcon />
+        </Button>
+      </CollapsibleTrigger>
+      <CollapsibleContent>batch_size: 32</CollapsibleContent>
+    </Collapsible>
+  );
+}
 ```
 
-```tsx
-<Collapsible>
-  <CollapsibleTrigger asChild>
-    <Button variant="ghost" size="icon-sm" aria-label="Toggle advanced filters">
-      <ChevronsUpDownIcon />
-    </Button>
-  </CollapsibleTrigger>
-  <CollapsibleContent>…</CollapsibleContent>
-</Collapsible>
-```
-
-`Collapsible` carries no classes at all. The trigger sets `aria-expanded` and `aria-controls`
-itself. Give it a real control through `asChild`, and give an icon-only trigger an `aria-label`.
-The content leaves the DOM while closed.
+<Callout title="It brings no styling at all">
+  `Collapsible` adds no classes, no chevron and no animation. Give the trigger a real control
+  through `asChild`, and give an icon-only trigger an `aria-label`. For a stack of headings that
+  already looks finished, use `Accordion`.
+</Callout>
 
 ## Composition
 
@@ -41,3 +51,73 @@ Collapsible
 ├─ CollapsibleTrigger
 └─ CollapsibleContent
 ```
+
+## Examples
+
+### Peek, then expand
+
+Show what matters first and fold away the rest. The trigger can sit anywhere inside the root, not
+just beside the content, so a heading row with an icon button is enough. The content leaves the DOM
+while closed.
+
+<Preview demo="collapsible/default">
+  <Default client:load />
+</Preview>
+
+### Driven by another control
+
+`open` and `onOpenChange` make it controlled, and then no `CollapsibleTrigger` is needed: a
+`Switch` can own the state and the region it enables appears with it. Use this for optional
+settings that only make sense once switched on.
+
+<Preview demo="collapsible/switch-driven">
+  <SwitchDriven client:load />
+</Preview>
+
+### Nested, as a tree
+
+Every `Collapsible` keeps its own state, so nesting them gives a file tree with no extra wiring.
+Style the open state with `aria-expanded` on the trigger, here to turn the chevron, and with
+`defaultOpen` to start a branch expanded.
+
+<Preview demo="collapsible/tree">
+  <Tree client:load />
+</Preview>
+
+### Disabled
+
+`disabled` on the root stops the trigger and keeps the region closed. The control stays in the
+page, so explain beside it what unlocks the section instead of hiding it.
+
+<Preview demo="collapsible/disabled">
+  <Disabled client:load />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Use it for one optional region, such as advanced settings or a long stack trace.",
+    "Make the trigger a real `Button` through `asChild` and label it when it holds only an icon.",
+    "Show a visible cue for state: rotate a chevron with `aria-expanded` on the trigger.",
+    "Keep the trigger next to the content it controls so the relationship is obvious.",
+  ]}
+  dont={[
+    "Don't hide content a reader needs to finish the task.",
+    "Don't stack several collapsibles that behave like headings; that is `Accordion`.",
+    "Don't rely on a trigger with no label or icon change to signal it opens something.",
+    "Don't style by guessing; the open state is `data-state` on the root, trigger and content.",
+  ]}
+/>
+
+## Accessibility
+
+The trigger is a `button` that sets `aria-expanded` and `aria-controls` for the content it opens,
+and the content is removed from the DOM while closed, so assistive tech never reads hidden text.
+
+<Keyboard
+  keys={[
+    ["Enter / Space", "Opens or closes the region."],
+    ["Tab", "Moves focus to the trigger and on to whatever the open region holds."],
+  ]}
+/>

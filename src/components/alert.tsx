@@ -3,22 +3,21 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "cn";
 
+// Every variant is the same quiet box: no fill, a neutral hairline, the title
+// in the foreground and the description muted. The status lives in the icon
+// alone, the one mark that needs colour to be read at a glance; the title says
+// the rest in words. Status is never a stroke on a container, so the border
+// stays neutral too.
 const alertVariants = cva(
-  "group/alert relative grid min-h-11 w-full gap-0.5 rounded-lg border px-4 py-3 text-left text-sm has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-24 has-[>svg]:grid-cols-[1.25rem_1fr] has-[>svg]:gap-x-3 *:[svg]:row-span-2 *:[svg]:my-0.5 *:[svg]:self-start *:[svg]:justify-self-center *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4",
+  "group/alert grid w-full grid-cols-[minmax(0,1fr)] gap-x-2.5 gap-y-1 rounded-lg border bg-transparent px-3 py-2.5 text-left text-xs/relaxed text-foreground has-[>svg]:grid-cols-[auto_minmax(0,1fr)] has-data-[slot=alert-action]:grid-cols-[minmax(0,1fr)_auto] has-[>svg]:has-data-[slot=alert-action]:grid-cols-[auto_minmax(0,1fr)_auto] *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:stroke-[1.75] *:[svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        default: "bg-card text-card-foreground",
-        // The status recipe, as on Badge: the status's surface role under its ink
-        // role, the icon and the description in that same ink, border transparent.
-        info: "border-transparent bg-info-surface text-info *:data-[slot=alert-description]:text-info",
-        success:
-          "border-transparent bg-success-surface text-success *:data-[slot=alert-description]:text-success",
-        warning:
-          "border-transparent bg-warning-surface text-warning *:data-[slot=alert-description]:text-warning",
-        destructive:
-          // The destructive tint, as on Button: the role has no surface of its own.
-          "border-transparent bg-destructive/10 text-destructive *:data-[slot=alert-description]:text-destructive dark:bg-destructive/20",
+        default: "*:[svg]:text-muted-foreground",
+        info: "*:[svg]:text-info",
+        success: "*:[svg]:text-success",
+        warning: "*:[svg]:text-warning",
+        destructive: "*:[svg]:text-destructive",
       },
     },
     defaultVariants: {
@@ -52,12 +51,18 @@ function Alert({
   );
 }
 
+// Links are underlined at a fraction of their ink and take the full ink on
+// hover, so a link in an alert is findable without striping the notice.
+const links =
+  "[&_a]:underline [&_a]:decoration-current/40 [&_a]:underline-offset-3 [&_a]:hover:decoration-current";
+
 function AlertTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="alert-title"
       className={cn(
-        "pt-px text-sm/4.5 font-medium group-has-[>svg]/alert:col-start-2 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground",
+        "pt-px text-sm/4.5 font-medium text-balance group-has-[>svg]/alert:col-start-2",
+        links,
         className,
       )}
       {...props}
@@ -70,7 +75,8 @@ function AlertDescription({ className, ...props }: React.ComponentProps<"div">) 
     <div
       data-slot="alert-description"
       className={cn(
-        "text-[13px]/4.5 text-balance text-muted-foreground md:text-pretty [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4",
+        "text-xs/relaxed text-pretty text-muted-foreground group-has-[>svg]/alert:col-start-2 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-2",
+        links,
         className,
       )}
       {...props}
@@ -78,9 +84,19 @@ function AlertDescription({ className, ...props }: React.ComponentProps<"div">) 
   );
 }
 
+// The action takes its own column, so the text wraps before it instead of
+// running under it. Its box is one title line tall and centres what it holds,
+// so a small button or an icon button lines up with the first line of text.
 function AlertAction({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <div data-slot="alert-action" className={cn("absolute top-2 right-2", className)} {...props} />
+    <div
+      data-slot="alert-action"
+      className={cn(
+        "col-[-2/-1] row-span-2 row-start-1 ml-2 flex h-5 items-center gap-1 self-start",
+        className,
+      )}
+      {...props}
+    />
   );
 }
 

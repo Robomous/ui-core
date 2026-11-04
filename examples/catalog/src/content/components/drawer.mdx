@@ -1,6 +1,7 @@
 ---
 title: Drawer
-description: A panel that slides in and can be dragged shut, built on vaul rather than Radix. `direction` picks the edge it opens from, and only the bottom drawer gets a drag handle, because only it can be pulled by gesture.
+description: A panel that slides in and can be dragged shut, built on vaul rather than Radix. `direction` picks the edge it opens from, and only the bottom drawer gets a drag handle.
+related: [sheet, dialog, popover]
 builtOn:
   - name: vaul
     docsUrl: https://vaul.emilkowal.ski/
@@ -9,9 +10,12 @@ builtOn:
 
 import Bottom from "@/demos/drawer/bottom";
 import Directions from "@/demos/drawer/directions";
+import Overview from "@/demos/drawer/overview";
+import Picker from "@/demos/drawer/picker";
+import Required from "@/demos/drawer/required";
 
-<Preview demo="drawer/bottom">
-  <Bottom client:only="react" />
+<Preview demo="drawer/overview" hero>
+  <Overview client:only="react" />
 </Preview>
 
 ## Usage
@@ -20,60 +24,126 @@ import Directions from "@/demos/drawer/directions";
 import {
   Button,
   Drawer,
+  DrawerClose,
   DrawerContent,
   DrawerDescription,
+  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
 } from "@robomous/ui-core";
+
+export function ReportProblem() {
+  return (
+    <Drawer>
+      <DrawerTrigger asChild>
+        <Button variant="outline">Report a problem</Button>
+      </DrawerTrigger>
+      <DrawerContent>
+        <DrawerHeader>
+          <DrawerTitle>Report a problem</DrawerTitle>
+          <DrawerDescription>Tell the fleet team what the robot did.</DrawerDescription>
+        </DrawerHeader>
+        <DrawerFooter>
+          <Button>Send report</Button>
+          <DrawerClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DrawerClose>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
+  );
+}
 ```
 
-```tsx
-<Drawer>
-  <DrawerTrigger asChild>
-    <Button variant="outline">Open filters</Button>
-  </DrawerTrigger>
-  <DrawerContent>
-    <DrawerHeader>
-      <DrawerTitle>Filters</DrawerTitle>
-      <DrawerDescription>Narrow the batches shown.</DrawerDescription>
-    </DrawerHeader>
-  </DrawerContent>
-</Drawer>
-```
-
-`direction` defaults to `bottom`, the only direction that renders a drag handle; the others open
-like a Sheet that can also be swiped shut. Every Drawer demo on this page hydrates with
-`client:only="react"`, because vaul reads the viewport to position itself and has nothing
-meaningful to render on the server.
+<Callout title="Hydrate it on the client only">
+  vaul reads the viewport to position itself and has nothing meaningful to render on the server.
+  In Astro, use `client:only="react"` for any island that contains a Drawer, as every demo on this
+  page does.
+</Callout>
 
 ## Composition
 
 ```text
-Drawer
+Drawer                        direction="bottom" by default
 ├─ DrawerTrigger
-└─ DrawerContent
+└─ DrawerContent              portals itself with its overlay; handle only when bottom
    ├─ DrawerHeader
    │  ├─ DrawerTitle
    │  └─ DrawerDescription
+   ├─ …your body
    └─ DrawerFooter
       └─ DrawerClose
 ```
 
-## Bottom
+## Examples
 
-The default direction. A drag handle sits above the content so the panel can be pulled shut by
-gesture, the one behaviour neither Radix nor Base UI gives the rest of the package.
+### A form in a bottom drawer
+
+The default direction, and the one for phones. A drag handle sits above the content so the panel
+can be pulled shut by gesture, and any `DrawerClose` dismisses it as well. Wrap the content in a
+`max-w-sm` column so it stays readable when the drawer spans a wide screen.
 
 <Preview demo="drawer/bottom">
   <Bottom client:only="react" />
 </Preview>
 
-## Directions
+### A picker
 
-`direction` opens the drawer from any edge. Only `bottom` shows the drag handle; the others are a
-Dialog-like panel that keeps its exit animation, as a Sheet does.
+A choice list is a natural fit: the options land under the thumb, and wrapping each row in
+`DrawerClose` means choosing also dismisses. Keep the selection in state and mark the current row
+with `aria-current`.
+
+<Preview demo="drawer/picker">
+  <Picker client:only="react" />
+</Preview>
+
+### Directions
+
+`direction` opens the drawer from any edge. Only `bottom` shows the drag handle; the other three are
+a panel like a Sheet that can also be swiped shut toward its edge.
 
 <Preview demo="drawer/directions">
   <Directions client:only="react" />
 </Preview>
+
+### A required choice
+
+`dismissible={false}` disables dragging, Escape and outside clicks, for a decision the reader must
+make. vaul then also ignores `DrawerClose`, so own `open` and close it from your buttons, as here.
+
+<Preview demo="drawer/required">
+  <Required client:only="react" />
+</Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Use a bottom drawer for touch-first flows where the controls should sit within thumb reach.",
+    "Cap the content width with a `mx-auto max-w-sm` column so wide screens don't stretch it.",
+    "Put the primary action first in `DrawerFooter`; the buttons stack and fill the width.",
+    "Offer a visible `DrawerClose` as well as the drag, since dragging is not discoverable.",
+  ]}
+  dont={[
+    "Don't use a drawer on a desktop-first screen where a Sheet or Dialog fits better.",
+    "Don't make it `dismissible={false}` without giving the reader a button that closes it.",
+    "Don't put a long scrolling form in it; the drag gesture competes with the scroll.",
+    "Don't render it on the server; keep it on the client.",
+  ]}
+/>
+
+## Accessibility
+
+vaul builds on the Radix Dialog, so the drawer has `role="dialog"`, is labelled by `DrawerTitle`
+and described by `DrawerDescription`, traps focus and restores it on close. Dragging is an
+enhancement; every drawer needs a button or Escape as well.
+
+<Keyboard
+  keys={[
+    ["Enter / Space", "Opens the drawer from its trigger."],
+    ["Tab", "Moves focus to the next control inside the drawer."],
+    ["Shift+Tab", "Moves focus to the previous control."],
+    ["Escape", "Closes the drawer, unless it is `dismissible={false}`."],
+  ]}
+/>

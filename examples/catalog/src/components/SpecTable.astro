@@ -1,0 +1,35 @@
+---
+import { BracesIcon, CaseSensitiveIcon, CircleHelpIcon } from "@robomous/ui-core/icons";
+
+/**
+ * A foundation's reference table: an example, the class that produces it,
+ * and when to reach for it. Rows come from the slot and share `.spec-row`.
+ */
+interface Props {
+  example?: string;
+  name?: string;
+  usage?: string;
+  /** The three column widths, when the example column is not the widest. */
+  columns?: string;
+}
+
+const { example = "Example", name = "Class name", usage = "Usage", columns } = Astro.props;
+---
+
+<div class="spec-table" style={columns ? `--spec-columns: ${columns}` : undefined}>
+  <div class="spec-head" aria-hidden="true">
+    <span class="flex items-center gap-1.5">
+      <CaseSensitiveIcon className="size-4" />
+      {example}
+    </span>
+    <span class="flex items-center gap-1.5">
+      <BracesIcon className="size-3.5" />
+      {name}
+    </span>
+    <span class="flex items-center gap-1.5">
+      <CircleHelpIcon className="size-3.5" />
+      {usage}
+    </span>
+  </div>
+  <slot />
+</div>

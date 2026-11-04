@@ -4,36 +4,43 @@ import {
   CircleAlertIcon,
   InfoIcon,
   CircleCheckIcon,
+  CalendarClockIcon,
 } from "@robomous/ui-core/icons";
 
-/** Default on card, then four tonal roles: each paints its surface and its ink, never its border. */
+/** A neutral default, then four status roles: each colours its icon and nothing else. */
 export default function Variants() {
   return (
     <div className="flex w-full max-w-md flex-col gap-4">
       <Alert>
-        <TriangleAlertIcon />
-        <AlertTitle>Ingest paused</AlertTitle>
-        <AlertDescription>The bucket is unreachable. Retrying in a minute.</AlertDescription>
+        <CalendarClockIcon />
+        <AlertTitle>Maintenance window on Saturday</AlertTitle>
+        <AlertDescription>
+          Robots at Monterrey DC-2 return to dock at 02:00 for firmware 4.2.1.
+        </AlertDescription>
       </Alert>
       <Alert variant="info">
         <InfoIcon />
-        <AlertTitle>Inference is running locally</AlertTitle>
-        <AlertDescription>No frame leaves this machine.</AlertDescription>
+        <AlertTitle>detector-v3.2 is serving traffic</AlertTitle>
+        <AlertDescription>The previous version stays available for rollback.</AlertDescription>
       </Alert>
       <Alert variant="success">
         <CircleCheckIcon />
-        <AlertTitle>Release v0.6 is verified</AlertTitle>
-        <AlertDescription>All assets match the manifest.</AlertDescription>
+        <AlertTitle>Export finished</AlertTitle>
+        <AlertDescription>4,812 annotations are ready as COCO JSON.</AlertDescription>
       </Alert>
       <Alert variant="warning">
         <TriangleAlertIcon />
-        <AlertTitle>Local suggestions are off</AlertTitle>
-        <AlertDescription>Install the runtime, then restart the server.</AlertDescription>
+        <AlertTitle>Battery low on rb-07 "Atlas"</AlertTitle>
+        <AlertDescription>
+          14% left. The robot will dock after its current mission.
+        </AlertDescription>
       </Alert>
       <Alert variant="destructive">
         <CircleAlertIcon />
-        <AlertTitle>Export failed</AlertTitle>
-        <AlertDescription>Two frames reference a class that no longer exists.</AlertDescription>
+        <AlertTitle>Ingest paused</AlertTitle>
+        <AlertDescription>
+          The S3 bucket rejected our credentials. Rotate the access key to resume.
+        </AlertDescription>
       </Alert>
     </div>
   );

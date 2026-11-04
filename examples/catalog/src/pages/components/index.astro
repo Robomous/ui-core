@@ -1,55 +1,87 @@
 ---
+import PageHeader from "@/components/PageHeader.astro";
 import Docs from "@/layouts/Docs.astro";
 import { buildNav } from "@/lib/nav";
 
-const { groups } = await buildNav();
-const toc = groups.map((group) => ({
-  depth: 2,
-  slug: group.label.toLowerCase().replaceAll(/[^a-z]+/g, "-"),
-  text: group.label,
-}));
+const { groups, components } = await buildNav();
+// Every component page opens on an overview demo; the index draws it as the
+// component's picture.
+const demos = import.meta.glob<{ default: (props: object) => unknown }>(
+  "/src/demos/*/overview.tsx",
+  { eager: true },
+);
+const anchor = (label: string) => label.toLowerCase().replaceAll(/[^a-z]+/g, "-");
+const description = `${components.length} owned components over Radix, Base UI, cmdk and vaul behaviour. Anatomy is composed at the call site; geometry and colour are the component's.`;
+const outline = groups.map((group) => ({ depth: 2, slug: anchor(group.label), text: group.label }));
 ---
 
-<Docs
-  title="Components"
-  description="Forty-five owned components over Radix, Base UI, cmdk and vaul behaviour."
-  headings={toc}
->
-  <header class="mb-12 flex flex-col gap-3">
-    <h1 class="text-3xl font-medium tracking-tight md:text-4xl">Components</h1>
-    <p class="text-lg/relaxed text-pretty text-muted-foreground">
-      Forty-five owned components over Radix, Base UI, cmdk and vaul behaviour. Anatomy is composed
-      at the call site; geometry and colour are the component's.
-    </p>
-  </header>
-  <div class="flex flex-col gap-12">
-    {groups.map((group, index) => (
-      <section aria-labelledby={toc[index]!.slug} class="flex flex-col gap-4">
-        <h2
-          id={toc[index]!.slug}
-          class="flex scroll-mt-20 items-baseline gap-2 text-base font-medium"
-        >
-          {group.label}
-          <span class="text-sm font-normal text-muted-foreground tabular-nums">
-            {group.links.length}
-          </span>
-        </h2>
-        <ul class="grid gap-3 sm:grid-cols-2">
-          {group.links.map((component) => (
-            <li>
-              <a
-                href={component.href}
-                class="flex h-full flex-col gap-1 rounded-xl bg-card p-4 ring-1 ring-foreground/10 transition-colors hover:bg-muted/60 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+<Docs title="Components" description={description} headings={outline}>
+  <PageHeader title="Components" description={description}>
+    <!-- The groups as a row of jumps: the whole inventory at a glance, with
+         how much sits behind each heading. -->
+    <ul class="mt-2 flex flex-wrap gap-2">
+      {groups.map((group) => (
+        <li>
+          <a
+            href={`#${anchor(group.label)}`}
+            class="inline-flex h-8 items-center gap-2 rounded-md border px-3 text-sm transition-colors hover:bg-muted"
+          >
+            {group.label}
+            <span class="text-xs text-muted-foreground tabular-nums">{group.links.length}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </PageHeader>
+  {groups.map((group) => (
+    <section
+      id={anchor(group.label)}
+      aria-labelledby={`${anchor(group.label)}-title`}
+      class="flex scroll-mt-16 flex-col gap-5 border-t px-(--gutter) py-10"
+    >
+      <h2
+        id={`${anchor(group.label)}-title`}
+        class="flex items-baseline gap-2 text-xl font-semibold tracking-tight"
+      >
+        {group.label}
+        <span class="text-sm font-normal text-muted-foreground tabular-nums">
+          {group.links.length}
+        </span>
+      </h2>
+      <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {group.links.map((component) => {
+          const Demo = demos[`/src/demos/${component.href.split("/").pop()}/overview.tsx`]?.default;
+          return (
+            <li class="group/card relative flex flex-col overflow-hidden rounded-xl border bg-(--canvas) transition-colors duration-150 hover:border-foreground/15">
+              <!-- The component itself, its page's opening demo rendered once
+                   on the server and drawn at a little over half size: a
+                   picture, inert, so the card stays one link. A tall demo is
+                   cropped, so the stage fades out at both edges rather than
+                   cutting it. -->
+              <div
+                aria-hidden="true"
+                inert
+                class="flex h-44 items-center justify-center overflow-hidden border-b select-none [mask-image:linear-gradient(to_bottom,transparent,black_18%,black_82%,transparent)]"
               >
-                <span class="font-medium">{component.title}</span>
-                <span class="line-clamp-2 text-sm text-pretty text-muted-foreground">
-                  {component.description}
-                </span>
-              </a>
+                {Demo && (
+                  <div class="flex w-[30rem] shrink-0 justify-center text-xs/relaxed [zoom:0.55]">
+                    <Demo />
+                  </div>
+                )}
+              </div>
+              <div class="flex flex-col gap-0.5 px-4 py-3">
+                <a
+                  href={component.href}
+                  class="text-sm font-medium outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:after:ring-2 focus-visible:after:ring-ring/40"
+                >
+                  {component.title}
+                </a>
+                <span class="truncate text-xs text-muted-foreground">{component.description}</span>
+              </div>
             </li>
-          ))}
-        </ul>
-      </section>
-    ))}
-  </div>
+          );
+        })}
+      </ul>
+    </section>
+  ))}
 </Docs>

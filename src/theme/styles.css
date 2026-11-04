@@ -46,17 +46,19 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "./shadcn.css";
-@import "@fontsource-variable/geist";
+@import "@fontsource-variable/inter";
 @import "@fontsource-variable/geist-mono";
 
 /*
  * The package's own components, so a class string that only ever appears
  * inside `ui-core` still produces CSS in the consumer's build. `@source`
  * resolves relative to this file, and a consumer's Tailwind never looks inside
- * `node_modules` on its own. Only the components are scanned: nothing else in
- * the package carries a class string a consumer needs.
+ * `node_modules` on its own. The components are scanned, and `lib`, where the
+ * pieces two components share (the copy button's icon swap) keep their
+ * classes; nothing else in the package carries a class string a consumer needs.
  */
 @source "../components";
+@source "../lib";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -95,8 +97,11 @@
   --border: var(--color-neutral-200);
   --input: var(--color-neutral-200);
   --ring: var(--color-neutral-400);
-  /* The scrim behind a Dialog or a Sheet: a purpose, not a pigment. */
-  --overlay: oklch(0 0 0 / 10%);
+  /* The scrim behind a Dialog, a Sheet or a Drawer: a purpose, not a
+     pigment. It dims the page enough to set the surface apart and no more —
+     a near-black at 40% under a 2px blur — so the reader still sees where
+     they came from. Dark mode dims harder, since the page is dark already. */
+  --overlay: oklch(0.145 0 0 / 40%);
   --radius: 0.625rem;
 
   --sidebar: var(--color-neutral-50);
@@ -145,7 +150,7 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(0.922 0 0 / 12%);
   --ring: var(--color-neutral-500);
-  --overlay: oklch(0 0 0 / 10%);
+  --overlay: oklch(0 0 0 / 60%);
 
   --sidebar: var(--color-neutral-900);
   --sidebar-foreground: var(--color-neutral-50);
@@ -180,11 +185,13 @@
 }
 
 @theme inline {
-  --font-sans: "Geist Variable", sans-serif;
+  --font-sans: "Inter Variable", sans-serif;
   --font-heading: var(--font-sans);
   /* Machine-shaped content — an identifier, a hash, a measurement. Bundled
      offline beside the sans face, so `font-mono` is Geist Mono here rather
-     than whatever monospace the reader's machine happens to have. */
+     than whatever monospace the reader's machine happens to have. The two
+     families are deliberate: Inter is the preset's reading face, Geist Mono
+     the one the package already shipped for machine-shaped content. */
   --font-mono: "Geist Mono Variable", monospace;
 
   --color-background: var(--background);
@@ -243,10 +250,26 @@
   }
 }
 
+/*
+ * LoadingDots: each dot breathes from faint to full and back, and the three are
+ * offset by a fraction of the cycle so the wave travels left to right. Opacity
+ * only, so it composites without layout.
+ */
+@keyframes loading-dot {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
 @layer base {
   /* The hairline and the outline *colour* — the two things every element
      inherits. Focus geometry belongs to the components: each focusable one
-     carries its own `focus-visible:ring-3 focus-visible:ring-ring/50`, so this
+     carries its own `focus-visible:ring-2 focus-visible:ring-ring/30`, so this
      layer names the colour and stays out of the geometry. One blanket
      `:focus-visible` declaration here is how thirteen components' rings once
      got overridden at once. */

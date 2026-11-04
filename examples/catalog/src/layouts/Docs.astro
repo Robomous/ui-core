@@ -1,44 +1,130 @@
 ---
 import type { MarkdownHeading } from "astro";
+import { buttonVariants } from "@robomous/ui-core";
+import { CodeXmlIcon, PencilLineIcon } from "@robomous/ui-core/icons";
 
 import Header from "@/components/Header.astro";
 import DocsSidebar from "@/components/DocsSidebar";
 import PrevNext from "@/components/PrevNext";
 import Toc from "@/components/Toc.astro";
 import Base from "@/layouts/Base.astro";
-import { buildNav, neighbours, normalise } from "@/lib/nav";
+import { buildNav, crumbsFor, neighbours, normalise } from "@/lib/nav";
+import { SITE } from "@/lib/site";
 
 interface Props {
   title: string;
   description?: string;
+  /** The page's h2/h3 outline; with it the page gets the right-hand rail. */
   headings?: MarkdownHeading[];
+  /** The page's source file and the component's, relative to the repository root. */
+  file?: string;
+  source?: string;
 }
 
-const { title, description, headings = [] } = Astro.props;
+const { title, description, headings, file, source } = Astro.props;
 const nav = await buildNav();
 const current = normalise(Astro.url.pathname);
 const { prev, next } = neighbours(nav, current);
+const crumbs = crumbsFor(nav, current);
+const rail = headings !== undefined;
 ---
 
 <Base title={title} description={description}>
-  <Header nav={nav} current={current} />
-  <!-- Three lanes: navigation, the page, and where you are on it. The page
-       column keeps a reading measure and centres in whatever room is left, so
-       the rails never push the prose off its line length. -->
-  <div class="mx-auto grid w-full max-w-[90rem] md:grid-cols-[15rem_minmax(0,1fr)] xl:grid-cols-[15rem_minmax(0,1fr)_14rem]">
-    <aside class="sticky top-14 no-scrollbar hidden h-[calc(100svh-3.5rem)] overflow-y-auto border-r px-3 md:block">
-      <DocsSidebar client:load nav={nav} current={current} />
-    </aside>
-    <main class="min-w-0 px-4 pt-8 pb-16 sm:px-8 md:pt-12 lg:px-12">
-      <article class="mx-auto max-w-3xl">
-        <slot />
-      </article>
-      <div class="mx-auto mt-20 max-w-3xl">
-        <PrevNext prev={prev} next={next} />
+  <!-- One frame for the whole site: the header across the top, the navigation
+       down the left, the page's outline down the right, and the page in the
+       room between. Every division is a hairline on the border token; nothing
+       floats. Where the screen is wider than the page, the hatch fills each
+       margin beside it, edge to edge and top to bottom, with no rule of its
+       own: the frame's border is the only line between page and margin. -->
+  <div class="min-h-svh bg-(--frame)">
+    <div class="flex w-full">
+      <div aria-hidden="true" class="min-w-0 flex-1">
+        <div class="hatch sticky top-0 h-svh"></div>
       </div>
-    </main>
-    <aside class="sticky top-14 hidden h-[calc(100svh-3.5rem)] py-12 pr-6 xl:block">
-      <Toc headings={headings} />
-    </aside>
+      <div
+        id="top"
+        class="flex min-h-svh w-full max-w-[90rem] min-w-0 flex-col border-x bg-background"
+      >
+        <Header nav={nav} current={current} crumbs={crumbs} />
+        <div
+          class:list={[
+            "grid flex-1 md:grid-cols-[16rem_minmax(0,1fr)]",
+            rail && "xl:grid-cols-[16rem_minmax(0,1fr)_15rem]",
+          ]}
+        >
+          <aside
+            class="sticky top-16 no-scrollbar hidden h-[calc(100svh-4rem)] overflow-y-auto border-r md:block"
+            data-sidebar
+          >
+            <DocsSidebar client:load nav={nav} current={current} />
+          </aside>
+          <main class="docs-page flex min-w-0 flex-col">
+            <slot />
+            <!-- Below xl, where the outline rail is gone, the page's edit and source links close the article. -->
+            {(file || source) && (
+              <div class="flex flex-wrap gap-2 border-t px-(--gutter) py-6 xl:hidden">
+                {file && (
+                  <a
+                    href={`${SITE.repo}/blob/main/${file}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    class={buttonVariants({ variant: "outline", size: "sm" })}
+                  >
+                    <PencilLineIcon data-icon="inline-start" />
+                    Edit this page
+                  </a>
+                )}
+                {source && (
+                  <a
+                    href={`${SITE.repo}/blob/main/${source}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    class={buttonVariants({ variant: "outline", size: "sm" })}
+                  >
+                    <CodeXmlIcon data-icon="inline-start" />
+                    View source
+                  </a>
+                )}
+              </div>
+            )}
+            <div class="mt-auto">
+              <PrevNext prev={prev} next={next} />
+            </div>
+          </main>
+          {rail && (
+            <aside class="sticky top-16 no-scrollbar hidden h-[calc(100svh-4rem)] overflow-y-auto border-l xl:block">
+              <Toc headings={headings} />
+            </aside>
+          )}
+        </div>
+      </div>
+      <div aria-hidden="true" class="min-w-0 flex-1">
+        <div class="hatch sticky top-0 h-svh"></div>
+      </div>
+    </div>
   </div>
 </Base>
+
+<script>
+  // Bring the current page into view in the sidebar's own scroll, without
+  // moving the window: a deep component page is otherwise off the rail.
+  const sidebar = document.querySelector<HTMLElement>("[data-sidebar]");
+  const active = sidebar?.querySelector<HTMLElement>("[aria-current=page]");
+  if (sidebar && active) {
+    const top = active.offsetTop - sidebar.clientHeight / 2 + active.clientHeight / 2;
+    sidebar.scrollTop = Math.max(0, top);
+  }
+
+  // Every outlined heading links to itself, so a section can be shared.
+  for (const heading of document.querySelectorAll<HTMLElement>(
+    ".docs-prose > :is(h2, h3)[id], .docs-anchor[id]",
+  )) {
+    if (heading.querySelector(".heading-anchor")) continue;
+    const link = document.createElement("a");
+    link.href = `#${heading.id}`;
+    link.className = "heading-anchor";
+    link.setAttribute("aria-label", `Link to ${heading.textContent ?? "section"}`);
+    link.textContent = "#";
+    heading.append(link);
+  }
+</script>

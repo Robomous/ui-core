@@ -1,55 +1,122 @@
 ---
 title: Badge
-description: A small status or count marker with ten variants; the status ones read as a soft surface plus ink, never a stroke.
+description: A small status or count marker with ten variants. The status ones read as a soft surface plus ink, never a stroke.
+related: [alert, button, avatar, toggle]
 builtOn:
   - name: Radix Slot
     docsUrl: https://www.radix-ui.com/primitives/docs/utilities/slot
     apiUrl: https://www.radix-ui.com/primitives/docs/utilities/slot#api-reference
 ---
 
-import Variants from "@/demos/badge/variants";
+import AsLink from "@/demos/badge/as-link";
+import Counts from "@/demos/badge/counts";
 import InContext from "@/demos/badge/in-context";
+import Overview from "@/demos/badge/overview";
+import Variants from "@/demos/badge/variants";
+import WithIcon from "@/demos/badge/with-icon";
 
-<Preview demo="badge/variants">
-  <Variants client:load />
+<Preview demo="badge/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
 import { Badge } from "@robomous/ui-core";
+
+export function RunRow() {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="font-mono">run-0187</span>
+      <Badge variant="success">finished</Badge>
+    </div>
+  );
+}
 ```
 
-```tsx
-<Badge>New</Badge>
-<Badge variant="success">completed</Badge>
-<Badge variant="destructive">failed</Badge>
-```
-
-`asChild` hands the classes to a child element, so a badge can wrap an anchor and stay a link.
+<Callout title="A badge describes, it does not act">
+  A `Badge` is a `span`. Make it a link with `asChild` and an `<a>`, never an `onClick`; for
+  something that toggles or runs, use a `Toggle` or a `Button`.
+</Callout>
 
 ## Composition
 
 ```text
 Badge
+└─ <Icon data-icon="inline-start" | "inline-end" />   optional
 ```
 
-## Variants
+## Examples
 
-Ten variants: plain hierarchy (`default`, `secondary`, `outline`, `ghost`, `link`) and five status
-roles (`destructive`, `success`, `warning`, `info`, `quiet`) that share one recipe — a soft `/10`
-surface in the role plus ink in the same role, with `border-transparent` kept — because colour is
-never the only signal and status is never a stroke. `quiet` is `muted`: a state that doesn't ask
-for attention.
+### Variants
+
+Ten variants in two groups. The plain hierarchy is `default`, `secondary`, `outline`, `quiet`,
+`ghost` and `link`; `quiet` is the muted one, for a state that should not ask for attention. The
+status roles are `success`, `info`, `warning` and `destructive`; they share one recipe, a soft
+surface in the role under ink in the same role, because colour is never the only signal and status
+is never a stroke.
 
 <Preview demo="badge/variants">
   <Variants client:load />
 </Preview>
 
-## In context
+### With an icon
 
-A status badge reads fastest beside the row it describes, not inside a sentence.
+An icon gives the status a shape as well as a colour, which helps when colour alone is not enough.
+`data-icon="inline-start"` or `"inline-end"` trims the padding on that side so the optical spacing
+stays even.
+
+<Preview demo="badge/with-icon">
+  <WithIcon client:load />
+</Preview>
+
+### Counts
+
+Put a badge inside a button's label to show how many items are behind it. Choose the variant by what
+the number means: `destructive` for failures, `default` for work waiting, `quiet` for a total that
+needs no action.
+
+<Preview demo="badge/counts">
+  <Counts client:load />
+</Preview>
+
+### As a link
+
+`asChild` hands the badge's classes to the child, so a label can lead to a filtered view and still be
+a real anchor: it is focusable, shows its URL and gets a hover state.
+
+<Preview demo="badge/as-link">
+  <AsLink client:load />
+</Preview>
+
+### In context
+
+A status badge reads fastest beside the row it describes, not inside a sentence. Left-align it in
+its own column so the eye can scan down the states.
 
 <Preview demo="badge/in-context">
   <InContext client:load />
 </Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Use one or two words in lowercase that name the state: `finished`, `diverged`.",
+    "Keep a status in its own column or at the end of the row so states scan in a line.",
+    "Choose the variant by meaning: `success` for done, `destructive` for failed, `quiet` for idle.",
+    "Pair colour with text, and with an icon when the state is easy to miss.",
+  ]}
+  dont={[
+    "Don't put a long sentence in a badge; it is a label, not a message.",
+    "Don't mix more than two or three variants in one row.",
+    "Don't use `destructive` for emphasis. It means something failed or ended.",
+    "Don't attach `onClick` to a badge; use `asChild` with a link or reach for a button.",
+  ]}
+/>
+
+## Accessibility
+
+A `Badge` is a plain `span` with no role, so its text is read in the flow of the line around it.
+That makes the words carry the meaning: never leave a status to colour alone. With `asChild` on an
+anchor it is a normal link, focusable with a visible ring.

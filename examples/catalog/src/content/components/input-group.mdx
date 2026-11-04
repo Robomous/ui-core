@@ -1,83 +1,150 @@
 ---
 title: InputGroup
-description: Wraps a control with addons on any of its four edges — icons, text, or buttons — and refocuses the control when an addon that isn't a button is clicked.
+description: Wraps a control with addons on any of its four edges (icons, text or buttons) in a single bordered box with one focus ring.
+related: [input, search-input, textarea, button-group]
 builtOn:
   - name: native HTML
     docsUrl: https://developer.mozilla.org/docs/Web/HTML/Element/div
 ---
 
-import WithAddons from "@/demos/input-group/with-addons";
-import UnitsText from "@/demos/input-group/units-text";
 import ButtonSizes from "@/demos/input-group/button-sizes";
+import Copy from "@/demos/input-group/copy";
+import Overview from "@/demos/input-group/overview";
+import Reveal from "@/demos/input-group/reveal";
+import UnitsText from "@/demos/input-group/units-text";
+import WithAddons from "@/demos/input-group/with-addons";
 import WithTextarea from "@/demos/input-group/with-textarea";
 
-<Preview demo="input-group/with-addons">
-  <WithAddons client:load />
+<Preview demo="input-group/overview" hero>
+  <Overview client:load />
 </Preview>
 
 ## Usage
 
 ```tsx
-import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupButton } from "@robomous/ui-core";
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@robomous/ui-core";
+import { SearchIcon } from "@robomous/ui-core/icons";
+
+export function FrameSearch() {
+  return (
+    <InputGroup>
+      <InputGroupAddon>
+        <SearchIcon />
+      </InputGroupAddon>
+      <InputGroupInput placeholder="Search frames by class or ID" aria-label="Search frames" />
+      <InputGroupAddon align="inline-end">
+        <InputGroupButton>Search</InputGroupButton>
+      </InputGroupAddon>
+    </InputGroup>
+  );
+}
 ```
 
-```tsx
-<InputGroup>
-  <InputGroupAddon>
-    <SearchIcon />
-  </InputGroupAddon>
-  <InputGroupInput placeholder="Search frames" aria-label="Search frames" />
-  <InputGroupAddon align="inline-end">
-    <InputGroupButton>Go</InputGroupButton>
-  </InputGroupAddon>
-</InputGroup>
-```
-
-Clicking an addon that isn't a button refocuses `InputGroupInput`/`InputGroupTextarea`, so an icon
-addon behaves like part of the field rather than a dead label.
+<Callout title="The border belongs to the group" tone="note">
+  Use `InputGroupInput` and `InputGroupTextarea`, not a bare `Input`: they drop their own border
+  and ring, so the group draws one border, and one focus ring when the control inside has focus.
+  Clicking an addon that isn't a button focuses the `InputGroupInput` next to it.
+</Callout>
 
 ## Composition
 
 ```text
 InputGroup
-├─ InputGroupAddon
+├─ InputGroupAddon  align="inline-start" | "inline-end" | "block-start" | "block-end"
 │  ├─ InputGroupButton
 │  └─ InputGroupText
 ├─ InputGroupInput
 └─ InputGroupTextarea
 ```
 
-## Addons
+## Examples
 
-An icon addon at `inline-start`, the control, and a button addon at `inline-end`.
+### Icon and button
+
+An icon at `inline-start` says what the field is for; a button at `inline-end` acts on it. Inline
+addons sit in the row with the input, which keeps the group's single-line height. Put the button
+in a `<form>` with `type="submit"` so Enter does the same as a click.
 
 <Preview demo="input-group/with-addons">
   <WithAddons client:load />
 </Preview>
 
-## Units as text
+### Units and suffixes
 
-`InputGroupText` renders plain, non-interactive copy inside an addon, such as a units suffix that
-should never look pressable.
+`InputGroupText` is plain, non-interactive copy: a unit, a prefix, a currency. Putting it in an
+addon, instead of in the label, lets the reader see the value and its unit in one glance. Pair
+a numeric input with `tabular-nums`. The addon can sit before the value as well, as the `s3://`
+prefix does.
 
 <Preview demo="input-group/units-text">
   <UnitsText client:load />
 </Preview>
 
-## Button sizes
+### Copy a value
 
-`InputGroupButton` defaults to `xs`, the only size that fits inside the group's own height without
-enlarging it; `sm`, `icon-xs` and `icon-sm` cover the rest.
+A read-only value with its action attached is the common case for endpoints, IDs and webhooks.
+Swap the icon for a check on success, and keep the `aria-label` in step so the change is
+announced too.
+
+<Preview demo="input-group/copy">
+  <Copy client:load />
+</Preview>
+
+### Reveal a secret
+
+An icon-only toggle changes the input's `type`. The label says what the button will do next
+("Show API key"), because an icon alone doesn't say which state it is in.
+
+<Preview demo="input-group/reveal">
+  <Reveal client:load />
+</Preview>
+
+### Button sizes
+
+`InputGroupButton` defaults to `xs`, the size that fits inside the group's own height without
+enlarging it. `sm`, `icon-xs` and `icon-sm` cover the rest; the icon sizes are square and need an
+`aria-label`. Each row is labelled with its `size` value.
 
 <Preview demo="input-group/button-sizes">
   <ButtonSizes client:load />
 </Preview>
 
-## With a textarea
+### With a textarea
 
-`block-start` and `block-end` addons sit above and below an `InputGroupTextarea`, which grows the
-group instead of the group growing around a fixed input height.
+`block-start` and `block-end` addons sit above and below an `InputGroupTextarea`, as a header and
+a footer for the text. The group takes its height from the textarea instead of the fixed
+single-line height, as in the prompt box at the top of the page.
 
 <Preview demo="input-group/with-textarea">
   <WithTextarea client:load />
 </Preview>
+
+## Guidelines
+
+<Guidelines
+  do={[
+    "Put the icon first and the action last, as in `inline-start` then `inline-end`.",
+    "Use `InputGroupText` for units, so the unit is not part of the value.",
+    "Give an icon-only `InputGroupButton` an `aria-label`.",
+    "Use `block-end` for the actions of a multi-line control.",
+  ]}
+  dont={[
+    "Don't put a bare `Input` inside; it would draw a second border.",
+    "Don't stack several buttons in one inline addon; the field is left too narrow.",
+    "Don't use the group's button as the only way to submit; Enter should work too.",
+    "Don't rely on the icon addon alone to name the field.",
+  ]}
+/>
+
+## Accessibility
+
+The group is `role="group"`, so a screen reader knows the addons and the control belong together;
+name the control itself with `aria-label` or a `Label`, since the addons don't label it. Buttons in
+an addon are real buttons with `type="button"`, in the normal tab order.
+
+<Keyboard
+  keys={[
+    ["Tab", "Moves focus from the control to the addon buttons, in visual order."],
+    ["Enter / Space", "Activates a focused `InputGroupButton`."],
+  ]}
+/>

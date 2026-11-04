@@ -6,30 +6,34 @@ import {
   AttachmentMedia,
   AttachmentTitle,
   AttachmentTrigger,
+  cn,
 } from "@robomous/ui-core";
-import { FileIcon } from "@robomous/ui-core/icons";
+import { CircuitBoardIcon } from "@robomous/ui-core/icons";
 
-const FILES = [
-  { id: "batch-0041", title: "batch-0041.zip", size: "311.9 MB" },
-  { id: "batch-0042", title: "batch-0042.zip", size: "289.4 MB" },
+const FIRMWARE = [
+  { id: "fw-2-4-1", title: "fw-2.4.1.bin", size: "12.6 MB" },
+  { id: "fw-2-5-0", title: "fw-2.5.0-rc1.bin", size: "13.1 MB" },
 ];
 
 /** `AttachmentTrigger` covers the whole card and renders `type="button"`, so the card is the hit target without any part of it becoming a link. */
 export default function Trigger() {
-  const [selected, setSelected] = useState(FILES[0].id);
+  const [selected, setSelected] = useState(FIRMWARE[0].id);
 
   return (
-    <div className="flex flex-wrap gap-3">
-      {FILES.map((file) => (
-        <Attachment key={file.id} className={selected === file.id ? "ring-2 ring-ring" : undefined}>
+    <div className="grid w-full max-w-md grid-cols-1 gap-3 sm:grid-cols-2">
+      {FIRMWARE.map((file) => (
+        <Attachment
+          key={file.id}
+          className={cn("w-full", selected === file.id && "ring-2 ring-ring")}
+        >
           <AttachmentTrigger
             aria-pressed={selected === file.id}
             onClick={() => setSelected(file.id)}
           >
             <span className="sr-only">Select {file.title}</span>
           </AttachmentTrigger>
-          <AttachmentMedia variant="icon">
-            <FileIcon />
+          <AttachmentMedia>
+            <CircuitBoardIcon />
           </AttachmentMedia>
           <AttachmentContent>
             <AttachmentTitle>{file.title}</AttachmentTitle>
